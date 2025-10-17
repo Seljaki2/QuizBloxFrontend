@@ -1,4 +1,4 @@
-import { Card, Button, Checkbox, Form, Input, type FormProps } from 'antd';
+import { Card, Button, Checkbox, Form, Input, type FormProps, Flex } from 'antd';
 
 type FieldType = {
     firsName?: string;
@@ -18,16 +18,13 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
 
 export default function Register() {
     return (
-        <div
-            style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '400px',
-                height: '100vh',
-                boxSizing:'border-box'
-            }}
+        <Flex 
+        justify='center' align='center'
+        style={{
+            height: '100vh',
+            width: '100%',
+            boxSizing: 'border-box',
+        }}
         >
             <Card variant='borderless'
                 style={{
@@ -137,6 +134,16 @@ export default function Register() {
                     </Form.Item>
                 </Form>
             </Card>
-        </div>
+        </Flex>
     )
 }
+/*
+style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '400px',
+                height: '100vh',
+                boxSizing:'border-box'
+            }}*/
