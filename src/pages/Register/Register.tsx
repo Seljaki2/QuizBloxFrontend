@@ -1,54 +1,40 @@
-import { Card, Button, Checkbox, Form, Input, type FormProps, Flex } from 'antd';
+import { Card, Button, Checkbox, Form, Input, type FormProps, Flex } from "antd";
+import styles from "./Register.module.css"
+import { useNavigate } from "react-router-dom";
 
 type FieldType = {
     firsName?: string;
     lastName?: string;
+    username?: string;
     email?: string;
     password?: string;
     isTeacher?: string;
 };
 
-const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('Success:', values);
+const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
+    console.log("Success:", values);
 };
 
-const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    console.log('Failed:', errorInfo);
+const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
+    console.log("Failed:", errorInfo);
 };
 
 export default function Register() {
+    const navigate = useNavigate();
     return (
-        <Flex 
-        justify='center' align='center'
-        style={{
-            height: '100vh',
-            width: '100%',
-            boxSizing: 'border-box',
-        }}
+        <Flex
+            justify="center" align="center"
+            className={styles.container}
         >
-            <Card variant='borderless'
-                style={{
-                    width: '90%',
-                    maxWidth: '500px',
-                    minWidth: '320px',
-                    borderRadius: 12,
-                    padding: '0px 30px 30px 30px',
-                    backgroundColor: 'var(--CONTAINER)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-                }}
+            <Card variant="borderless"
+                className={styles.card}
             >
                 <h1
-                    style={{
-                        color: 'var(--TEXT)',
-                        textAlign: 'center',
-                        marginBottom: '25px',
-                        fontWeight: 600,
-                    }}
+                    className={styles.header}
                 >
                     REGISTRACIJA
                 </h1>
                 <Form
-                    style={{ width: '100%' }}
                     name="login"
                     layout="vertical"
                     initialValues={{ isTeacher: false }}
@@ -57,39 +43,33 @@ export default function Register() {
                     autoComplete="off"
                     requiredMark="optional"
                 >
-                    <Form.Item label="Ime" name='firstName' rules={[{ required: true, message: 'Prosim vstavite vaše ime!' }]}>
+                    <Form.Item label="Ime" name="firstName" rules={[{ required: true, message: "Prosim vstavite vaše ime!" }]}>
                         <Input
-                            style={{
-                                height: '35px',
-                                fontSize: '16px',
-                            }}
+                            className={styles.input}
                         />
                     </Form.Item>
 
-                    <Form.Item label="Priimek" name='lastName' rules={[{ required: true, message: 'Prosim vstavite vaš priimek!' }]}>
+                    <Form.Item label="Priimek" name="lastName" rules={[{ required: true, message: "Prosim vstavite vaš priimek!" }]}>
                         <Input
-                            style={{
-                                height: '35px',
-                                fontSize: '16px',
-                            }}
+                            className={styles.input}
                         />
                     </Form.Item>
 
-                    <Form.Item label="Email" name='email' rules={[{ required: true, type: 'email', message: 'Prosim vstavite email!' }]}>
+                    <Form.Item label="Uporabniško ime" name="username" rules={[{ required: true, message: "Prosim vstavite vašo uporabniško ime!" }]}>
                         <Input
-                            style={{
-                                height: '35px',
-                                fontSize: '16px',
-                            }}
+                            className={styles.input}
                         />
                     </Form.Item>
 
-                    <Form.Item label="Geslo" name="password" rules={[{ required: true, message: 'Prosim vstavite geslo!' }]}>
+                    <Form.Item label="Email" name="email" rules={[{ required: true, type: "email", message: "Prosim vstavite email!" }]}>
+                        <Input
+                            className={styles.input}
+                        />
+                    </Form.Item>
+
+                    <Form.Item label="Geslo" name="password" rules={[{ required: true, message: "Prosim vstavite geslo!" }]}>
                         <Input.Password
-                            style={{
-                                height: '35px',
-                                fontSize: '16px',
-                            }}
+                            className={styles.input}
                         />
                     </Form.Item>
 
@@ -98,36 +78,14 @@ export default function Register() {
                     </Form.Item>
                     <Form.Item label={null}>
 
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-
-                                width: '100%',
-                            }}
-                        >
-                            <Button type="primary" htmlType="submit"
-                                style={{
-                                    width: '50%',
-                                    padding: '20px 0',
-                                    fontSize: '16px',
-                                    textAlign: 'center',
-                                }}
-                            >
+                        <div className={styles.buttonFlex}>
+                            <Button type="primary" htmlType="submit" className={styles.buttonRegister}>
                                 Registriraj se
                             </Button>
 
                             <Button
-                                style={{
-                                    width: '45%',
-                                    padding: '20px 0',
-                                    fontSize: '16px',
-                                    backgroundColor: 'var(--CONTAINER)',
-                                    color: 'var(--TEXT)',
-                                    textAlign: 'center',
-                                }}
-                                onClick={() => console.log('Navigacija na prijavo')}
-                            >
+                                className={styles.buttonLogin}
+                                onClick={() => navigate("/login")}>
                                 Prijava
                             </Button>
                         </div>
@@ -137,13 +95,3 @@ export default function Register() {
         </Flex>
     )
 }
-/*
-style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: '400px',
-                height: '100vh',
-                boxSizing:'border-box'
-            }}*/

@@ -1,0 +1,51 @@
+.container {
+    height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+.card {
+    width: 90%;
+    max-width: 500px;
+    min-width: 320px;
+    border-radius: 12;
+    padding: 0px 30px 0px 30px;
+    background-color: var(--CONTAINER);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.header {
+    color: var(--TEXT);
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+.input {
+    height: 35px;
+    font-size: 16px;
+}
+
+.buttonFlex {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.buttonRegister {
+    width: 45%;
+    padding: 20px 0px;
+    font-size: 16px;
+    text-align: center;
+    background-color: var(--INFILL);
+}
+
+.buttonLogin {
+    width: 45%;
+    padding: 20px 0px;
+    font-size: 16px;
+    background-color: var(--CONTAINER);
+    color: var(--TEXT);
+    text-align: center;
+}

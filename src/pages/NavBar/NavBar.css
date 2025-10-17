@@ -1,0 +1,25 @@
+.ant-menu-item,
+.linkMenu{
+    color: var(--TEXT) !important;
+}
+
+.ant-menu-item:hover, .linkMenu:hover {
+    color: var(--INFILL) !important;
+}
+
+.linkMenu{
+    text-decoration: "none";
+    border-bottom: 2px solid transparent;
+}
+
+.linkMenu:hover{
+    border-color: var(--INFILL);
+}
+
+.navMenu{
+    flex: 1;
+    justify-content: center;
+    display: flex;
+    background-color: var(--BACKGROUND);
+    transition: border-color 1s ease, color 1s ease;
+}
