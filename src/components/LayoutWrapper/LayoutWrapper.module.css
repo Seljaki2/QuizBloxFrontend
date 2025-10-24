@@ -1,0 +1,14 @@
+.layout {
+  min-height: 100vh;
+  background: var(--BACKGROUND);
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}

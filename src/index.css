@@ -24,6 +24,24 @@
 .ant-form-item-label > label {
   color: var(--TEXT) !important;
 }
+
+.ant-card .ant-card-body {
+  padding-top: 0  !important;
+  padding-bottom: 0  !important;
+}
+
+.ant-layout {
+  min-height: 100vh;
+  background: var(--BACKGROUND);
+  overflow: hidden;
+}
+.ant-layout-content{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 0;
+}
+
 body {
   margin: 0;
 }

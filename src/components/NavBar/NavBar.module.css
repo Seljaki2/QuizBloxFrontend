@@ -1,0 +1,51 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background-color: var(--BACKGROUND);
+    border-bottom: 1px solid var(--CONTAINER);
+}
+
+.sideSpacer {
+    width: 120px;
+}
+
+:global(.ant-menu-item),
+.linkMenu {
+    color: var(--TEXT) !important;
+}
+
+.linkMenu {
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+:global(.ant-menu-item:hover),
+.linkMenu:hover {
+    color: var(--INFILL) !important;
+}
+
+.linkMenu {
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+    text-align: right;
+    line-height: 64px;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+
+.navMenu {
+    flex: 1;
+    justify-content: center;
+    display: flex;
+    background-color: var(--BACKGROUND);
+    transition: border-color 1s ease, color 1s ease;
+}
+
+.linkMenu:hover {
+    border-color: var(--INFILL);
+}
