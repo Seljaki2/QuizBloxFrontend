@@ -6,12 +6,9 @@
     background-color: var(--BACKGROUND);
     border: 2px solid var(--CONTAINER);
     padding-top: 24px;
+    padding-bottom: 24px;
 }
 
-.ant-card .ant-card-body {
-    padding-top: 24px !important;
-    padding-bottom: 24px !important;
-}
 
 .divider {
     border: 1px solid var(--CONTAINER) !important;
@@ -141,4 +138,10 @@
 .customLabelMinorT{
     color: var(--MINOR_TEXT);
     flex-shrink: 0;
+}
+
+.extraButtonStyle{
+    padding: 20px 20px 20px 20px;
+        text-align: center;
+
 }

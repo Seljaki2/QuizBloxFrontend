@@ -45,46 +45,46 @@ function SortableQuestion({ id, item, onDelete }: { id: string; item: QuestionIt
     };
 
     const customLabel = (
-  <div className={styles.customLabelContainer}>
-    <div className={styles.customLabelText}>
-      <span
-        style={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        wordBreak: "break-word",
-        }}
-      >
-        {item.label}
-      </span>
-      <span className={styles.customLabelMinorT}>
-            {item.answerType === 1 ? "(vnos odgovora)" : item.answerType === 2 ? "(več možnosti)" : ""}
-      </span>
-    </div>
+        <div className={styles.customLabelContainer}>
+            <div className={styles.customLabelText}>
+                <span
+                    style={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        wordBreak: "break-word",
+                    }}
+                >
+                    {item.label}
+                </span>
+                <span className={styles.customLabelMinorT}>
+                    {item.answerType === 1 ? "(vnos odgovora)" : item.answerType === 2 ? "(več možnosti tekst)" : item.answerType === 3 ? "(več možnosti slike)" : ""}
+                </span>
+            </div>
 
-    <div
-      onClick={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()}
-    >
-      <Popconfirm
-        title="Izbriši vprašanje?"
-        okText="Da"
-        cancelText="Ne"
-        onConfirm={(e) => {
-          e?.stopPropagation?.();
-          onDelete(item.key);
-        }}
-        onCancel={(e) => e?.stopPropagation?.()}
-      >
-        <Button
-          type="text"
-          danger
-          icon={<DeleteOutlined />}
-          className={styles.deleteButton}
-        />
-      </Popconfirm>
-    </div>
-  </div>
-);
+            <div
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+            >
+                <Popconfirm
+                    title="Izbriši vprašanje?"
+                    okText="Da"
+                    cancelText="Ne"
+                    onConfirm={(e) => {
+                        e?.stopPropagation?.();
+                        onDelete(item.key);
+                    }}
+                    onCancel={(e) => e?.stopPropagation?.()}
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined />}
+                        className={styles.deleteButton}
+                    />
+                </Popconfirm>
+            </div>
+        </div>
+    );
 
 
     return (
@@ -129,13 +129,13 @@ export default function AddNewQuiz() {
     };
 
 
-const handleQuestionAnswerTypeChange = (key: string, newType: number) => {
-    setQuestions((prev) =>
-        prev.map((q) =>
-            q.key === key ? { ...q, answerType: newType } : q
-        )
-    );
-};
+    const handleQuestionAnswerTypeChange = (key: string, newType: number) => {
+        setQuestions((prev) =>
+            prev.map((q) =>
+                q.key === key ? { ...q, answerType: newType } : q
+            )
+        );
+    };
 
 
     const handleDeleteQuestion = (key: string) => {
@@ -175,107 +175,105 @@ const handleQuestionAnswerTypeChange = (key: string, newType: number) => {
 
 
     return (
-        <Card className={styles.card}>
-            <Form
-                name="newQuiz"
-                layout="vertical"
-                initialValues={{ remember: false }}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                requiredMark={false}
-                className={styles.form}
-            >
-                <div className={styles.nameRow}>
-                    <div className={styles.leftColumn}>
-                        <Form.Item
-                            label="Naziv"
-                            name="title"
-                            rules={[{ required: true, message: "Podajte Naziv!" }]}
-                            className={styles.nameItem}
-                        >
-                            <Input />
-                        </Form.Item>
+        <div>
+            <Card className={styles.card}>
+                <Form
+                    name="newQuiz"
+                    layout="vertical"
+                    initialValues={{ remember: false }}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    requiredMark={false}
+                    className={styles.form}
+                >
+                    <div className={styles.nameRow}>
+                        <div className={styles.leftColumn}>
+                            <Form.Item
+                                label="Naziv"
+                                name="title"
+                                rules={[{ required: true, message: "Podajte Naziv!" }]}
+                                className={styles.nameItem}
+                            >
+                                <Input />
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Predmet"
+                                name="subject"
+                                rules={[{ required: true, message: "Izaberite predmet!" }]}
+                                className={styles.dropdownItem}
+                            >
+                                <Select
+                                    className={styles.customSelect}
+                                    placeholder="Izberite predmet"
+                                >
+                                    <Select.Option value="math">Matematika</Select.Option>
+                                    <Select.Option value="science">Znanost</Select.Option>
+                                    <Select.Option value="history">Zgodovina</Select.Option>
+                                    <Select.Option value="general">Splošno</Select.Option>
+                                </Select>
+                            </Form.Item>
+                        </div>
 
                         <Form.Item
-                            label="Predmet"
-                            name="subject"
-                            rules={[{ required: true, message: "Izaberite predmet!" }]}
-                            className={styles.dropdownItem}
+                            label="Opis"
+                            name="description"
+                            className={styles.descriptionItem}
                         >
-                            <Select
-                                className={styles.customSelect}
-                                placeholder="Izberite predmet"
-                            >
-                                <Select.Option value="math">Matematika</Select.Option>
-                                <Select.Option value="science">Znanost</Select.Option>
-                                <Select.Option value="history">Zgodovina</Select.Option>
-                                <Select.Option value="general">Splošno</Select.Option>
-                            </Select>
+                            <TextArea autoSize={{ minRows: 6, maxRows: 6 }} />
                         </Form.Item>
                     </div>
 
-                    <Form.Item
-                        label="Opis"
-                        name="description"
-                        className={styles.descriptionItem}
+                    <Divider className={styles.divider} />
+
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
                     >
-                        <TextArea autoSize={{ minRows: 6, maxRows: 6 }} />
-                    </Form.Item>
-                </div>
+                        <SortableContext
+                            items={questions.map((q) => q.key)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {questions.map((item) => (
+                                <SortableQuestion
+                                    key={item.key}
+                                    id={item.key}
+                                    item={{
+                                        ...item,
+                                        content: (
+                                            <NewQuestion
+                                                index={item.key}
+                                                onTitleChange={(newTitle) => handleQuestionTitleChange(item.key, newTitle)}
+                                                onAnswerTypeChange={(newType) => handleQuestionAnswerTypeChange(item.key, newType)}
+                                            />
+                                        ),
+                                    }}
+                                    onDelete={handleDeleteQuestion}
+                                />
+                            ))}
+                        </SortableContext>
 
-                <Divider className={styles.divider} />
-
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
+                    </DndContext>
+                        <Button
+                            type="default"
+                            onClick={handleAddQuestion}
+                            icon={<PlusOutlined />}
+                            className={styles.extraButtonStyle}
+                        >
+                            Dodaj
+                        </Button>
+                </Form>
+            </Card>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+                <Button
+                    type="primary"
+                    htmlType="submit"
+                    className={styles.extraButtonStyle}
                 >
-                    <SortableContext
-                        items={questions.map((q) => q.key)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        {questions.map((item) => (
-                            <SortableQuestion
-                                key={item.key}
-                                id={item.key}
-                                item={{
-                                    ...item,
-                                    content: (
-                                        <NewQuestion
-                                            index={item.key}
-                                            onTitleChange={(newTitle) => handleQuestionTitleChange(item.key, newTitle)}
-                                            onAnswerTypeChange={(newType) => handleQuestionAnswerTypeChange(item.key, newType)}
-                                        />
-                                    ),
-                                }}
-                                onDelete={handleDeleteQuestion}
-                            />
-                        ))}
-                    </SortableContext>
-
-                </DndContext>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
-                    <Button
-                        type="default"
-                        onClick={handleAddQuestion}
-                        icon={<PlusOutlined />}
-                        style={{ width: "100%" }}
-                        
-                    >
-                        Dodaj novo vprašanje
-                    </Button>
-
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        style={{ width: "100%" }}
-                    >
-                        Shrani kviz
-                    </Button>
-                </div>
-
-            </Form>
-        </Card>
+                    Shrani kviz
+                </Button>
+            </div>
+        </div>
     );
 }

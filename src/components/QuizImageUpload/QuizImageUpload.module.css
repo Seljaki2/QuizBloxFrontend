@@ -1,0 +1,17 @@
+:global(.ant-upload-wrapper .ant-upload-list.ant-upload-list-picture-card .ant-upload-list-item-error){
+
+  border-color: var(--INFILL) !important;
+}
+
+.ant-tooltip {
+  display: none !important;
+}
+
+.uploadButton{
+    border: 0px;
+    background: none;
+}
+
+.uploadButtonContent{
+    color: var(--TEXT);
+}
