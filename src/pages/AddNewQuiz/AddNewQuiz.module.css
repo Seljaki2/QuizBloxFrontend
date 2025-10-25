@@ -1,0 +1,125 @@
+.card {
+    width: 100%;
+    max-width: 700px;
+    min-width: 500px;
+    border-radius: 16px;
+    background-color: var(--BACKGROUND);
+    border: 2px solid var(--CONTAINER);
+    padding-top: 24px;
+}
+
+.ant-card .ant-card-body {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+}
+
+.divider {
+    border: 1px solid var(--CONTAINER) !important;
+    margin-top: 0px;
+}
+
+.nameRow {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    flex: 1;
+}
+
+.nameItem,
+.dropdownItem {
+    width: 100%;
+}
+
+
+.descriptionItem {
+    flex: 1 !important;
+}
+
+.customSelect :global(.ant-select-selector) {
+    background-color: var(--CONTAINER) !important;
+    color: var(--TEXT) !important;
+    border: 1px solid var(--TEXT) !important;
+    border-radius: 8px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.customSelect :global(.ant-select-arrow) {
+    color: var(--TEXT) !important;
+}
+
+.customSelect :global(.ant-select-selection-placeholder),
+.customSelect :global(.ant-select-selection-item) {
+    color: var(--TEXT) !important;
+    opacity: 0.85;
+}
+
+:global(.ant-select-dropdown) {
+    background-color: var(--CONTAINER) !important;
+    border: 1px solid var(--CONTAINER) !important;
+}
+
+:global(.ant-select-item-option) {
+    background-color: var(--CONTAINER) !important;
+    color: var(--TEXT) !important;
+}
+
+:global(.ant-select-item-option-active),
+:global(.ant-select-item-option-selected) {
+    background-color: var(--BACKGROUND) !important;
+    color: var(--TEXT) !important;
+}
+
+.panelStyle {
+    background: var(--CONTAINER);
+    border-radius: 16px !important;
+    border: none;
+
+}
+
+:global(.ant-collapse>.ant-collapse-item >.ant-collapse-header) {
+    color: var(--TEXT) !important;
+    align-items: center;
+}
+
+.sortableGrab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sortable {
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 100%;
+    color: var(--TEXT);
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.sortable:hover {
+    opacity: 1;
+}
+
+:global(.ant-collapse-header),
+:global(.ant-collapse-header-text) {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  max-width: 100%;
+}
+
+.deleteButton:hover{
+    background: var(--CONTAINER) !important;
+    }

@@ -1,0 +1,12 @@
+.nameItem {
+  width: 100%;
+}
+
+.divider {
+  border: 1px solid var(--BACKGROUND) !important;
+  margin-top: 5px;
+}
+
+:global(.ant-radio-label){
+    color: var(--TEXT) !important;
+}
