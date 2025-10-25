@@ -24,13 +24,12 @@ export default function Login() {
                 }
             }
 
-            const { user, backendData } = await loginUser(
+            const { user} = await loginUser(
                 values.email!,
                 values.password!,
             );
 
             console.log("Firebase user:", user);
-            console.log("Backend response:", backendData);
 
             navigate("/");
         } catch (error: any) {
