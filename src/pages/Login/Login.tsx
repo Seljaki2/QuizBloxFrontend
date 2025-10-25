@@ -1,6 +1,7 @@
 import { Card, Button, Checkbox, Form, Input, type FormProps } from "antd";
 import styles from "./Login.module.css"
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../../fetch/user";
 
 type FieldType = {
     email?: string;
@@ -8,16 +9,36 @@ type FieldType = {
     remember?: string;
 };
 
-const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    console.log("Success:", values);
-};
-
-const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-};
-
 export default function Login() {
     const navigate = useNavigate();
+
+    const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+        try {
+            const requiredFields = ['email', 'password'];
+
+            for (const field of requiredFields) {
+                const value = values[field as keyof typeof values];
+                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+                    console.error(`Validation Error: Required field "${field}" is missing.`);
+                    throw new Error(`Please fill out the required field: ${field}.`);
+                }
+            }
+
+            const { user} = await loginUser(
+                values.email!,
+                values.password!,
+            );
+
+            console.log("Firebase user:", user);
+
+            navigate("/");
+        } catch (error: any) {
+            console.error("Registration failed:", error);
+        }
+    };
+
+    const onFinishFailed = () => {
+    };
 
     return (
         <Card variant="borderless" className={styles.card}>

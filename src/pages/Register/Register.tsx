@@ -1,26 +1,62 @@
 import { Card, Button, Checkbox, Form, Input, type FormProps } from "antd";
 import styles from "./Register.module.css"
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../../fetch/user";
+import React from "react";
 
 type FieldType = {
-    firsName?: string;
+    firstName?: string;
     lastName?: string;
     username?: string;
     email?: string;
     password?: string;
-    isTeacher?: string;
+    isTeacher?: boolean;
 };
 
-const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    console.log("Success:", values);
-};
-
-const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
-    console.log("Failed:", errorInfo);
-};
 
 export default function Register() {
     const navigate = useNavigate();
+
+    const [form] = Form.useForm();
+    const [loading, setLoading] = React.useState(false);
+
+    const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+        try {
+            setLoading(true);
+            const requiredFields = ['email', 'password', 'firstName', 'lastName', 'username'];
+
+            for (const field of requiredFields) {
+                const value = values[field as keyof typeof values];
+                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+                    console.error(`Validation Error: Required field "${field}" is missing.`);
+                    throw new Error(`Please fill out the required field: ${field}.`);
+                }
+            }
+
+            const { user, backendData } = await registerUser(
+                values.email!,
+                values.password!,
+                values.firstName!,
+                values.lastName!,
+                values.username!,
+                values.isTeacher!,
+            );
+
+            console.log("Firebase user:", user);
+            console.log("Backend response:", backendData);
+
+            navigate("/");
+        } catch (error: any) {
+            console.error("Registration failed:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
+        console.log("Form validation failed:", errorInfo);
+    };
+
     return (
         <Card variant="borderless"
             className={styles.card}
