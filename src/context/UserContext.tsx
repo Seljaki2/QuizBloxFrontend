@@ -1,27 +1,25 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { getAuth, onAuthStateChanged, signOut as firebaseSignOut, type User as FirebaseUser } from "firebase/auth";
+import React, { createContext, useEffect, useState, type ReactNode } from "react";
+import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "../fetch/firebase";
 import { API_URL } from "../api";
 
 export type AppUser = {
     id: string;
-    email?: string | null;
-    firstName?: string;
-    lastName?: string;
-    username?: string;
-    isTeacher?: boolean;
+    email: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+    isTeacher: boolean;
 };
 
 type UserContextType = {
     user: AppUser | null;
-    loading: boolean;
     signOut: () => Promise<void>;
-    getToken?: () => Promise<string>;
+    getToken: () => Promise<string>;
 };
 
 const defaultContext: UserContextType = {
     user: null,
-    loading: true,
     signOut: async () => { },
     getToken: async (): Promise<string> => { throw new Error('No bearer token'); },
 };
@@ -31,7 +29,6 @@ export const UserContext = createContext<UserContextType>(defaultContext);
 
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<AppUser | null>(null);
-    const [loading, setLoading] = useState(true);
 
     async function getUserProfile() {
         const token = await getToken();
@@ -49,7 +46,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const data = await res.json();
         const appUser: AppUser = {
             id: String(data.id),
-            email: data.email ?? null,
+            email: data.email,
             firstName: data.firstName,
             lastName: data.lastName,
             username: data.username,
@@ -88,5 +85,5 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('No bearer token')
     }
 
-    return <UserContext.Provider value={{ user, loading, signOut }}>{children}</UserContext.Provider>;
+    return <UserContext.Provider value={{ user, signOut, getToken }}>{children}</UserContext.Provider>;
 };
