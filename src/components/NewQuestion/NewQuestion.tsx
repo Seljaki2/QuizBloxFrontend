@@ -2,6 +2,7 @@ import { Divider, Form, Input, Radio } from "antd";
 import styles from "./NewQuestion.module.css";
 import type { RadioChangeEvent } from 'antd';
 import { useState } from 'react';
+import TextArea from "antd/es/input/TextArea";
 
 type Props = {
     index: string;
@@ -10,7 +11,7 @@ type Props = {
 
 export default function NewQuestion({ index, onTitleChange }: Props) {
 
-    const [value, setValue] = useState(2);
+    const [value, setValue] = useState(1);
 
     const onChange = (e: RadioChangeEvent) => {
         setValue(e.target.value);
@@ -23,7 +24,7 @@ export default function NewQuestion({ index, onTitleChange }: Props) {
     return (
         <>
             <Form.Item
-                label="Vprašanje"
+                label="Vprašanje:"
                 name={["questions", index, "question"]}
                 rules={[{ required: true, message: "Podajte vprašanje!" }]}
                 className={styles.nameItem}
@@ -39,12 +40,12 @@ export default function NewQuestion({ index, onTitleChange }: Props) {
                     { value: 2, label: "več možnosti" },
                 ]}
             />
+            <Divider className={styles.divider} />
 
             {value === 2 && (
                 <>
-                    <Divider className={styles.divider} />
                     <Form.Item
-                        label="answer1"
+                        label="1. Odgovor:"
                         name={["questions", index, "ans1"]}
                         rules={[{ required: true, message: "Podajte 1. možnost!" }]}
                         className={styles.nameItem}
@@ -52,12 +53,23 @@ export default function NewQuestion({ index, onTitleChange }: Props) {
                         <Input />
                     </Form.Item>
                     <Form.Item
-                        label="answer2"
+                        label="2. Odgovor:"
                         name={["questions", index, "ans2"]}
                         rules={[{ required: true, message: "Podajte 2. možnost!" }]}
                         className={styles.nameItem}
                     >
                         <Input />
+                    </Form.Item>
+                </>
+            )}
+            {value === 1 && (
+                <>
+                    <Form.Item
+                        label="Naštejte vse možnosti:"
+                        name="options"
+                        rules={[{ required: true, message: "Podajte možnosti" }]}
+                    >
+                        <TextArea autoSize={{ minRows: 5, maxRows: 5 }} />
                     </Form.Item>
                 </>
             )}

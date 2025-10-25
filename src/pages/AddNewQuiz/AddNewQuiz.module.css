@@ -39,7 +39,7 @@
 
 
 .descriptionItem {
-    flex: 1 !important;
+    flex: 1;
 }
 
 .customSelect :global(.ant-select-selector) {
@@ -114,12 +114,31 @@
 
 :global(.ant-collapse-header),
 :global(.ant-collapse-header-text) {
-  white-space: normal !important;
-  word-break: break-word !important;
-  overflow-wrap: break-word !important;
-  max-width: 100%;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100%;
 }
 
-.deleteButton:hover{
+.deleteButton:hover {
     background: var(--CONTAINER) !important;
-    }
+}
+
+.customLabelContainer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+}
+.customLabelText{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.customLabelMinorT{
+    color: var(--MINOR_TEXT);
+    flex-shrink: 0;
+}

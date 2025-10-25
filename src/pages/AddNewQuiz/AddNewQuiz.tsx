@@ -44,34 +44,47 @@ function SortableQuestion({ id, item, onDelete }: { id: string; item: QuestionIt
     };
 
     const customLabel = (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {item.label}
-            </span>
-            <div
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-            >
-                <Popconfirm
-                    title="Izbriši vprašanje?"
-                    okText="Da"
-                    cancelText="Ne"
-                    onConfirm={(e) => {
-                        e?.stopPropagation?.();
-                        onDelete(item.key);
-                    }}
-                    onCancel={(e) => e?.stopPropagation?.()}
-                >
-                    <Button
-                        type="text"
-                        danger
-                        icon={<DeleteOutlined />}
-                        className={styles.deleteButton}
-                    />
-                </Popconfirm>
-            </div>
-        </div>
-    );
+  <div className={styles.customLabelContainer}>
+    <div className={styles.customLabelText}>
+      <span
+        style={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        wordBreak: "break-word",
+        }}
+      >
+        {item.label}
+      </span>
+      <span className={styles.customLabelMinorT}>
+        test
+      </span>
+    </div>
+
+    <div
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <Popconfirm
+        title="Izbriši vprašanje?"
+        okText="Da"
+        cancelText="Ne"
+        onConfirm={(e) => {
+          e?.stopPropagation?.();
+          onDelete(item.key);
+        }}
+        onCancel={(e) => e?.stopPropagation?.()}
+      >
+        <Button
+          type="text"
+          danger
+          icon={<DeleteOutlined />}
+          className={styles.deleteButton}
+        />
+      </Popconfirm>
+    </div>
+  </div>
+);
+
 
     return (
         <div ref={setNodeRef} style={style} {...attributes}>
@@ -233,7 +246,7 @@ export default function AddNewQuiz() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
                     <Button
-                        type="dashed"
+                        type="default"
                         onClick={handleAddQuestion}
                         icon={<PlusOutlined />}
                         style={{ width: "100%" }}
