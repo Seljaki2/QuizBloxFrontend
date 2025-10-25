@@ -173,11 +173,13 @@ export default function AddNewQuiz() {
         setQuestions((prev) => [...prev, newItem]);
     };
 
+    const [form] = Form.useForm();
 
     return (
         <div>
             <Card className={styles.card}>
                 <Form
+                    form={form}
                     name="newQuiz"
                     layout="vertical"
                     initialValues={{ remember: false }}
@@ -255,14 +257,14 @@ export default function AddNewQuiz() {
                         </SortableContext>
 
                     </DndContext>
-                        <Button
-                            type="default"
-                            onClick={handleAddQuestion}
-                            icon={<PlusOutlined />}
-                            className={styles.extraButtonStyle}
-                        >
-                            Dodaj
-                        </Button>
+                    <Button
+                        type="default"
+                        onClick={handleAddQuestion}
+                        icon={<PlusOutlined />}
+                        className={styles.extraButtonStyle}
+                    >
+                        Dodaj
+                    </Button>
                 </Form>
             </Card>
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
@@ -270,6 +272,7 @@ export default function AddNewQuiz() {
                     type="primary"
                     htmlType="submit"
                     className={styles.extraButtonStyle}
+                    onClick={() => form.submit()}
                 >
                     Shrani kviz
                 </Button>

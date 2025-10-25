@@ -27,13 +27,13 @@
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
-  padding-top: 8px;
 }
 
 .imageAnswerItem {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column !important;
   transition: transform 0.2s ease;
 }
 

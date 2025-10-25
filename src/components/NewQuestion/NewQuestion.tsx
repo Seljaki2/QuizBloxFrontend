@@ -1,4 +1,4 @@
-import { Divider, Form, Input, Radio, Button } from "antd";
+import { Divider, Form, Input, Radio, Button, Checkbox } from "antd";
 import styles from "./NewQuestion.module.css";
 import type { RadioChangeEvent, UploadFile } from 'antd';
 import { useState } from 'react';
@@ -79,15 +79,23 @@ export default function NewQuestion({ index, onTitleChange, onAnswerTypeChange }
             {value === 2 && (
                 <>
                     {[...Array(answerCount)].map((_, i) => (
-                        <Form.Item
-                            key={i}
-                            label={`${i + 1}. Odgovor:`}
-                            name={["questions", index, `ans${i + 1}`]}
-                            rules={[{ required: true, message: `Podajte ${i + 1}. možnost!` }]}
-                            className={styles.nameItem}
-                        >
-                            <Input />
-                        </Form.Item>
+                        <div key={i} style={{ display: "flex", alignItems: "end", marginBottom: 12 }}>
+                            <Form.Item
+                                label={`${i + 1}. Odgovor:`}
+                                name={["questions", index, `ans${i + 1}`]}
+                                rules={[{ required: true, message: `Podajte ${i + 1}. možnost!` }]}
+                                style={{ flex: 1, marginBottom: 0 }}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name={["questions", index, `correctAns${i + 1}`]}
+                                valuePropName="checked"
+                                style={{ marginLeft: 10, marginBottom: 0 }}
+                            >
+                                <Checkbox>Pravilno</Checkbox>
+                            </Form.Item>
+                        </div>
                     ))}
 
                     <div className={styles.addRemoveButtons}>
@@ -102,31 +110,39 @@ export default function NewQuestion({ index, onTitleChange, onAnswerTypeChange }
             )}
 
             {value === 3 && (
-                <>
-                    <div className={styles.imageAnswersRow}>
-                        {[...Array(answerCount)].map((_, i) => (
-                            <div key={i} className={styles.imageAnswerItem}>
-                                <Form.Item
-                                    name={["questions", index, `questionImage${i + 1}`]}
-                                    valuePropName="value"
-                                    getValueFromEvent={(fileList: UploadFile[]) => fileList}
-                                >
-                                    <QuizImageUpload buttonText={`Dodaj sliko za ${i + 1}. odgovor`} />
-                                </Form.Item>
-                            </div>
-                        ))}
-                    </div>
+    <>
+        <div className={styles.imageAnswersRow}>
+            {[...Array(answerCount)].map((_, i) => (
+                <div key={i} className={styles.imageAnswerItem}>
+                    <Form.Item
+                        name={["questions", index, `questionImage${i + 1}`]}
+                        valuePropName="value"
+                        getValueFromEvent={(fileList: UploadFile[]) => fileList}
+                        style={{ width: "100%", display:"flex",   justifyContent: "center", margin:"0px"}}
+                    >
+                        <QuizImageUpload buttonText={`Dodaj sliko za ${i + 1}. odgovor`} />
+                    </Form.Item>
+                    <Form.Item
+                        name={["questions", index, `correctImage${i + 1}`]}
+                        valuePropName="checked"
+                        style={{ marginTop: 4 }}
+                    >
+                        <Checkbox>Pravilno</Checkbox>
+                    </Form.Item>
+                </div>
+            ))}
+        </div>
 
-                    <div className={styles.addRemoveButtons}>
-                        <Button type="primary" className={styles.buttons} onClick={addAnswer} disabled={answerCount >= 4}>
-                            Dodaj možnost
-                        </Button>
-                        <Button type="primary" className={styles.buttons} onClick={removeAnswer} disabled={answerCount <= 2}>
-                            Odstrani možnost
-                        </Button>
-                    </div>
-                </>
-            )}
+        <div className={styles.addRemoveButtons}>
+            <Button type="primary" className={styles.buttons} onClick={addAnswer} disabled={answerCount >= 4}>
+                Dodaj možnost
+            </Button>
+            <Button type="primary" className={styles.buttons} onClick={removeAnswer} disabled={answerCount <= 2}>
+                Odstrani možnost
+            </Button>
+        </div>
+    </>
+)}
 
         </>
     );
