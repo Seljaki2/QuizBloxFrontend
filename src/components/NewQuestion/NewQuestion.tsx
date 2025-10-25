@@ -7,14 +7,16 @@ import TextArea from "antd/es/input/TextArea";
 type Props = {
     index: string;
     onTitleChange: (newTitle: string) => void;
+    onAnswerTypeChange: (newType: number) => void;
 };
 
-export default function NewQuestion({ index, onTitleChange }: Props) {
+export default function NewQuestion({ index, onTitleChange,  onAnswerTypeChange }: Props) {
 
     const [value, setValue] = useState(1);
 
     const onChange = (e: RadioChangeEvent) => {
         setValue(e.target.value);
+        onAnswerTypeChange(e.target.value);
     };
 
     const handleQuestionChange = (e: React.ChangeEvent<HTMLInputElement>) => {

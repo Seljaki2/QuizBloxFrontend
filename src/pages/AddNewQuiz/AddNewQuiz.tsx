@@ -22,6 +22,7 @@ type QuestionItem = {
     key: string;
     label: string;
     content: ReactElement;
+    answerType?: number;
 };
 
 
@@ -56,7 +57,7 @@ function SortableQuestion({ id, item, onDelete }: { id: string; item: QuestionIt
         {item.label}
       </span>
       <span className={styles.customLabelMinorT}>
-        test
+            {item.answerType === 1 ? "(vnos odgovora)" : item.answerType === 2 ? "(več možnosti)" : ""}
       </span>
     </div>
 
@@ -127,14 +128,21 @@ export default function AddNewQuiz() {
         );
     };
 
+
+const handleQuestionAnswerTypeChange = (key: string, newType: number) => {
+    setQuestions((prev) =>
+        prev.map((q) =>
+            q.key === key ? { ...q, answerType: newType } : q
+        )
+    );
+};
+
+
     const handleDeleteQuestion = (key: string) => {
         setQuestions((prev) => prev.filter((q) => q.key !== key));
     };
 
     const [questions, setQuestions] = useState<QuestionItem[]>([
-        { key: "1", label: "Novo Vprašanje", content: <NewQuestion index={"1"} onTitleChange={() => { }} /> },
-        { key: "2", label: "Novo Vprašanje", content: <NewQuestion index={"2"} onTitleChange={() => { }} /> },
-        { key: "3", label: "Novo Vprašanje", content: <NewQuestion index={"3"} onTitleChange={() => { }} /> },
     ]);
 
     const sensors = useSensors(useSensor(PointerSensor));
@@ -153,10 +161,12 @@ export default function AddNewQuiz() {
         const newItem: QuestionItem = {
             key: newKey,
             label: "Novo vprašanje",
+            answerType: 1,
             content: (
                 <NewQuestion
                     index={newKey}
                     onTitleChange={(newTitle) => handleQuestionTitleChange(newKey, newTitle)}
+                    onAnswerTypeChange={(newType) => handleQuestionAnswerTypeChange(newKey, newType)}
                 />
             ),
         };
@@ -234,6 +244,7 @@ export default function AddNewQuiz() {
                                         <NewQuestion
                                             index={item.key}
                                             onTitleChange={(newTitle) => handleQuestionTitleChange(item.key, newTitle)}
+                                            onAnswerTypeChange={(newType) => handleQuestionAnswerTypeChange(item.key, newType)}
                                         />
                                     ),
                                 }}
@@ -250,6 +261,7 @@ export default function AddNewQuiz() {
                         onClick={handleAddQuestion}
                         icon={<PlusOutlined />}
                         style={{ width: "100%" }}
+                        
                     >
                         Dodaj novo vprašanje
                     </Button>
