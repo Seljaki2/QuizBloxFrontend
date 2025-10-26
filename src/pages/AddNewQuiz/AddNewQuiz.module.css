@@ -142,6 +142,6 @@
 
 .extraButtonStyle{
     padding: 20px 20px 20px 20px;
-        text-align: center;
-
+    text-align: center;
+    justify-content: space-between;
 }

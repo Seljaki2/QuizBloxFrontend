@@ -119,6 +119,7 @@ export default function NewQuestion({ index, onTitleChange, onAnswerTypeChange }
                         valuePropName="value"
                         getValueFromEvent={(fileList: UploadFile[]) => fileList}
                         style={{ width: "100%", display:"flex",   justifyContent: "center", margin:"0px"}}
+                        rules={[{ required: true, message: "Podajte Sliko!" }]}
                     >
                         <QuizImageUpload buttonText={`Dodaj sliko za ${i + 1}. odgovor`} />
                     </Form.Item>

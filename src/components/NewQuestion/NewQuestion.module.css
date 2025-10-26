@@ -41,15 +41,6 @@
   flex: 1;
 }
 
-@media (max-width: 900px) {
-  .imageAnswersRow {
-    max-width: 100%;
-    gap: 10px;
-  }
-  .imageAnswerItem {
-    transform: scale(0.9);
-  }
-}
 
 .addRemoveButtons {
   margin-top: 8px;
