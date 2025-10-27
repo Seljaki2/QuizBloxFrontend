@@ -1,0 +1,61 @@
+.nameItem {
+  width: 100%;
+}
+
+.divider {
+  border: 1px solid var(--BACKGROUND) !important;
+  margin-top: 5px;
+}
+
+:global(.ant-radio-label){
+    color: var(--TEXT) !important;
+}
+.centerQuestionImg {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.imageAnswersRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.imageAnswerItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column !important;
+  transition: transform 0.2s ease;
+}
+
+.imageAnswersRow > *:nth-child(n) {
+  flex: 1;
+}
+
+
+.addRemoveButtons {
+  margin-top: 8px;
+  display: flex;
+  justify-content: end;
+  gap: 8px;
+}
+
+.buttons{
+  background-color: var(--INFILL);
+  color: var(--TEXT);
+  border: 0px;
+} 
+
+.buttons:disabled{
+  background-color: var(--MINOR_TEXT);
+  color: var(--HOVER_TEXT);
+}
