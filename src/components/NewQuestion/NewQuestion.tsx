@@ -41,7 +41,7 @@ export default function NewQuestion({ index, onTitleChange, onAnswerTypeChange }
                     valuePropName="value"
                     getValueFromEvent={(fileList: UploadFile[]) => fileList}
                 >
-                    <QuizImageUpload buttonText="Dodaj sliko za vprašanje" />
+                    <QuizImageUpload buttonText="Poljubno dodaj sliko za vprašanje" />
                 </Form.Item>
             </div>
 
