@@ -178,6 +178,9 @@ export default function AddNewQuiz() {
     return (
         <>
             <Card className={styles.card}>
+                <h1 className={styles.header}>
+                DODAJ KVIZ
+                </h1>
                 <Form
                     form={form}
                     name="newQuiz"
@@ -222,7 +225,7 @@ export default function AddNewQuiz() {
                             name="description"
                             className={styles.descriptionItem}
                         >
-                            <TextArea autoSize={{ minRows: 6, maxRows: 6 }} />
+                            <TextArea autoSize={{ minRows: 5, maxRows: 5 }} />
                         </Form.Item>
                     </div>
 
