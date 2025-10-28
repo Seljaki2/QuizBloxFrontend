@@ -76,7 +76,7 @@ const data: QuizType[] = [
     },
     {
         key: 5,
-        title: 'Naravoslovni kviz',
+        title: 'Preverjanje poštevanke',
         description: 'Kviz s slikovnimi vprašanji o naravi.',
         subject: 'Znanost',
         questions: [
@@ -88,7 +88,7 @@ const data: QuizType[] = [
     },
     {
         key: 6,
-        title: 'Naravoslovni kviz',
+        title: 'Preverjanje deljenja',
         description: 'Kviz s slikovnimi vprašanji o naravi.',
         subject: 'Znanost',
         questions: [
@@ -100,7 +100,7 @@ const data: QuizType[] = [
     },
     {
         key: 7,
-        title: 'Naravoslovni kviz',
+        title: 'Glasbeni kviz',
         description: 'Kviz s slikovnimi vprašanji o naravi.',
         subject: 'Znanost',
         questions: [
@@ -112,7 +112,7 @@ const data: QuizType[] = [
     },
     {
         key: 8,
-        title: 'Naravoslovni kviz',
+        title: 'Naravoslovni kviz 2',
         description: 'Kviz s slikovnimi vprašanji o naravi.',
         subject: 'Znanost',
         questions: [
@@ -211,6 +211,8 @@ export default function QuizList() {
                         icon={<SearchOutlined />}
                         size="small"
                         style={{ width: 90 }}
+                        className={styles.extraButtonStyle}
+
                     >
                         Išči
                     </Button>
@@ -218,6 +220,7 @@ export default function QuizList() {
                         onClick={() => clearFilters && handleReset(clearFilters)}
                         size="small"
                         style={{ width: 90 }}
+                        className={styles.extraButtonStyle}
                     >
                         Resetiraj
                     </Button>
@@ -314,7 +317,7 @@ export default function QuizList() {
             className={styles.table}
             rowClassName={styles.tableRow}
             sticky={{ offsetHeader: 0 }}
-            pagination={{ pageSize: 8 }}
+            pagination={{ pageSize: 5 }}
             locale={{
                 emptyText: (
                     <div className={styles.noDataContainer}>
