@@ -1,0 +1,149 @@
+.table {
+  width: 100%;
+  max-width: 700px;
+  min-width: 500px;
+  border-radius: 16px;
+  background-color: var(--TABLE_CONTAINER);
+  overflow: hidden;
+}
+
+.tableRow {
+  background-color: var(--TABLE_CONTAINER);
+  color: var(--TEXT);
+  transition: background-color 0.3s ease;
+}
+
+.table :global(.ant-table-row:hover .ant-table-cell) {
+  background-color: var(--TABLE_CONTAINER_HOVER) !important;
+}
+
+.table :global(.ant-table-thead > tr > th) {
+  background-color: var(--CONTAINER);
+  color: var(--TEXT);
+  border-bottom: 1px solid var(--TABLE_CONTAINER_HOVER);
+  font-weight: 600;
+}
+
+
+.table :global(.ant-table-tbody > tr > td) {
+  border-bottom: 1px solid var(--CONTAINER);
+}
+
+.table :global(.ant-table-expand-icon-cell) {
+  background-color: var(--TABLE_CONTAINER) !important;
+}
+
+.table :global(.ant-table-row-expand-icon) {
+  background-color: var(--TABLE_CONTAINER);
+  color: var(--TEXT) !important;
+}
+
+.table :global(.ant-pagination) {
+  background-color: var(--TABLE_CONTAINER);
+  padding: 12px;
+  text-align: center;
+}
+
+.table :global(.ant-pagination-item) {
+background-color: var(--TABLE_CONTAINER);
+}
+.table :global(.ant-pagination-item:hover) {
+  border-color: var(--INFILL);
+}
+
+.table :global(.ant-pagination-prev .anticon),
+.table :global(.ant-pagination-next .anticon),
+.table :global(.ant-pagination-item a) {
+  color: var(--TEXT);
+}
+
+.table :global(.ant-pagination-item-active) {
+  background-color: var(--CONTAINER);
+  border-color: var(--TABLE_CONTAINER_HOVER);
+}
+
+.table :global(.ant-pagination-item-active a) {
+  color: var(--HOVER_TEXT);
+}
+
+.table :global(.ant-table-container),
+.table :global(.ant-table-content),
+.table :global(.ant-table-body) {
+  background-color: var(--CONTAINER) !important;
+}
+
+.table :global(.ant-table-body)::-webkit-scrollbar {
+  background: var(--CONTAINER);
+}
+
+.table :global(.ant-table-expanded-row) {
+  background-color: var(--TABLE_CONTAINER_HOVER) !important;
+  color: var(--TEXT);
+}
+
+.table :global(.ant-table-expanded-row > .ant-table-cell) {
+  background-color: var(--TABLE_CONTAINER_HOVER) !important;
+}
+
+.table :global(.ant-table-expanded-row-fixed) {
+  background-color: var(--TABLE_CONTAINER_HOVER);
+  color: var(--TEXT);
+}
+
+.table :global(.anticon-search) {
+  color: var(--TEXT) !important;
+  transition: color 0.2s ease;
+}
+
+.table :global(.ant-table-tbody > tr:not(.ant-table-expanded-row) > td:last-child) {
+  text-align: right !important;
+}
+
+.search_container{
+    background-color: var(--CONTAINER_LIGHTER);
+}
+
+/* Empty table container */
+.table :global(.ant-table-empty .ant-table-placeholder),
+.table :global(.ant-empty),
+.table :global(.ant-empty-normal) {
+  background-color: var(--TABLE_CONTAINER) !important;
+  color: var(--TEXT) !important;
+  border-top: 1px solid var(--TABLE_CONTAINER_HOVER) !important;
+  
+}
+
+/* Empty state text */
+.table :global(.ant-empty-description),
+.table :global(.ant-empty p),
+.noDataContainer p {
+  color: var(--TEXT) !important;
+  font-style: italic !important;
+  margin-top: 4px;
+}
+
+/* Optional icon styling */
+.noDataContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: var(--TEXT);
+  background-color: var(--TABLE_CONTAINER);
+}
+
+.noDataContainer svg {
+  color: var(--TEXT);
+  opacity: 0.8;
+}
+
+.table :global(.ant-table-placeholder .ant-table-cell) {
+  padding: 0 !important;
+}
+
+.extraButtonStyle{
+    padding: 20px 20px 20px 20px;
+    text-align: center;
+    width: auto !important;
+}

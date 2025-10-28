@@ -2,9 +2,7 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   background-color: var(--BACKGROUND);
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -13,6 +11,9 @@
   --INFILL: #359EFF;
   --BACKGROUND: #131922;
   --CONTAINER: #232936;
+    --CONTAINER_LIGHTER: #2d3444;
+  --TABLE_CONTAINER: #131a27;
+  --TABLE_CONTAINER_HOVER: #182232;
   --HOVER_INFILL: #145087;
   --MINOR_TEXT: #9CA3AF;
   --CORRECT: #34D399;
