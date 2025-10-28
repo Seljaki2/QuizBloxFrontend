@@ -24,9 +24,10 @@ export default function Login() {
                 }
             }
 
-            const { user} = await loginUser(
+            const { user } = await loginUser(
                 values.email!,
                 values.password!,
+                Boolean(values.remember)
             );
 
             console.log("Firebase user:", user);

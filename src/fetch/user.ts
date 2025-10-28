@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { browserLocalPersistence, browserSessionPersistence, createUserWithEmailAndPassword, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
 import { API_URL } from "../api";
 import { auth } from "./firebase";
 
@@ -21,7 +21,10 @@ export async function registerUser(email: string, password: string, firstName: s
     return { user: userCredential.user, backendData: data };
 }
 
-export async function loginUser(email: string, password: string) {
+export async function loginUser(email: string, password: string, remember: boolean = false) {
+    if (remember) {
+        await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+    }
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return { user: userCredential.user };
 }
