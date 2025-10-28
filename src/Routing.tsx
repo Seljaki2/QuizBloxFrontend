@@ -9,11 +9,11 @@ export default function Routing() {
     return (
         <Routes>
             <Route element={<LayoutWrapper />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            <Route path="/testing" element={<AddNewQuiz />} />{/*temporary za izdelavo na frontende*/}
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+
+                <Route path="/testing" element={<AddNewQuiz />} />{/*temporary za izdelavo na frontende*/}
             </Route>
         </Routes>
     );
