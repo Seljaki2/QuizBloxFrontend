@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Card, Collapse, Divider, Form, Input, Select, Button, type FormProps, Popconfirm } from "antd";
 import { CaretRightOutlined, MenuOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
@@ -9,10 +9,17 @@ import type { ReactElement } from "react";
 
 import styles from "./AddNewQuiz.module.css";
 import NewQuestion from "../../components/NewQuestion/NewQuestion";
+import { API_URL } from "../../api";
+import { createQuiz } from "../../fetch/quiz";
+import { UserContext } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
+
 
 const { TextArea } = Input;
 
+
 type FieldType = {
+    questions: any;
     title?: string;
     description?: string;
     subject?: string;
@@ -26,9 +33,7 @@ type QuestionItem = {
 };
 
 
-const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    console.log("Success:", values);
-};
+
 
 const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -119,6 +124,55 @@ function SortableQuestion({ id, item, onDelete }: { id: string; item: QuestionIt
 }
 
 export default function AddNewQuiz() {
+    const [subjects, setSubjects] = useState([]);
+    const [questions, setQuestions] = useState<QuestionItem[]>([]);
+    const { user } = useContext(UserContext);
+    const navigate = useNavigate();
+    const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+        try {
+            if (!user) throw new Error("User not logged in");
+
+            const quizData = {
+                quizName: values.title,
+                quizDescription: values.description || "",
+                user_id: user.id,
+                subject: values.subject,
+                questions: values.questions,
+            };
+
+            console.log("Quiz data being sent:", quizData);
+
+            const res = await createQuiz(quizData);
+
+            console.log("Quiz created successfully:", res);
+            navigate("/");
+
+        } catch (error) {
+            console.error("Error creating quiz:", error);
+        }
+    };
+
+    useEffect(() => {
+        async function fetchSubjects() {
+            try {
+                const res = await fetch(`${API_URL}/subjects`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch subjects");
+
+                const data = await res.json();
+                console.log("Fetched subjects:", data);
+                setSubjects(data.subjects);
+                console.log("Subjects set in state:", subjects);
+            } catch (error) {
+                console.error("Error fetching subjects:", error);
+            }
+        }
+
+        fetchSubjects();
+    }, []);
 
     const handleQuestionTitleChange = (key: string, newTitle: string) => {
         setQuestions((prev) =>
@@ -142,8 +196,7 @@ export default function AddNewQuiz() {
         setQuestions((prev) => prev.filter((q) => q.key !== key));
     };
 
-    const [questions, setQuestions] = useState<QuestionItem[]>([
-    ]);
+
 
     const sensors = useSensors(useSensor(PointerSensor));
 
@@ -179,7 +232,7 @@ export default function AddNewQuiz() {
         <>
             <Card className={styles.card}>
                 <h1 className={styles.header}>
-                DODAJ KVIZ
+                    DODAJ KVIZ
                 </h1>
                 <Form
                     form={form}
@@ -205,17 +258,18 @@ export default function AddNewQuiz() {
                             <Form.Item
                                 label="Predmet"
                                 name="subject"
-                                rules={[{ required: true, message: "Izaberite predmet!" }]}
+                                rules={[{ required: true, message: "Izberite predmet!" }]}
                                 className={styles.dropdownItem}
                             >
                                 <Select
                                     className={styles.customSelect}
                                     placeholder="Izberite predmet"
                                 >
-                                    <Select.Option value="math">Matematika</Select.Option>
-                                    <Select.Option value="science">Znanost</Select.Option>
-                                    <Select.Option value="history">Zgodovina</Select.Option>
-                                    <Select.Option value="general">Splošno</Select.Option>
+                                    {subjects?.map((sub: { id: string; name: string }) => (
+                                        <Select.Option key={sub.id} value={sub.id}>
+                                            {sub.name}
+                                        </Select.Option>
+                                    ))}
                                 </Select>
                             </Form.Item>
                         </div>
