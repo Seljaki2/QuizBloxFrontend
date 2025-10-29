@@ -43,9 +43,11 @@ export default function NavBar() {
             {user.username} <DownOutlined />
           </Button>
         </Dropdown>
+
+        
       ) : (
         <Link className={styles.linkMenu} to="/login">
-          Prijava / Račun
+          Prijavi se!
         </Link>
       )}
     </Header>
