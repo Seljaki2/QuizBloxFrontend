@@ -20,6 +20,7 @@
     "firebase": "^12.4.0",
     "framer-motion": "^12.23.24",
     "react": "^19.1.1",
+    "react-circular-progressbar": "^2.2.0",
     "react-dom": "^19.1.1",
     "react-highlight-words": "^0.21.0",
     "react-router-dom": "^7.9.4",
