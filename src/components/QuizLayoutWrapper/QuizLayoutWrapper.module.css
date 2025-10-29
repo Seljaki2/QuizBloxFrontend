@@ -1,0 +1,25 @@
+.layout {
+    min-height: 100vh;
+    background: var(--SUCCESS);
+    overflow: hidden;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+:root {
+    --BLUE: #5FAFF5;
+    --PINK: #F05FF5;
+    --ORANGE: #F5A55F;
+    --GREEN: #64F55F;
+    --WHITE: #FFFFFF;
+    --YELLOW_LIGHTER: #f7e5a5;
+    --YELLOW: #ffe174;
+    --BACKGROUND_SOLID: #C178E4;
+}
