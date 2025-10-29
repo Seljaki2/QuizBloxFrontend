@@ -9,7 +9,6 @@ export default function QuizHost(){
     const [rotation, setRotation] = useState(0);
 
     useEffect(() => {
-        // Generate a random rotation between -10 and 10 degrees
         const randomRotation = Math.floor(Math.random() * 21) - 10; 
         setRotation(randomRotation);
     }, []);
