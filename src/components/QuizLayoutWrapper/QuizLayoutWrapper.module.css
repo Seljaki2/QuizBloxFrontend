@@ -1,0 +1,53 @@
+.layout {
+    min-height: 100vh;
+    overflow: hidden;
+        background: linear-gradient(28deg, #4e56c0, #9b5de0, #d78fee, #fdcffa);
+    background-size: 800% 800%;
+
+    -webkit-animation: AnimationName 15s ease infinite;
+    -moz-animation: AnimationName 15s ease infinite;
+    animation: AnimationName 15s ease infinite;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+:root {
+    --BLUE: #5FAFF5;
+    --PINK: #F05FF5;
+    --ORANGE: #F5A55F;
+    --GREEN: #64F55F;
+    --WHITE: #FFFFFF;
+    --YELLOW_LIGHTER: #f7e5a5;
+    --YELLOW: #ffe174;
+    --BACKGROUND_SOLID: #C178E4;
+}
+
+@-webkit-keyframes AnimationName {
+    0%{background-position:0% 68%}
+    50%{background-position:100% 33%}
+    100%{background-position:0% 68%}
+}
+@-moz-keyframes AnimationName {
+    0%{background-position:0% 68%}
+    50%{background-position:100% 33%}
+    100%{background-position:0% 68%}
+}
+@keyframes AnimationName {
+    0%{background-position:0% 68%}
+    50%{background-position:100% 33%}
+    100%{background-position:0% 68%}
+}
+/*
+maybe color combos:
+background: linear-gradient(100deg, #ffb200, #eb5b00, #d91656, #640d5f);
+        background: linear-gradient(142deg, #4e56c0, #9b5de0, #d78fee, #fdcffa);
+
+
+*/

@@ -5,16 +5,22 @@ import Home from './pages/Home/Home';
 import LayoutWrapper from './components/LayoutWrapper/LayoutWrapper';
 import AddNewQuiz from './pages/AddNewQuiz/AddNewQuiz';
 import QuizList from './pages/QuizList/QuizList';
+import QuizHost from './pages/QuizHost/QuizHost';
+import QuizLayoutWrapper from './components/QuizLayoutWrapper/QuizLayoutWrapper';
 
 export default function Routing() {
     return (
         <Routes>
             <Route element={<LayoutWrapper />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="//quizzes" element={<QuizList />} />
-            <Route path="/testing" element={<AddNewQuiz />} />{/*temporary za izdelavo na frontende*/}
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="//quizzes" element={<QuizList />} />
+                <Route path="/testing" element={<AddNewQuiz />} />{/*temporary za izdelavo na frontende*/}
+            </Route>
+
+            <Route element={<QuizLayoutWrapper/>}>
+                <Route path="/quiz-host" element={<QuizHost />} />
             </Route>
         </Routes>
     );

@@ -1,0 +1,10 @@
+@font-face {
+  font-family: 'PlusJakartaSans';
+  src: url('../../assets/fonts/PlusJakartaSans/PlusJakartaSans-ExtraBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+.text{
+    font-family: 'PlusJakartaSans', sans-serif;
+}
