@@ -21,7 +21,7 @@ export default function Timer({ totalSeconds = 10 }) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [totalSeconds]);
+  }, [secondsLeft, totalSeconds]);
 
   useEffect(() => {
     if (secondsLeft > 0 && secondsLeft <= 5) {
@@ -45,7 +45,7 @@ export default function Timer({ totalSeconds = 10 }) {
         strokeWidth={10}
         styles={buildStyles({
           pathColor,
-          trailColor: 'rgba(255, 255, 255, 0)',
+          trailColor: '#ffffff',
           textColor: '#000000',
           textSize: '24px',
 
