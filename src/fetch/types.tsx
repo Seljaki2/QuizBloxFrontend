@@ -70,6 +70,11 @@ export interface AppUser  {
     username: string;
     isTeacher: boolean;
 };
+
+export interface GuestUser{
+  guestUsername: string;
+  guestId: string;
+}
 export type QuestionType =
   | 'CUSTOM_ANWSER'
   | 'MEDIA_ANWSER'

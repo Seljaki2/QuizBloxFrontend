@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { auth } from "./firebase";
 import { WS_URL } from "../api";
+import type { AppUser, GuestUser } from "./types";
 
 export type clientType="PLAYER" | "SPECTATOR";
 
@@ -15,6 +16,7 @@ export type joinPacket={
 
 type ServerToClientEvents = {
     message: (msg: string) => void;
+    "player-joined": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
 };
 
 type ClientToServerEvents = {
