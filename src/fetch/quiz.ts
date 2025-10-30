@@ -30,7 +30,7 @@ export async function createQuiz(quizData: any) {
     for (let question of questionsArray) {
         console.log("Processing question:", question);
         const questionFormData = new FormData();
-        questionFormData.append("text", question.questionTitle);
+        questionFormData.append("text", question.question);
         questionFormData.append("quizId", data.id);
         if (question.keywords) {
             questionFormData.append("questionType", "CUSTOM_ANWSER");
