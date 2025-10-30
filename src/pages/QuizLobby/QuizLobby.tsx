@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Divider, List, Skeleton } from 'antd';
+import styles from './QuizLobby.module.css'
+import { useEffect, useState, useRef } from 'react';
+import { Button, Flex, List } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 export default function QuizLobby() {
@@ -20,28 +21,15 @@ export default function QuizLobby() {
         { id: '8', username: 'Hannah' },
         { id: '9', username: 'Ian' },
         { id: '10', username: 'Jasmine' },
-        { id: '11', username: 'Kevin' },
-        { id: '12', username: 'Luna' },
-        { id: '13', username: 'Max' },
-        { id: '14', username: 'Nora' },
-        { id: '15', username: 'Oscar' },
-        { id: '16', username: 'Paula' },
-        { id: '17', username: 'Quinn' },
-        { id: '18', username: 'Riley' },
-        { id: '19', username: 'Sophia' },
-        { id: '20', username: 'Tom' },
-        { id: '21', username: 'Uma' },
-        { id: '22', username: 'Victor' },
-        { id: '23', username: 'Wendy' },
-        { id: '24', username: 'Xavier' },
-        { id: '25', username: 'Yara' },
-        { id: '26', username: 'Zane' },
+        { id: '11', username: 'Jasmine' },
+        { id: '12', username: 'Jasmine' },
+
     ];
 
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<DataType[]>([]);
     const [page, setPage] = useState(1);
-    const pageSize = 10;
+    const pageSize = 8;
 
     const loadMoreData = () => {
         if (loading) return;
@@ -56,31 +44,38 @@ export default function QuizLobby() {
         },);
     };
 
+    const hasLoaded = useRef(false);
     useEffect(() => {
+        if (hasLoaded.current) return;
+        hasLoaded.current = true;
         loadMoreData();
     }, []);
 
     return (
-        <>
-            <InfiniteScroll
-                dataLength={data.length}
-                next={loadMoreData}
-                hasMore={data.length < allUsers.length}
-                loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
-                endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
-                scrollableTarget="scrollableDiv"
-            >
-                <List
-                    dataSource={data}
-                    renderItem={(item) => (
-                        <List.Item key={item.id}>
-                            <List.Item.Meta
-                                title={<a href="#">{item.username}</a>}
-                            />
-                        </List.Item>
-                    )}
-                />
-            </InfiniteScroll>
-        </>
+        <Flex className={styles.container} vertical gap="middle">
+            <h1>KODA: 123456</h1>
+            <div id="scrollableDiv" className={styles.scrollArea}>
+                <InfiniteScroll
+                    dataLength={data.length}
+                    next={loadMoreData}
+                    hasMore={data.length < allUsers.length}
+                    scrollableTarget="scrollableDiv" 
+                    loader={<div>Nalaga...</div>}>
+                    <List
+                        dataSource={data}
+                        renderItem={(item) => (
+                            <List.Item key={item.id} style={{padding: "5px 0px"}}>
+                                <List.Item.Meta title={item.username} style={{margin: "0px"}}/>
+                                <Button className={styles.removeButton}>Odstrani</Button>
+                            </List.Item>
+                        )}
+                    />
+                </InfiniteScroll>
+            </div>
+            <Flex justify='center' style={{width: "100%"}} gap="middle">
+            <Button className={styles.buttons}>Začni</Button>
+            <Button className={styles.buttons} type="primary" danger>Prekliči</Button>
+            </Flex>
+        </Flex>
     );
 }
