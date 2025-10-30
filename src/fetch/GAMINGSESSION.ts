@@ -52,9 +52,8 @@ export async function createSession(quizId: quizblox): Promise<session> {
                     joinCode: response.joinCode,
                     quiz: response.quiz,
                 };
-
-                resolve(sessionData);
                 console.log("Session created:", sessionData);
+                resolve(sessionData);
             });
         });
     });

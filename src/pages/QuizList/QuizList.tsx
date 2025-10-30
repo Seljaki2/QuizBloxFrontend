@@ -12,7 +12,7 @@ import type { Quiz } from '../../fetch/types';
 import { createSession } from '../../fetch/GAMINGSESSION';
 
 function openSessionWindow(sessionId: string) {
-    const sessionWindow = window.open(`/session/${sessionId}`, '_blank', 'noopener,noreferrer');
+    const sessionWindow = window.open(`/join`, '_blank', 'noopener,noreferrer');
     if (sessionWindow) sessionWindow.focus();
 }
 
@@ -160,7 +160,7 @@ export default function QuizList() {
             render: (_, record) => (
                 <Space size="middle">
                     <a onClick={() => openSessionWindow(record.id)} style={{ color: '#34D399' }}>Začni kviz</a>
-                    <a onClick={() => console.log('Edit', record)}>Uredi</a> {/* TODO */}
+                    <a onClick={() => createSession({ quizId: record.id })}>Uredi</a> {/* TODO */}
                     <a onClick={() => console.log('Delete', record)} style={{ color: 'red' }}>
                         Izbriši
                     </a> {/* TODO */}
