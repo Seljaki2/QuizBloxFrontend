@@ -167,3 +167,16 @@ export async function fetchSubjects() {
     const data = await res.json();
     return data;
 }
+
+export async function fetchQuizzes() {
+    const res = await fetch(`${API_URL}/quizzes`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch quizzes");
+    const data = await res.json();
+    return data;
+}

@@ -8,13 +8,18 @@ export type quizblox={
     quizId: string;
 }
 
+export type joinPacket={
+    joinCode: string;
+    clientType: clientType;
+}
+
 type ServerToClientEvents = {
     message: (msg: string) => void;
 };
 
 type ClientToServerEvents = {
     message: (msg: string) => void;
-    "join-session": (joinCode: string, clientType: clientType, callback: (response: any) => void) => void;
+    "join-session": (joinData: joinPacket, callback: (response: any) => void) => void;
     "create-session": (quizId: quizblox, callback: (response: any) => void) => void;
 };
 
@@ -22,7 +27,7 @@ export let guestId: string | null = null;
 
 export let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 
-export async function initSocket(guestUsername?: string) {
+export async function initSocket(callback: () => void, guestUsername?: string) {
     console.log("📡 initSocket called with url:", WS_URL);
 
     guestId = crypto.randomUUID();
@@ -77,6 +82,7 @@ export async function initSocket(guestUsername?: string) {
 }
     socket.on("connect", () => {
         console.log("✅ Socket connected! ID:", socket?.id);
+        callback();
     });
 
     socket.on("disconnect", (reason) => {
