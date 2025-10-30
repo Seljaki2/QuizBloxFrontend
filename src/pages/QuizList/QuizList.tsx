@@ -6,6 +6,7 @@ import { Button, Flex, Input, Space, Table } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import Highlighter from 'react-highlight-words';
 import styles from './QuizList.module.css'
+import { Link } from 'react-router-dom';
 
 interface QuizType {
     key: React.Key;
@@ -289,6 +290,7 @@ export default function QuizList() {
             width: '50%',
             render: (_, record) => (
                 <Space size="middle">
+                    <Link to="/lobby" style={{ color: '#34D399' }}>Začni kviz</Link> {/* TODO */}
                     <a onClick={() => console.log('Edit', record)}>Uredi</a> {/* TODO */}
                     <a onClick={() => console.log('Delete', record)} style={{ color: 'red' }}>
                         Izbriši

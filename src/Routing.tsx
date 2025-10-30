@@ -7,6 +7,7 @@ import AddNewQuiz from './pages/AddNewQuiz/AddNewQuiz';
 import QuizList from './pages/QuizList/QuizList';
 import QuizHost from './pages/QuizHost/QuizHost';
 import QuizLayoutWrapper from './components/QuizLayoutWrapper/QuizLayoutWrapper';
+import QuizLobby from './pages/QuizLobby/QuizLobby';
 
 export default function Routing() {
     return (
@@ -21,6 +22,7 @@ export default function Routing() {
 
             <Route element={<QuizLayoutWrapper/>}>
                 <Route path="/quiz-host" element={<QuizHost />} />
+                <Route path="/lobby" element={<QuizLobby />} />
             </Route>
         </Routes>
     );
