@@ -24,7 +24,7 @@ export default function NavBar() {
       key: "2",
       danger: true,
       label: (
-        <Button type="text" onClick={signOut} style={{ padding: 0 }}>
+        <Button type="text" onClick={signOut} style={{ padding: 0, color: "#ffffff" }}>
           Odjava
         </Button>
       ),
@@ -44,7 +44,7 @@ export default function NavBar() {
           </Button>
         </Dropdown>
 
-        
+
       ) : (
         <Link className={styles.linkMenu} to="/login">
           Prijavi se!

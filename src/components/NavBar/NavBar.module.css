@@ -49,3 +49,17 @@
 .linkMenu:hover {
     border-color: var(--INFILL);
 }
+
+:global(.ant-dropdown-menu) {
+    background-color: var(--CONTAINER) !important;
+    border-radius: 8px;
+    border: 1px solid var(--CONTAINER) !important;
+}
+
+:global(.ant-dropdown-menu-item) {
+    color: var(--TEXT) !important;
+}
+
+:global(.ant-dropdown-menu-item:has(a):hover) {
+    background-color: var(--CONTAINER_LIGHTER) !important;
+}
