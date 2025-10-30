@@ -54,8 +54,7 @@
 .removeButton:hover{
     background: rgb(255, 255, 255, 0.7) !important;
 }
-.beginButton{
+.buttons{
         font-family: 'PlusJakartaSans', sans-serif;
-    margin-top: 10px;
     padding: 20px;
 }

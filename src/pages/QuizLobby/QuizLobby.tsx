@@ -52,7 +52,7 @@ export default function QuizLobby() {
     }, []);
 
     return (
-        <Flex className={styles.container} vertical>
+        <Flex className={styles.container} vertical gap="middle">
             <h1>KODA: 123456</h1>
             <div id="scrollableDiv" className={styles.scrollArea}>
                 <InfiniteScroll
@@ -72,7 +72,10 @@ export default function QuizLobby() {
                     />
                 </InfiniteScroll>
             </div>
-            <Button className={styles.beginButton}>Začni kviz</Button>
+            <Flex justify='center' style={{width: "100%"}} gap="middle">
+            <Button className={styles.buttons}>Začni</Button>
+            <Button className={styles.buttons} type="primary" danger>Prekliči</Button>
+            </Flex>
         </Flex>
     );
 }
