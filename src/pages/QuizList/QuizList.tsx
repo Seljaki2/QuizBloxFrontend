@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import type { InputRef, TableColumnsType, TableColumnType } from 'antd';
@@ -7,177 +7,46 @@ import type { FilterDropdownProps } from 'antd/es/table/interface';
 import Highlighter from 'react-highlight-words';
 import styles from './QuizList.module.css'
 import { Link } from 'react-router-dom';
+import { API_URL } from '../../api';
+import type { Quiz } from '../../fetch/types';
+import { createSession } from '../../fetch/GAMINGSESSION';
 
-interface QuizType {
-    key: React.Key;
-    title: string;
-    description: string;
-    subject: string;
-    questions?: {
-        question: string;
-        answerType: number;
-        answers?: string[];
-    }[];
+function openSessionWindow(sessionId: string) {
+    const sessionWindow = window.open(`/session/${sessionId}`, '_blank', 'noopener,noreferrer');
+    if (sessionWindow) sessionWindow.focus();
 }
 
+type DataIndex = keyof Quiz;
 
-type DataIndex = keyof QuizType;
-
-const data: QuizType[] = [
-    {
-        key: 1,
-        title: 'Kviz iz Matematike',
-        description: 'Kviz s 5 vprašanji o osnovah matematike.',
-        subject: 'Matematika',
-        questions: [
-            {
-                question: 'Koliko je 2 + 2?',
-                answerType: 2,
-                answers: ['3', '4', '5'],
-            },
-        ],
-    },
-    {
-        key: 2,
-        title: 'Splošni kviz znanja',
-        description: 'Kviz o splošnem znanju z različnimi vrstami vprašanj.',
-        subject: 'Splošno',
-        questions: [
-            {
-                question: 'Katero je glavno mesto Slovenije?',
-                answerType: 2,
-                answers: ['Ljubljana', 'Maribor', 'Celje'],
-            },
-        ],
-    },
-    {
-        key: 3,
-        title: 'Zgodovina Evrope',
-        description: 'Kviz o pomembnih dogodkih evropske zgodovine.',
-        subject: 'Zgodovina',
-        questions: [
-            {
-                question: 'Kdaj se je začela 2. svetovna vojna?',
-                answerType: 1,
-                answers: ['1939'],
-            },
-        ],
-    },
-    {
-        key: 4,
-        title: 'Naravoslovni kviz',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-    {
-        key: 5,
-        title: 'Preverjanje poštevanke',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-    {
-        key: 6,
-        title: 'Preverjanje deljenja',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-    {
-        key: 7,
-        title: 'Glasbeni kviz',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-    {
-        key: 8,
-        title: 'Naravoslovni kviz 2',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-
-    {
-        key: 9,
-        title: 'Naravoslovni kviz',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-    {
-        key: 10,
-        title: 'Naravoslovni kviz',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-    {
-        key: 11,
-        title: 'Naravoslovni kviz',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-    {
-        key: 12,
-        title: 'Naravoslovni kviz',
-        description: 'Kviz s slikovnimi vprašanji o naravi.',
-        subject: 'Znanost',
-        questions: [
-            {
-                question: 'Prepoznajte to rastlino po sliki.',
-                answerType: 3,
-            },
-        ],
-    },
-];
 
 export default function QuizList() {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef<InputRef>(null);
+    const [data, setData] = useState<Quiz[]>([]);
+
+        useEffect(() => {
+            async function fetchQuizzes() {
+                try {
+                    const res = await fetch(`${API_URL}/quizzes`, {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" },
+                    });
+
+                    if (!res.ok) throw new Error("Failed to fetch quizzes");
+
+                    const data = await res.json();
+                    console.log("Fetched quizzes:", data);
+                    setData(data);
+                    console.log("Quizzes set in state:", data);
+                } catch (error) {
+                    console.error("Error fetching quizzes:", error);
+                }
+            }
+
+            fetchQuizzes();
+        }, []);
+    
 
     const handleSearch = (
         selectedKeys: string[],
@@ -194,7 +63,7 @@ export default function QuizList() {
         setSearchText('');
     };
 
-    const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<QuizType> => ({
+    const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<Quiz> => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div style={{ padding: 8, }} className={styles.search_container} onKeyDown={(e) => e.stopPropagation()}>
                 <Input
@@ -276,13 +145,13 @@ export default function QuizList() {
             ),
     });
 
-    const columns: TableColumnsType<QuizType> = [
+    const columns: TableColumnsType<Quiz> = [
         {
             title: 'Naslov',
-            dataIndex: 'title',
-            key: 'title',
+            dataIndex: 'name',
+            key: 'id',
             width: '50%',
-            ...getColumnSearchProps('title'),
+            ...getColumnSearchProps('name'),
         },
         {
             title: 'Akcija',
@@ -290,7 +159,7 @@ export default function QuizList() {
             width: '50%',
             render: (_, record) => (
                 <Space size="middle">
-                    <Link to="/lobby" style={{ color: '#34D399' }}>Začni kviz</Link> {/* TODO */}
+                    <a onClick={() => openSessionWindow(record.id)} style={{ color: '#34D399' }}>Začni kviz</a>
                     <a onClick={() => console.log('Edit', record)}>Uredi</a> {/* TODO */}
                     <a onClick={() => console.log('Delete', record)} style={{ color: 'red' }}>
                         Izbriši
@@ -310,10 +179,10 @@ export default function QuizList() {
         >{/*TODO*/}
             Dodaj Kviz 
         </Button>
-        <Table<QuizType> columns={columns}
+        <Table<Quiz> columns={columns}
             expandable={{
                 expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
-                rowExpandable: (record) => record.title !== 'Not Expandable',
+                rowExpandable: (record) => record.name !== 'Not Expandable',
             }}
             dataSource={data}
             className={styles.table}

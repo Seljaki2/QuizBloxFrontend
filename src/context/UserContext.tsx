@@ -2,15 +2,9 @@ import React, { createContext, useEffect, useState, type ReactNode } from "react
 import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "../fetch/firebase";
 import { API_URL } from "../api";
+import type { AppUser } from "../fetch/types";
 
-export type AppUser = {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    username: string;
-    isTeacher: boolean;
-};
+
 
 type UserContextType = {
     user: AppUser | null;
