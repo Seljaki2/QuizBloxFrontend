@@ -17,6 +17,11 @@
     border: none;
 }
 
+span{
+        font-family: 'PlusJakartaSans', sans-serif;
+        font-size: larger;
+}
+
 .textButton {
     padding: 0;
     width: 250px;
@@ -191,3 +196,36 @@
     opacity: 0.95;
   }
 }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  75% { transform: translateX(-10px); }
+}
+
+.shake {
+  animation: shake 0.5s ease;
+}
+
+/* Happy bounce up-down for correct answer */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-10px); }
+  50% { transform: translateY(-5px); }
+  75% { transform: translateY(-10px); }
+}
+
+.bounce {
+  animation: bounce 0.5s ease;
+}
+
+
+.textButton.blue:disabled { background-color: var(--BLUE); color: #000;}
+.textButton.pink:disabled { background-color: var(--PINK); color: #000;}
+.textButton.orange:disabled { background-color: var(--ORANGE); color: #000;}
+.textButton.green:disabled { background-color: var(--GREEN); color: #000;}
+.imageButton.blue:disabled { background-color: var(--BLUE); }
+.imageButton.pink:disabled { background-color: var(--PINK); }
+.imageButton.orange:disabled { background-color: var(--ORANGE); }
+.imageButton.green:disabled { background-color: var(--GREEN); }
