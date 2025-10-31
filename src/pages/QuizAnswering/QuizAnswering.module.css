@@ -1,0 +1,159 @@
+@font-face {
+    font-family: 'PlusJakartaSans';
+    src: url('../../assets/fonts/PlusJakartaSans/PlusJakartaSans-ExtraBold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+.imageButton {
+    padding: 20px;
+    width: 250px;
+    height: 220px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: none;
+}
+
+.textButton {
+    padding: 0;
+    width: 250px;
+    height: 220px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'PlusJakartaSans', sans-serif;
+    background: none;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+}
+
+.textButtonContent {
+    padding: 20px;
+    overflow-y: auto;
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+.textButtonContent {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    overflow-y: auto;
+    padding: 20px;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.textButtonContent>* {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.textField{
+    padding: 20px;
+    font-family: 'PlusJakartaSans', sans-serif;
+}
+
+.commitButton {
+    padding: 30px 20px;
+    font-family: 'PlusJakartaSans', sans-serif;
+    width: 100%;
+    font-size:x-large;
+}
+
+.textButton:hover {
+    color: var(--TEXT) !important;
+}
+
+.imageWrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.blue {
+    background: var(--BLUE);
+}
+
+.pink {
+    background: var(--PINK);
+}
+
+.orange {
+    background: var(--ORANGE);
+}
+
+.green {
+    background: var(--GREEN);
+}
+
+.blue {
+    background: var(--BLUE);
+}
+
+.blue:hover {
+    background: var(--BLUE_DARKER) !important;
+}
+
+.pink {
+    background: var(--PINK);
+}
+
+.pink:hover {
+    background: var(--PINK_DARKER) !important;
+}
+
+.orange {
+    background: var(--ORANGE);
+}
+
+.orange:hover {
+    background: var(--ORANGE_DARKER) !important;
+}
+
+.green {
+    background: var(--GREEN);
+}
+
+.green:hover {
+    background: var(--GREEN_DARKER) !important;
+}
+
+.header {
+    font-size:4rem;
+    font-weight: 800;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.textButtonContent::-webkit-scrollbar {
+    width: 8px;
+}
+
+.textButtonContent::-webkit-scrollbar-track {
+    background: none;
+    border-radius: 8px;
+}
+
+.textButtonContent::-webkit-scrollbar-thumb {
+    background: rgb(255, 255, 255, 0.7);
+    border-radius: 8px;
+}
+
+.textButtonContent::-webkit-scrollbar-thumb:hover {
+    background: rgb(217, 217, 217, 0.7);
+}
