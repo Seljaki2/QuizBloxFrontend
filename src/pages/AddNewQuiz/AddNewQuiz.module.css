@@ -154,3 +154,9 @@
     margin-top: 0px;
     font-weight: 600;
 }
+
+input::placeholder,
+.customInput::placeholder {
+  color: var(--MINOR_TEXT) !important; 
+  opacity: 1;
+}

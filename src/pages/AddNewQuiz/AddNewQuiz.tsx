@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from "react";
-import { Card, Collapse, Divider, Form, Input, Select, Button, type FormProps, Popconfirm } from "antd";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Card, Collapse, Divider, Form, Input, Select, Button, type FormProps, Popconfirm, Space, type InputRef } from "antd";
 import { CaretRightOutlined, MenuOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -124,7 +124,7 @@ function SortableQuestion({ id, item, onDelete }: { id: string; item: QuestionIt
 }
 
 export default function AddNewQuiz() {
-    const [subjects, setSubjects] = useState([]);
+const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
     const [questions, setQuestions] = useState<QuestionItem[]>([]);
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
@@ -227,6 +227,23 @@ export default function AddNewQuiz() {
     };
 
     const [form] = Form.useForm();
+    const [newSubjectName, setNewSubjectName] = useState("");
+    const inputRef = useRef<InputRef>(null);
+
+    const handleAddSubject = () => { //TODO, TREBA NA BACKEND POVEZAT
+        if (!newSubjectName.trim()) return; 
+
+        const newSubject = {
+            id: `temp-${Date.now()}`, 
+            name: newSubjectName.trim(),
+        };
+
+        setSubjects((prev) => [...prev, newSubject]);
+        setNewSubjectName("");
+        setTimeout(() => {
+            inputRef.current?.focus();
+        }, 0);
+    };
 
     return (
         <>
@@ -264,6 +281,29 @@ export default function AddNewQuiz() {
                                 <Select
                                     className={styles.customSelect}
                                     placeholder="Izberite predmet"
+                                    dropdownRender={(menu) => (
+                                        <>
+                                            {menu}
+                                            <Divider style={{ margin: '8px 0', border: "1px solid #131922"}}/>
+                                            <Space style={{ padding: '0 8px 4px' }}>
+                                                <Input
+                                                    placeholder="Podajte nov predmet"
+                                                    ref={inputRef}
+                                                    value={newSubjectName}
+                                                    onChange={(e) => setNewSubjectName(e.target.value)}
+                                                    onKeyDown={(e) => e.stopPropagation()}
+                                                />
+                                                <Button
+                                                    type="text"
+                                                    icon={<PlusOutlined />}
+                                                    onClick={handleAddSubject}
+                                                    style={{color: "#fff"}}
+                                                >
+                                                    Dodaj
+                                                </Button>
+                                            </Space>
+                                        </>
+                                    )}
                                 >
                                     {subjects?.map((sub: { id: string; name: string }) => (
                                         <Select.Option key={sub.id} value={sub.id}>
@@ -271,6 +311,7 @@ export default function AddNewQuiz() {
                                         </Select.Option>
                                     ))}
                                 </Select>
+
                             </Form.Item>
                         </div>
 
