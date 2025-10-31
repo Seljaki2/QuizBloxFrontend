@@ -1,0 +1,231 @@
+@font-face {
+    font-family: 'PlusJakartaSans';
+    src: url('../../assets/fonts/PlusJakartaSans/PlusJakartaSans-ExtraBold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+.imageButton {
+    padding: 20px;
+    width: 250px;
+    height: 220px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: none;
+}
+
+span{
+        font-family: 'PlusJakartaSans', sans-serif;
+        font-size: larger;
+}
+
+.textButton {
+    padding: 0;
+    width: 250px;
+    height: 220px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'PlusJakartaSans', sans-serif;
+    background: none;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+}
+
+.textButtonContent {
+    padding: 20px;
+    overflow-y: auto;
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+.textButtonContent {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    overflow-y: auto;
+    padding: 20px;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.textButtonContent>* {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.textField{
+    padding: 20px;
+    font-family: 'PlusJakartaSans', sans-serif;
+}
+
+.commitButton {
+    padding: 30px 20px;
+    font-family: 'PlusJakartaSans', sans-serif;
+    width: 100%;
+    font-size:x-large;
+}
+
+.textButton:hover {
+    color: var(--TEXT) !important;
+}
+
+.imageWrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.blue {
+    background: var(--BLUE);
+}
+
+.pink {
+    background: var(--PINK);
+}
+
+.orange {
+    background: var(--ORANGE);
+}
+
+.green {
+    background: var(--GREEN);
+}
+
+.blue {
+    background: var(--BLUE);
+}
+
+.blue:hover {
+    background: var(--BLUE_DARKER) !important;
+}
+
+.pink {
+    background: var(--PINK);
+}
+
+.pink:hover {
+    background: var(--PINK_DARKER) !important;
+}
+
+.orange {
+    background: var(--ORANGE);
+}
+
+.orange:hover {
+    background: var(--ORANGE_DARKER) !important;
+}
+
+.green {
+    background: var(--GREEN);
+}
+
+.green:hover {
+    background: var(--GREEN_DARKER) !important;
+}
+
+.header {
+    font-size:4rem;
+    font-weight: 800;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.textButtonContent::-webkit-scrollbar {
+    width: 8px;
+}
+
+.textButtonContent::-webkit-scrollbar-track {
+    background: none;
+    border-radius: 8px;
+}
+
+.textButtonContent::-webkit-scrollbar-thumb {
+    background: rgb(255, 255, 255, 0.7);
+    border-radius: 8px;
+}
+
+.textButtonContent::-webkit-scrollbar-thumb:hover {
+    background: rgb(217, 217, 217, 0.7);
+}
+
+.infoCard {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  padding: 10px 15px;
+  min-width: 180px;
+  font-size: 0.9rem;
+  text-align: left;
+  z-index: 1000;
+    font-family: 'PlusJakartaSans', sans-serif;
+    animation: float 3s ease-in-out infinite;
+}
+
+.infoTitle {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 5px;
+  color: var(--BLUE);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-6px);
+    opacity: 0.95;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  75% { transform: translateX(-10px); }
+}
+
+.shake {
+  animation: shake 0.5s ease;
+}
+
+/* Happy bounce up-down for correct answer */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-10px); }
+  50% { transform: translateY(-5px); }
+  75% { transform: translateY(-10px); }
+}
+
+.bounce {
+  animation: bounce 0.5s ease;
+}
+
+
+.textButton.blue:disabled { background-color: var(--BLUE); color: #000;}
+.textButton.pink:disabled { background-color: var(--PINK); color: #000;}
+.textButton.orange:disabled { background-color: var(--ORANGE); color: #000;}
+.textButton.green:disabled { background-color: var(--GREEN); color: #000;}
+.imageButton.blue:disabled { background-color: var(--BLUE); }
+.imageButton.pink:disabled { background-color: var(--PINK); }
+.imageButton.orange:disabled { background-color: var(--ORANGE); }
+.imageButton.green:disabled { background-color: var(--GREEN); }
