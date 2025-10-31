@@ -4,7 +4,7 @@ import { Button, Flex, List } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { cancelSession, closeSession, createSession, kickPlayer, session, startQuiz, users } from '../../fetch/GAMINGSESSION';
 import type { AppUser, GuestUser } from '../../fetch/types';
-import { socket } from '../../fetch/socketio';
+import { closeSocket, socket } from '../../fetch/socketio';
 import { useNavigate } from 'react-router-dom';
 
 export default function QuizLobby() {
@@ -65,7 +65,7 @@ export default function QuizLobby() {
             console.log("Session data:", sessionData);
             setSessionState(sessionData);
             sessionStorage.removeItem('quizId');
-
+            console.log(socket);
             if (socket) {
                 socket.on("player-joined", ({ user, users }) => {
                     console.log("Player joined socket:", user, users);
@@ -76,6 +76,15 @@ export default function QuizLobby() {
                     console.log("Player disconnected socket:", user, users);
                     handlePlayerConnection(user, users);
                 });
+
+                socket.on("next-question", ({ question, index }: { question: any, index: number }) => {
+                    console.log("Next question received:", question, index);
+                    if (session?.session == "User Session") {
+                        navigate('/answering');
+                    } else {
+                        navigate('/quiz-host');
+                    }
+                });
             }
         };
 
@@ -84,13 +93,34 @@ export default function QuizLobby() {
             if (!socket?.connected) {
                 init();
             } else {
-                console.log("Socket already connected", session, users);
+                console.log("Socket already connected", socket);
                 setSessionState(session);
                 setUsersState(users);
 
                 socket.on("disconnect", () => {
+                    closeSocket();
                     navigate('/');
                 });
+
+                    socket.on("player-joined", ({ user, users }) => {
+                        console.log("Player joined socket:", user, users);
+                        handlePlayerConnection(user, users);
+                    });
+
+                    socket.on("player-disconnected", ({ user, users }) => {
+                        console.log("Player disconnected socket:", user, users);
+                        handlePlayerConnection(user, users);
+                    });
+
+                    socket.on("next-question", ({ question, index }: { question: any, index: number }) => {
+                        console.log("Next question received:", question, index);
+                        if (session?.session == "User Session") {
+                            navigate('/answering');
+                        } else {
+                            navigate('/quiz-host');
+                        }
+                    });
+                
             }
             loadMoreData();
         }
@@ -123,7 +153,7 @@ export default function QuizLobby() {
                 </InfiniteScroll>
             </div>
             {!(session?.session == "User Session") ? <Flex justify='center' style={{ width: "100%" }} gap="middle">
-                <Button className={styles.buttons} onClick={() => startQuiz()}>Začni</Button>
+                {(usersState?.length > 0) ? <Button className={styles.buttons} onClick={() => startQuiz()}>Začni</Button> : null}
                 <Button className={styles.buttons} type="primary" danger onClick={handleCancel}>Prekliči</Button>
             </Flex> : <Flex justify='center' style={{ width: "100%" }} gap="middle">
                 <Button className={styles.buttons} type="primary" danger onClick={handleCancel}>Prekini Povezavo</Button>

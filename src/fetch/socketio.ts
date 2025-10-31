@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { auth } from "./firebase";
 import { WS_URL } from "../api";
-import type { AppUser, GuestUser } from "./types";
+import type { AppUser, GuestUser, Question } from "./types";
 
 export type clientType = "PLAYER" | "SPECTATOR";
 
@@ -19,6 +19,7 @@ type ServerToClientEvents = {
     "player-joined": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
     "player-disconnected": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
     "ready": () => void;
+    "next-question": ({ question, index }: { question: Question, index: number }) => void;
 };
 
 type ClientToServerEvents = {
@@ -28,6 +29,7 @@ type ClientToServerEvents = {
     "close-session": (callback: (response: any) => void) => void;
     "kick-player": (playerId: string, callback: (response: any) => void) => void;
     "start-quiz": (callback: (response: any) => void) => void;
+    "next-question": (callback: (response: any) => void) => void;
 };
 
 export let guestId: string | null = null;
@@ -111,27 +113,27 @@ export async function initSocket(connectCallback: () => void, guestUsername?: st
 
 export function on<E extends keyof ServerToClientEvents>(
     event: E,
-    handler: ServerToClientEvents[E]
+    handler: (...args: any[]) => void
 ) {
     console.log("🔔 Listening for event:", event);
-    socket?.on(event, handler);
+    socket?.on(event as any, handler as any);
 }
 
 export function off<E extends keyof ServerToClientEvents>(
     event: E,
-    handler?: ServerToClientEvents[E]
+    handler?: (...args: any[]) => void
 ) {
     console.log("🚫 Removing listener for event:", event);
-    if (handler) socket?.off(event, handler);
-    else socket?.off(event);
+    if (handler) socket?.off(event as any, handler as any);
+    else socket?.off(event as any);
 }
 
 export function send<E extends keyof ClientToServerEvents>(
     event: E,
-    payload?: Parameters<ClientToServerEvents[E]>[0]
+    ...args: Parameters<ClientToServerEvents[E]>
 ) {
-    console.log("📤 Sending event:", event, "with payload:", payload);
-    socket?.emit(event, payload);
+    console.log("📤 Sending event:", event, "with args:", args);
+    socket?.emit(event as any, ...args as any);
 }
 
 export function closeSocket() {

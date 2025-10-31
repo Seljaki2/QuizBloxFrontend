@@ -14,6 +14,7 @@ const QuizJoin: React.FC = () => {
 
   const handleJoin = async (values: { joinCode: string; username: string }) => {
     try {
+      closeSocket();
       setLoading(true);
       const data = await connectToSession(values.joinCode, values.username);
       console.log('Joining quiz with:', data);

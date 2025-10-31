@@ -22,6 +22,7 @@ export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
       setSecondsLeft(prev => {
         if (prev <= 1) {
           clearInterval(interval);
+          if (onTimeUp) onTimeUp();
           return 0;
         }
         return prev - 1;
