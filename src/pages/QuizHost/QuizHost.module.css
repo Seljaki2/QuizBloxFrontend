@@ -42,3 +42,12 @@
   min-width: 100px;
   max-width: 200px;
 }
+
+.topScores{
+    font-family: 'PlusJakartaSans', sans-serif;
+    margin: 0px;
+}
+.scores{
+font-family: 'PlusJakartaSans', sans-serif;
+    font-size: large;
+}

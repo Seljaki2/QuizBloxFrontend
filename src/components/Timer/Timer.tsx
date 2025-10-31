@@ -3,12 +3,20 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import styles from './Timer.module.css';
 
-export default function Timer({ totalSeconds = 10 }) {
+interface TimerProps {
+  totalSeconds?: number;
+  onFinish?: () => void;
+}
+
+export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [flashRed, setFlashRed] = useState(false);
 
   useEffect(() => {
-    if (secondsLeft <= 0) return;
+    if (secondsLeft <= 0) {
+      if (onFinish) onFinish(); 
+      return;
+    }
 
     const interval = setInterval(() => {
       setSecondsLeft(prev => {
@@ -21,13 +29,13 @@ export default function Timer({ totalSeconds = 10 }) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [secondsLeft, totalSeconds]);
+  }, [secondsLeft, totalSeconds, onFinish]);
 
   useEffect(() => {
     if (secondsLeft > 0 && secondsLeft <= 5) {
       const flashInterval = setInterval(() => {
         setFlashRed(prev => !prev);
-      }, 300); 
+      }, 300);
 
       return () => clearInterval(flashInterval);
     } else {
@@ -48,9 +56,8 @@ export default function Timer({ totalSeconds = 10 }) {
           trailColor: '#ffffff',
           textColor: '#000000',
           textSize: '24px',
-
         })}
         className={styles.text}
       />
-  );
+    );
 }
