@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import type { InputRef, TableColumnsType, TableColumnType } from 'antd';
@@ -6,7 +6,6 @@ import { Button, Flex, Input, Space, Table } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import Highlighter from 'react-highlight-words';
 import styles from './QuizList.module.css'
-import { Link } from 'react-router-dom';
 import { API_URL } from '../../api';
 import type { Quiz } from '../../fetch/types';
 import { createSession } from '../../fetch/GAMINGSESSION';
@@ -180,6 +179,7 @@ export default function QuizList() {
             Dodaj Kviz 
         </Button>
         <Table<Quiz> columns={columns}
+            rowKey="id"
             expandable={{
                 expandedRowRender: (record) => <p style={{ margin: 0 }}>{record.description}</p>,
                 rowExpandable: (record) => record.name !== 'Not Expandable',
@@ -197,6 +197,6 @@ export default function QuizList() {
                     </div>
                 ),
             }}
-        />;
+        />
     </Flex>
 };
