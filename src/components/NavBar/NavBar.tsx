@@ -18,10 +18,6 @@ export default function NavBar() {
   const dropdownItems = [
     {
       key: "1",
-      label: <Link to="/profile">Profil</Link>,
-    },
-    {
-      key: "2",
       danger: true,
       label: (
         <Button type="text" onClick={signOut} style={{ padding: 0, color: "#ffffff" }}>

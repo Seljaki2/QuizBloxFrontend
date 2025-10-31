@@ -59,7 +59,3 @@
 :global(.ant-dropdown-menu-item) {
     color: var(--TEXT) !important;
 }
-
-:global(.ant-dropdown-menu-item:has(a):hover) {
-    background-color: var(--CONTAINER_LIGHTER) !important;
-}
