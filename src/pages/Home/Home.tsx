@@ -3,6 +3,7 @@ import { Form, Input, Button, Card, message } from 'antd';
 import { connectToSession } from '../../fetch/GAMINGSESSION';
 import { useNavigate } from 'react-router-dom';
 import { closeSocket, socket } from '../../fetch/socketio';
+import styles from "./Home.module.css";
 
 const QuizJoin: React.FC = () => {
   const navigate = useNavigate();
@@ -33,26 +34,28 @@ const QuizJoin: React.FC = () => {
   };
 
   return (
-    <Card title="Join Quiz" style={{ width: 350 }}>
+    <Card className={styles.card}>
+    <h1 className={styles.header}>PRIDRUŽI SE KVIZU</h1>
       <Form
         form={form}
         layout="vertical"
         onFinish={handleJoin}
+        requiredMark="optional"
       >
         <Form.Item
-          label="Join Code"
+          label="Koda"
           name="joinCode"
-          rules={[{ required: true, message: 'Please enter the join code' }]}
+          rules={[{ required: true, message: '' }]}
         >
-          <Input placeholder="Enter join code" />
+          <Input placeholder="Vnesi kodo" />
         </Form.Item>
 
         <Form.Item
-          label="Username"
+          label="Uporabniško ime"
           name="username"
-          rules={[{ required: false, message: 'Please enter your username' }]}
+          rules={[{ required: true, message: 'Niste prijavljeni, rabite uporabniško ime' }]}
         >
-          <Input placeholder="Enter your username" />
+          <Input placeholder="izberite uporabniško ime" />
         </Form.Item>
 
         <Form.Item>
@@ -62,7 +65,7 @@ const QuizJoin: React.FC = () => {
             block
             loading={loading}
           >
-            Join
+            Pridruži se
           </Button>
         </Form.Item>
       </Form>

@@ -3,17 +3,20 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import styles from './Timer.module.css';
 
-export default function Timer({ totalSeconds = 10, onTimeUp, reset }: { totalSeconds?: number; onTimeUp?: () => void; reset?: any }) {
+interface TimerProps {
+  totalSeconds?: number;
+  onFinish?: () => void;
+}
+
+export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [flashRed, setFlashRed] = useState(false);
 
   useEffect(() => {
-    setSecondsLeft(totalSeconds);
-  }, [totalSeconds, reset]);
-
-
-  useEffect(() => {
-    if (secondsLeft <= 0) return;
+    if (secondsLeft <= 0) {
+      if (onFinish) onFinish(); 
+      return;
+    }
 
     const interval = setInterval(() => {
       setSecondsLeft(prev => {
@@ -27,7 +30,7 @@ export default function Timer({ totalSeconds = 10, onTimeUp, reset }: { totalSec
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [secondsLeft, totalSeconds]);
+  }, [secondsLeft, totalSeconds, onFinish]);
 
   useEffect(() => {
     if (secondsLeft > 0 && secondsLeft <= 5) {
@@ -45,18 +48,17 @@ export default function Timer({ totalSeconds = 10, onTimeUp, reset }: { totalSec
   const pathColor = flashRed ? '#d33434' : '#34D399';
 
   return (
-    <CircularProgressbar
-      value={percentage}
-      text={`${secondsLeft}s`}
-      strokeWidth={10}
-      styles={buildStyles({
-        pathColor,
-        trailColor: '#ffffff',
-        textColor: '#000000',
-        textSize: '24px',
-
-      })}
-      className={styles.text}
-    />
-  );
+      <CircularProgressbar
+        value={percentage}
+        text={`${secondsLeft}s`}
+        strokeWidth={10}
+        styles={buildStyles({
+          pathColor,
+          trailColor: '#ffffff',
+          textColor: '#000000',
+          textSize: '24px',
+        })}
+        className={styles.text}
+      />
+    );
 }

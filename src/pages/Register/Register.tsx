@@ -107,7 +107,11 @@ export default function Register() {
                     />
                 </Form.Item>
 
-                <Form.Item label="Geslo" name="password" rules={[{ required: true, message: "Prosim vstavite geslo!" }]}>
+                <Form.Item label="Geslo" name="password" rules={[
+                    { required: true, message: "Prosim vstavite geslo!" },
+                    { min: 6, message: "Geslo mora biti vsaj 6 znakov dolgo!" },
+                ]}
+                >
                     <Input.Password
                         className={styles.input}
                     />

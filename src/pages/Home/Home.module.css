@@ -1,44 +1,17 @@
-@font-face {
-  font-family: 'PlusJakartaSans';
-  src: url('../../assets/fonts/PlusJakartaSans/PlusJakartaSans-ExtraBold.ttf') format('truetype');
-  font-weight: bold;
-  font-style: normal;
+.card {
+    width: 90%;
+    max-width: 500px;
+    min-width: 320px;
+    padding: 0px;
+    border-radius: 12px;
+    background-color: var(--CONTAINER);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    border: none;
 }
 
-.question { 
-    background-color: var(--YELLOW);
-    background-image: linear-gradient(to right, var(--YELLOW_LIGHTER), var(--YELLOW));
-    border: 5px solid  var(--ORANGE);
-    padding: 40px;
-    max-width: 70%;
-    min-width: 50%;
-    border-radius: 16px;
-    font-family: 'PlusJakartaSans', sans-serif;
-    font-size: large;
-    align-content: center;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: -1px 2px 20px 0px rgba(0,0,0,0.50);
-}
-
-.image{
-    border-radius: 16px;
-    border: 5px solid  var(--ORANGE);
-    box-shadow: -1px 2px 20px 0px rgba(0,0,0,0.50);
-}
-
-.container {
-    width: 100%;
-}
-
-/* Fixed timer at top-right */
-.timerWrapper {
-  position: fixed;
-  top: 40px;
-  right: 40px;
-  z-index: 1000; /* ensure it's on top of other content */
-  width: 10%;
-  min-width: 100px;
-  max-width: 200px;
+.header {
+    color: var(--TEXT);
+    text-align: center;
+    margin-bottom: 25px;
+    font-weight: 600;
 }
