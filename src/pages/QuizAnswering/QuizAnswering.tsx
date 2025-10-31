@@ -8,7 +8,7 @@ import styles from "./QuizAnswering.module.css";
 import TextArea from "antd/es/input/TextArea";
 
 export default function QuizAnswering() {
-    const testSwitch = 1; 
+    const testSwitch = 0; 
 
     type Answer = {
         content: string;
@@ -220,7 +220,7 @@ export default function QuizAnswering() {
                                     : ""
                         }
                         >
-                            <span> Tvoj dgovor: <span style={{ color: "#64F55F" }}>{selectedAnswer.content} </span> </span>
+                            <span className={styles.spanText}> Tvoj dgovor: <span style={{ color: "#64F55F" }}>{selectedAnswer.content} </span> </span>
                         </div>
                     ) : testing1[testSwitch].answerType === 2 ? (
                         <Button

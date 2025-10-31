@@ -17,7 +17,7 @@
     border: none;
 }
 
-span{
+.spanText{
         font-family: 'PlusJakartaSans', sans-serif;
         font-size: larger;
 }
