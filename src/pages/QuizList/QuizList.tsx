@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import type { InputRef, TableColumnsType, TableColumnType } from 'antd';
@@ -8,13 +8,37 @@ import Highlighter from 'react-highlight-words';
 import styles from './QuizList.module.css'
 import { API_URL } from '../../api';
 import type { Quiz } from '../../fetch/types';
-import { createSession } from '../../fetch/GAMINGSESSION';
 import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../../context/UserContext';
+import { deleteQuiz } from '../../fetch/quiz';
 
-function openSessionWindow(sessionId: string) {
-    const sessionWindow = window.open(`/lobby`, '_blank', 'noopener,noreferrer');
-    if (sessionWindow) sessionWindow.focus();
+
+
+function openSessionWindow(quizId: string) {
+    const width = 800;
+    const height = 600;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+
+    const features = `
+        width=${width},
+        height=${height},
+        left=${left},
+        top=${top},
+        resizable=yes,
+        scrollbars=yes,
+        status=no,
+        toolbar=no,
+        menubar=no
+    `.replace(/\s+/g, '');
+
+    sessionStorage.setItem('quizId', quizId);
+    const sessionWindow = window.open(`/lobby`, '_blank', features);
+    if (sessionWindow) {
+        sessionWindow.focus();
+    }
 }
+
 
 type DataIndex = keyof Quiz;
 
@@ -25,30 +49,30 @@ export default function QuizList() {
     const searchInput = useRef<InputRef>(null);
     const [data, setData] = useState<Quiz[]>([]);
     const navigate = useNavigate();
+    const { user } = useContext(UserContext);
 
 
-        useEffect(() => {
-            async function fetchQuizzes() {
-                try {
-                    const res = await fetch(`${API_URL}/quizzes`, {
-                        method: "GET",
-                        headers: { "Content-Type": "application/json" },
-                    });
+    useEffect(() => {
+        async function fetchQuizzes() {
+            try {
+                const res = await fetch(`${API_URL}/quizzes`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
 
-                    if (!res.ok) throw new Error("Failed to fetch quizzes");
+                if (!res.ok) throw new Error("Failed to fetch quizzes");
 
-                    const data = await res.json();
-                    console.log("Fetched quizzes:", data);
-                    setData(data);
-                    console.log("Quizzes set in state:", data);
-                } catch (error) {
-                    console.error("Error fetching quizzes:", error);
-                }
+                const data = await res.json();
+                console.log("Fetched quizzes:", data);
+                setData(data);
+            } catch (error) {
+                console.error("Error fetching quizzes:", error);
             }
+        }
 
-            fetchQuizzes();
-        }, []);
-    
+        fetchQuizzes();
+    }, []);
+
 
     const handleSearch = (
         selectedKeys: string[],
@@ -63,6 +87,23 @@ export default function QuizList() {
     const handleReset = (clearFilters: () => void) => {
         clearFilters();
         setSearchText('');
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('Ali ste prepričani, da želite izbrisati ta kviz?')) return;
+
+        try {
+            const res = await deleteQuiz(id);
+
+            if (res && typeof res === 'object' && 'ok' in res && !(res as any).ok) {
+                console.error('Failed to delete quiz', res);
+                return;
+            }
+
+            setData(prev => prev.filter(q => q.id !== id));
+        } catch (error) {
+            console.error('Error deleting quiz:', error);
+        }
     };
 
     const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<Quiz> => ({
@@ -161,11 +202,9 @@ export default function QuizList() {
             width: '50%',
             render: (_, record) => (
                 <Space size="middle">
-                    <a onClick={() => openSessionWindow(record.id)} style={{ color: '#34D399' }}>Začni kviz</a>
-                    <a onClick={() => createSession({ quizId: record.id })}>Uredi</a> {/* TODO */}
-                    <a onClick={() => console.log('Delete', record)} style={{ color: 'red' }}>
-                        Izbriši
-                    </a> {/* TODO */}
+                    {user?.isTeacher ? <a onClick={() => openSessionWindow(record.id)} style={{ color: '#34D399' }}>Začni kviz</a> : <></>}
+                    {(user?.id == record.creator.id || user?.isAdmin) ? <a onClick={() => console.log("TODO")}>Uredi</a> : <></>}
+                    {(user?.id == record.creator.id || user?.isAdmin) ? <a onClick={() => handleDelete(record.id)} style={{ color: 'red' }}>Izbriši</a> : <></>}
                 </Space>
             ),
         },
@@ -173,15 +212,15 @@ export default function QuizList() {
 
     return <Flex vertical gap="large" align="flex-end">
 
-        <Button
+        {user?.isTeacher ? <Button
             type="primary"
             htmlType="submit"
             icon={<PlusOutlined />}
             className={styles.extraButtonStyle}
             onClick={() => navigate("/NewQuiz")}
         >
-            Dodaj Kviz 
-        </Button>
+            Dodaj Kviz
+        </Button> : null}
         <Table<Quiz> columns={columns}
             rowKey="id"
             expandable={{

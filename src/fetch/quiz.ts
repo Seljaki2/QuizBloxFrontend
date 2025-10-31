@@ -180,3 +180,36 @@ export async function fetchQuizzes() {
     const data = await res.json();
     return data;
 }
+
+export async function createSubject(subjectName: string) {
+    const token = await auth.currentUser?.getIdToken();
+
+    const res = await fetch(`${API_URL}/subjects`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name: subjectName }),
+    });
+
+    if (!res.ok) throw new Error("Failed to create subject");
+    const data = await res.json();
+    return data;
+}
+
+export async function deleteQuiz(quizId: string) {
+    const token = await auth.currentUser?.getIdToken();
+
+    const res = await fetch(`${API_URL}/quizzes/${quizId}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!res.ok) throw new Error("Failed to delete quiz");
+    const data = await res.json();
+    return data;
+}   

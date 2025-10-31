@@ -26,7 +26,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     async function getUserProfile() {
         const token = await getToken();
-        console.log("Fetched token:", token);
 
         const res = await fetch(`${API_URL}/users/me`, {
             method: "GET",
@@ -46,6 +45,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             lastName: data.lastName,
             username: data.username,
             isTeacher: data.isTeacher,
+            isAdmin: data.isAdmin,
         };
 
         return appUser;

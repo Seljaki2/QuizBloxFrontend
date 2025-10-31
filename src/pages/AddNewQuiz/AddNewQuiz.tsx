@@ -10,7 +10,7 @@ import type { ReactElement } from "react";
 import styles from "./AddNewQuiz.module.css";
 import NewQuestion from "../../components/NewQuestion/NewQuestion";
 import { API_URL } from "../../api";
-import { createQuiz } from "../../fetch/quiz";
+import { createQuiz, createSubject } from "../../fetch/quiz";
 import { UserContext } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
@@ -230,13 +230,10 @@ const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
     const [newSubjectName, setNewSubjectName] = useState("");
     const inputRef = useRef<InputRef>(null);
 
-    const handleAddSubject = () => { //TODO, TREBA NA BACKEND POVEZAT
+    const handleAddSubject = async () => {
         if (!newSubjectName.trim()) return; 
 
-        const newSubject = {
-            id: `temp-${Date.now()}`, 
-            name: newSubjectName.trim(),
-        };
+        const newSubject = await createSubject(newSubjectName);
 
         setSubjects((prev) => [...prev, newSubject]);
         setNewSubjectName("");
@@ -282,6 +279,7 @@ const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
                                     className={styles.customSelect}
                                     placeholder="Izberite predmet"
                                     dropdownRender={(menu) => (
+                                        user?.isAdmin ? (
                                         <>
                                             {menu}
                                             <Divider style={{ margin: '8px 0', border: "1px solid #131922"}}/>
@@ -303,6 +301,8 @@ const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
                                                 </Button>
                                             </Space>
                                         </>
+                                        ) :
+                                        menu
                                     )}
                                 >
                                     {subjects?.map((sub: { id: string; name: string }) => (
