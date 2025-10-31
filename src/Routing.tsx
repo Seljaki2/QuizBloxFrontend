@@ -8,7 +8,6 @@ import QuizList from './pages/QuizList/QuizList';
 import QuizHost from './pages/QuizHost/QuizHost';
 import QuizLayoutWrapper from './components/QuizLayoutWrapper/QuizLayoutWrapper';
 import QuizLobby from './pages/QuizLobby/QuizLobby';
-import QuizJoin from './pages/QuizJoin/QuizJoin';
 
 export default function Routing() {
     return (
@@ -17,14 +16,13 @@ export default function Routing() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="//quizzes" element={<QuizList />} />
-                <Route path="/testing" element={<AddNewQuiz />} />{/*temporary za izdelavo na frontende*/}
+                <Route path="/quizzes" element={<QuizList />} />
+                <Route path="/NewQuiz" element={<AddNewQuiz />} />
             </Route>
 
             <Route element={<QuizLayoutWrapper/>}>
                 <Route path="/quiz-host" element={<QuizHost />} />
                 <Route path="/lobby" element={<QuizLobby />} />
-                <Route path="/join" element={<QuizJoin />} />
             </Route>
         </Routes>
     );
