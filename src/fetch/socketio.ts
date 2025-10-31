@@ -3,13 +3,13 @@ import { auth } from "./firebase";
 import { WS_URL } from "../api";
 import type { AppUser, GuestUser } from "./types";
 
-export type clientType="PLAYER" | "SPECTATOR";
+export type clientType = "PLAYER" | "SPECTATOR";
 
-export type quizblox={
+export type quizblox = {
     quizId: string;
 }
 
-export type joinPacket={
+export type joinPacket = {
     joinCode: string;
     clientType: clientType;
 }
@@ -17,23 +17,28 @@ export type joinPacket={
 type ServerToClientEvents = {
     message: (msg: string) => void;
     "player-joined": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
+    "player-disconnected": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
+    "ready": () => void;
 };
 
 type ClientToServerEvents = {
     message: (msg: string) => void;
     "join-session": (joinData: joinPacket, callback: (response: any) => void) => void;
     "create-session": (quizId: quizblox, callback: (response: any) => void) => void;
+    "close-session": (callback: (response: any) => void) => void;
+    "kick-player": (playerId: string, callback: (response: any) => void) => void;
+    "start-quiz": (callback: (response: any) => void) => void;
 };
 
 export let guestId: string | null = null;
 
 export let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 
-export async function initSocket(callback: () => void, guestUsername?: string) {
+export async function initSocket(connectCallback: () => void, guestUsername?: string) {
     console.log("📡 initSocket called with url:", WS_URL);
 
     guestId = crypto.randomUUID();
-
+    console.log("🔌 Socket instance state:", socket);
     if (socket) {
         console.log("⚡ Socket already initialized with id:", socket.id);
         return socket;
@@ -46,45 +51,50 @@ export async function initSocket(callback: () => void, guestUsername?: string) {
         reconnectionAttempts: 5,
         reconnectionDelay: 2000,
     });
-
+    console.log("🔌 Socket instance created:", socket);
     if (guestUsername) {
         console.log("👤 Initializing socket for guest user:", guestUsername);
         socket.auth = { guestUsername: `${guestUsername}`, guestId: `${guestId}` };
         socket.connect();
-        
+
         if (socket.connected) {
             console.log("🔄 Reconnecting socket with guest credentials...");
             socket.disconnect();
-            socket.connect();
-        }
-    }else{
-    console.log("⏳ Waiting for Firebase auth...");
-    const user = await new Promise((resolve) => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            unsubscribe();
-            resolve(user);
-        });
-    });
-
-    let token: string | null = null;
-    if (user) {
-        token = await (user as any).getIdToken();
-        console.log("🔑 Firebase token obtained:", token);
-        socket.auth = { token: `${token}` };
-        socket.connect();
-
-        if (socket.connected) {
-            console.log("🔄 Reconnecting socket with token...");
-            socket.disconnect();
+            socket.auth = { guestUsername: `${guestUsername}`, guestId: `${guestId}` };
             socket.connect();
         }
     } else {
-        console.log("⚠️ No user signed in, socket will connect without token");
+        console.log("👤 Initializing socket for authenticated user");
+        const user = await new Promise((resolve) => {
+            const unsubscribe = auth.onAuthStateChanged((user) => {
+                unsubscribe();
+                resolve(user);
+            });
+        });
+
+        let token: string | null = null;
+        if (user) {
+            token = await (user as any).getIdToken();
+            socket.auth = { token: `${token}` };
+            socket.connect();
+
+            if (socket.connected) {
+                console.log("🔄 Reconnecting socket with token...");
+                socket.disconnect();
+                socket.auth = { token: `${token}` };
+                socket.connect();
+            }
+        } else {
+            console.log("⚠️ No user signed in, socket will connect without token");
+        }
     }
-}
     socket.on("connect", () => {
         console.log("✅ Socket connected! ID:", socket?.id);
-        callback();
+    });
+
+    socket.on("ready", () => {
+        console.log("🚀 Socket is ready for communication");
+        connectCallback();
     });
 
     socket.on("disconnect", (reason) => {

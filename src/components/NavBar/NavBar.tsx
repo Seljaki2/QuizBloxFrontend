@@ -5,7 +5,6 @@ import { Menu, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { useContext } from "react";
 import { UserContext } from "../../context/UserContext";
-import { createSession } from "../../fetch/GAMINGSESSION";
 
 export default function NavBar() {
   const { user, signOut } = useContext(UserContext);
@@ -29,10 +28,6 @@ export default function NavBar() {
           Odjava
         </Button>
       ),
-    },
-    {
-      key: "3",
-      label: <Button type="text" onClick={() => {console.log(createSession({quizId:"c06cef94-56c2-449a-a693-9f39ad91d987"}));}} style={{ padding: 0 }}>Begin Session</Button>,
     }
   ];
 

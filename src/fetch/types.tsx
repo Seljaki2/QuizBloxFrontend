@@ -24,7 +24,7 @@ export interface Result {
   userEntry?: string | null;
 }
 
-  export interface Subject {
+export interface Subject {
   id: string;
   createdAt: Date;
   updatedAt: Date;
@@ -62,16 +62,23 @@ export interface Question {
   questionType: QuestionType;
 }
 
-export interface AppUser  {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    username: string;
-    isTeacher: boolean;
+export interface AppUser {
+  isAdmin: any;
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  isTeacher: boolean;
 };
 
-export interface GuestUser{
+export interface Session {
+  host: AppUser;
+  quiz: Quiz;
+  endTime: Date;
+}
+
+export interface GuestUser {
   guestUsername: string;
   guestId: string;
 }

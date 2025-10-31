@@ -2,43 +2,45 @@ import styles from './QuizLobby.module.css'
 import { useEffect, useState, useRef } from 'react';
 import { Button, Flex, List } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { cancelSession, closeSession, createSession, kickPlayer, session, startQuiz, users } from '../../fetch/GAMINGSESSION';
+import type { AppUser, GuestUser } from '../../fetch/types';
+import { socket } from '../../fetch/socketio';
+import { useNavigate } from 'react-router-dom';
 
 export default function QuizLobby() {
+    const navigate = useNavigate();
+    const quizId = sessionStorage.getItem('quizId');
+    const [sessionState, setSessionState] = useState<any>(null);
+    const [usersState, setUsersState] = useState<Array<any>>([]);
 
-    interface DataType {
-        username: string;
-        id: string;
-    }
-
-    const allUsers: DataType[] = [
-        { id: '1', username: 'Alice' },
-        { id: '2', username: 'Bob' },
-        { id: '3', username: 'Charlie' },
-        { id: '4', username: 'Diana' },
-        { id: '5', username: 'Ethan' },
-        { id: '6', username: 'Fiona' },
-        { id: '7', username: 'George' },
-        { id: '8', username: 'Hannah' },
-        { id: '9', username: 'Ian' },
-        { id: '10', username: 'Jasmine' },
-        { id: '11', username: 'Jasmine' },
-        { id: '12', username: 'Jasmine' },
-
-    ];
 
     const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<DataType[]>([]);
+
     const [page, setPage] = useState(1);
     const pageSize = 8;
+
+    const handleCancel = async () => {
+        try {
+            if (typeof session!.session === "string") {
+                await closeSession();
+                navigate('/');
+            } else {
+                await cancelSession();
+                window.close();
+            }
+        } catch (error) {
+            console.error("Error closing session:", error);
+        }
+    };
 
     const loadMoreData = () => {
         if (loading) return;
         setLoading(true);
 
-        const nextItems = allUsers.slice((page - 1) * pageSize, page * pageSize);
+        const nextItems = usersState.slice((page - 1) * pageSize, page * pageSize);
 
         setTimeout(() => {
-            setData(prev => [...prev, ...nextItems]);
+            setUsersState(prev => [...prev, ...nextItems]);
             setPage(prev => prev + 1);
             setLoading(false);
         },);
@@ -46,36 +48,86 @@ export default function QuizLobby() {
 
     const hasLoaded = useRef(false);
     useEffect(() => {
-        if (hasLoaded.current) return;
-        hasLoaded.current = true;
-        loadMoreData();
+        const handleUnload = () => {
+            closeSession().catch((err) => console.error("Failed to close session:", err));
+        };
+
+        const handlePlayerConnection = (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+            console.log("Player connection changed:", user, users);
+            setUsersState(users);
+        };
+
+
+        window.addEventListener("beforeunload", handleUnload);
+
+        const init = async () => {
+            const sessionData = await createSession({ quizId: quizId! });
+            console.log("Session data:", sessionData);
+            setSessionState(sessionData);
+            sessionStorage.removeItem('quizId');
+
+            if (socket) {
+                socket.on("player-joined", ({ user, users }) => {
+                    console.log("Player joined socket:", user, users);
+                    handlePlayerConnection(user, users);
+                });
+
+                socket.on("player-disconnected", ({ user, users }) => {
+                    console.log("Player disconnected socket:", user, users);
+                    handlePlayerConnection(user, users);
+                });
+            }
+        };
+
+        if (!hasLoaded.current) {
+            hasLoaded.current = true;
+            if (!socket?.connected) {
+                init();
+            } else {
+                console.log("Socket already connected", session, users);
+                setSessionState(session);
+                setUsersState(users);
+
+                socket.on("disconnect", () => {
+                    navigate('/');
+                });
+            }
+            loadMoreData();
+        }
+
+        return () => {
+            window.removeEventListener("beforeunload", handleUnload);
+            socket?.off("player-joined");
+        };
     }, []);
 
     return (
         <Flex className={styles.container} vertical gap="middle">
-            <h1>KODA: 123456</h1>
+            {!(session?.session == "User Session") ? <h1>Koda za kviz: {sessionState?.joinCode}</h1> : <h1>Čakanje na igralce...</h1>}
             <div id="scrollableDiv" className={styles.scrollArea}>
                 <InfiniteScroll
-                    dataLength={data.length}
+                    dataLength={usersState?.length}
                     next={loadMoreData}
-                    hasMore={data.length < allUsers.length}
-                    scrollableTarget="scrollableDiv" 
-                    loader={<div>Nalaga...</div>}>
+                    hasMore={usersState?.length < usersState?.length}
+                    scrollableTarget="scrollableDiv"
+                    loader={<div>Čakanje na igralce...</div>}>
                     <List
-                        dataSource={data}
+                        dataSource={usersState}
                         renderItem={(item) => (
-                            <List.Item key={item.id} style={{padding: "5px 0px"}}>
-                                <List.Item.Meta title={item.username} style={{margin: "0px"}}/>
-                                <Button className={styles.removeButton}>Odstrani</Button>
+                            <List.Item key={item.id} style={{ padding: "5px 0px" }}>
+                                {(item.username) ? <List.Item.Meta title={item.username} style={{ margin: "0px" }} /> : <List.Item.Meta title={item.guestUsername} style={{ margin: "0px" }} />}
+                                {!(session?.session == "User Session") ? <Button className={styles.removeButton} onClick={(item.guestId) ? () => kickPlayer(item.guestId) : () => kickPlayer(item.id)}>Odstrani</Button> : null}
                             </List.Item>
                         )}
                     />
                 </InfiniteScroll>
             </div>
-            <Flex justify='center' style={{width: "100%"}} gap="middle">
-            <Button className={styles.buttons}>Začni</Button>
-            <Button className={styles.buttons} type="primary" danger>Prekliči</Button>
-            </Flex>
+            {!(session?.session == "User Session") ? <Flex justify='center' style={{ width: "100%" }} gap="middle">
+                <Button className={styles.buttons} onClick={() => startQuiz()}>Začni</Button>
+                <Button className={styles.buttons} type="primary" danger onClick={handleCancel}>Prekliči</Button>
+            </Flex> : <Flex justify='center' style={{ width: "100%" }} gap="middle">
+                <Button className={styles.buttons} type="primary" danger onClick={handleCancel}>Prekini Povezavo</Button>
+            </Flex>}
         </Flex>
     );
 }
