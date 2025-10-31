@@ -9,9 +9,10 @@ import styles from './QuizList.module.css'
 import { API_URL } from '../../api';
 import type { Quiz } from '../../fetch/types';
 import { createSession } from '../../fetch/GAMINGSESSION';
+import { useNavigate } from 'react-router-dom';
 
 function openSessionWindow(sessionId: string) {
-    const sessionWindow = window.open(`/join`, '_blank', 'noopener,noreferrer');
+    const sessionWindow = window.open(`/lobby`, '_blank', 'noopener,noreferrer');
     if (sessionWindow) sessionWindow.focus();
 }
 
@@ -23,6 +24,8 @@ export default function QuizList() {
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef<InputRef>(null);
     const [data, setData] = useState<Quiz[]>([]);
+    const navigate = useNavigate();
+
 
         useEffect(() => {
             async function fetchQuizzes() {
@@ -175,7 +178,8 @@ export default function QuizList() {
             htmlType="submit"
             icon={<PlusOutlined />}
             className={styles.extraButtonStyle}
-        >{/*TODO*/}
+            onClick={() => navigate("/NewQuiz")}
+        >
             Dodaj Kviz 
         </Button>
         <Table<Quiz> columns={columns}
