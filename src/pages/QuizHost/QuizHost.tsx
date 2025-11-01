@@ -42,6 +42,7 @@ export default function QuizHost() {
         console.error("Error moving to next question:", response.error);
       } else {
         console.log("Moved to next question:", response);
+        setShowLead(false);
       }
     });
   };
