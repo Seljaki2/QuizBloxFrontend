@@ -52,7 +52,8 @@ export default function QuizLobby() {
             closeSession().catch((err) => console.error("Failed to close session:", err));
         };
 
-        const handlePlayerConnection = (users: Array<AppUser | GuestUser>) => {
+        const handlePlayerConnection = (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+            console.log("Player connection changed:", user, users);
             setUsersState(users);
         };
 
@@ -66,14 +67,14 @@ export default function QuizLobby() {
             sessionStorage.removeItem('quizId');
             console.log(socket);
             if (socket) {
-                socket.on("player-joined", (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+                socket.on("player-joined", ({ user, users }) => {
                     console.log("Player joined socket:", user, users);
-                    handlePlayerConnection(users);
+                    handlePlayerConnection(user, users);
                 });
 
-                socket.on("player-disconnected", (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+                socket.on("player-disconnected", ({ user, users }) => {
                     console.log("Player disconnected socket:", user, users);
-                    handlePlayerConnection(users);
+                    handlePlayerConnection(user, users);
                 });
 
                 socket.on("next-question", (index: number) => {
@@ -101,17 +102,18 @@ export default function QuizLobby() {
                     navigate('/');
                 });
 
-                socket.on("player-joined", (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+                socket.on("player-joined", ({ user, users }) => {
                     console.log("Player joined socket:", user, users);
-                    handlePlayerConnection(users);
+                    handlePlayerConnection(user, users);
                 });
 
-                socket.on("player-disconnected", (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+                socket.on("player-disconnected", ({ user, users }) => {
                     console.log("Player disconnected socket:", user, users);
-                    handlePlayerConnection(users);
+                    handlePlayerConnection(user, users);
                 });
 
-                socket.on("next-question", () => {
+                socket.on("next-question", (index: number) => {
+                    console.log("Next question received:", index);
                     if (session?.session == "User Session") {
                         navigate('/answering');
                     } else {
