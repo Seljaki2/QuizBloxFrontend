@@ -1,7 +1,6 @@
 import type { Session } from "react-router-dom";
 import { closeSocket, initSocket, socket, type quizblox } from "./socketio";
-import type { AppUser, GuestUser } from "./types";
-
+import type { AppUser, GuestUser, Quiz } from "./types";
 export let session: sessionType | null = null;
 export let users: Array<AppUser | GuestUser> = [];
 export let status: sessionStatus = "closed";
@@ -12,7 +11,7 @@ export type sessionStatus = "waiting" | "in-progress" | "finished" | "closed";
 export type sessionType = {
     session: Session | string;
     joinCode: string | null;
-    quiz: any;
+    quiz: Quiz;
 }
 
 export async function connectToSession(joinCode: string, username?: string): Promise<sessionType> {
@@ -36,6 +35,9 @@ export async function connectToSession(joinCode: string, username?: string): Pro
             socket.on("next-question", (index: number) => {
                 questionIndex = index;
             });
+          socket.on("finish-question", (currentUsers: Array<AppUser|GuestUser>) => {
+                users=currentUsers;
+          });
 
             socket.emit("join-session", { joinCode, clientType: "PLAYER" }, (response: any) => {
                 if (response.joined == false) {
@@ -138,5 +140,15 @@ export async function startQuiz() {
         if (response.error) {
             console.error("Error starting quiz:", response.error);
         }
+        status="in-progress"
     });
+}
+
+export async function finishQuiz(){
+  if(!session) return;
+    closeSocket();
+    session=null;
+    users=[];
+    questionIndex=-1;
+    status="finished";
 }

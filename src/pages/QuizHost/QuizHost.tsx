@@ -1,18 +1,21 @@
 import { Button, Flex, Image } from "antd";
 import styles from "./QuizHost.module.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from 'react';
 import Timer from "../../components/Timer/Timer";
 import Crown from "../../../src/assets/crown.svg";
-import { questionIndex, session } from "../../fetch/GAMINGSESSION";
+import { questionIndex, session, users } from '../../fetch/GAMINGSESSION';
 import { PICTURE_URL } from "../../api";
 import { socket } from "../../fetch/socketio";
+import { UserContext } from '../../context/UserContext.tsx';
+import type { AppUser, GuestUser } from '../../fetch/types.tsx';
 
 export default function QuizHost() {
+  const {user} = useContext(UserContext);
   const [rotation, setRotation] = useState(0);
   const [questionIndexState, setQuestionIndexState] = useState(questionIndex);
   const [resetKey, setResetKey] = useState(0);
   const [showLead, setShowLead] = useState(false);
-  console.log(session);
+  const [usersState, setUsersState] = useState(users);
 
   useEffect(() => {
     const randomRotation = Math.floor(Math.random() * 21) - 10;
@@ -22,35 +25,45 @@ export default function QuizHost() {
       socket.on("next-question", (index: number) => {
         setQuestionIndexState(index);
         setResetKey(index);
+        setShowLead(false);
+      });
+
+      socket.on("finish-question", (currentUsers: Array<AppUser|GuestUser>) => {
+        console.log("finished", currentUsers)
+        setUsersState(currentUsers);
+        console.log("test", usersState)
+        setShowLead(true);
       });
     }
 
     return () => {
       socket?.off("next-question");
+      socket?.off("finish-question")
     }
-  }, []);
+  }, [usersState, showLead, resetKey]);
 
   const handleTimerFinish = () => {
-    setShowLead(true);
+    if(!showLead) {
+      socket?.emit("time-elapsed-question", user?.id, (response: any) => {
+        if (response.error) {
+          console.error("Error finishing question", response.error);
+        } else {
+          setShowLead(true);
+        }
+      });
+    }
   };
 
   const handleNextQuestion = () => {
-    console.log("Time's up! Moving to next question.", questionIndexState);
     socket?.emit("next-question", (response: any) => {
       if (response.error) {
         console.error("Error moving to next question:", response.error);
       } else {
-        console.log("Moved to next question:", response);
-        setShowLead(false);
+        console.log("Moved to next question:", response)
       }
     });
   };
 
-  const testUsers = [
-    { username: "Alice", score: 120 },
-    { username: "Bob", score: 95 },
-    { username: "Charlie", score: 110 },
-  ];
 
   return (
     <>
@@ -62,7 +75,6 @@ export default function QuizHost() {
 
 
           <Flex className={styles.question}>
-            <Button onClick={handleNextQuestion}></Button>
             {(session?.quiz.questions[questionIndexState].media) ? <Image
               className={styles.image}
               src={PICTURE_URL + session?.quiz.questions[questionIndexState].media.path}
@@ -77,11 +89,12 @@ export default function QuizHost() {
       ) : (
         <Flex vertical align="center" style={{ width: "100vh" }}>
           <img src={Crown} alt="Crown" />
-          <h1 className={styles.topScores}>1. {testUsers[0].username}</h1>
-          <span className={styles.scores}>{testUsers[0].score} točk</span>
+          {console.log("usersState.log", usersState)}
+          {(usersState[0]?.guestUsername) ? <h1 className={styles.topScores}>1. {usersState[0]?.guestUsername}</h1> : <h1 className={styles.topScores}>1. {usersState[0]?.username}</h1>}
+          <span className={styles.scores}>{usersState[0]?.totalScore} točk</span>
 
           <Flex gap="middle" justify="center" style={{ width: "100vh" }}>
-            <Flex
+            {(usersState.length>=2) ? <Flex
               vertical
               justify="center"
               align="center"
@@ -89,10 +102,10 @@ export default function QuizHost() {
                 width: "50vh",
               }}
             >
-              <h1 className={styles.topScores}>2. {testUsers[1].username}</h1>
-              <span className={styles.scores}>{testUsers[1].score} točk</span>
-            </Flex>
-            <Flex
+              {(usersState[1]?.guestUsername) ? <h1 className={styles.topScores}>2. {usersState[1]?.guestUsername}</h1> : <h1 className={styles.topScores}>2. {usersState[1]?.username}</h1>}
+                <span className={styles.scores}>{usersState[1]?.totalScore} točk</span>
+            </Flex>:null}
+            {(usersState.length>=3)?<Flex
               vertical
               justify="center"
               align="center"
@@ -100,13 +113,14 @@ export default function QuizHost() {
                 width: "50vh",
               }}
             >
-              <h1 className={styles.topScores}>3. {testUsers[2].username}</h1>
-              <span className={styles.scores}>{testUsers[2].score} točk</span>
-            </Flex>
-            <Button onClick={handleNextQuestion}>NEXT QUESTION</Button>
+              {(usersState[2]?.guestUsername) ? <h1 className={styles.topScores}>3. {usersState[2]?.guestUsername}</h1> : <h1 className={styles.topScores}>3. {usersState[2]?.username}</h1>}
+              <span className={styles.scores}>{usersState[2]?.totalScore} točk</span>
+            </Flex>:null}
           </Flex>
+          <Button onClick={handleNextQuestion} style={{ marginTop: '100px' }}>
+            {(questionIndexState>=session?.quiz.questions.length) ? "NEXT QUESTION":"FINISH QUIZ"}
+          </Button>
         </Flex>
-
       )}
     </>
   );

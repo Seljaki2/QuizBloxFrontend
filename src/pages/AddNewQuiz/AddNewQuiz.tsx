@@ -320,7 +320,7 @@ const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
                             name="description"
                             className={styles.descriptionItem}
                         >
-                            <TextArea autoSize={{ minRows: 5, maxRows: 5 }} />
+                            <TextArea autoSize={{ minRows: 5, maxRows: 5 }} required={true} />
                         </Form.Item>
                     </div>
 
