@@ -1,7 +1,6 @@
 import type { Session } from "react-router-dom";
 import { closeSocket, initSocket, socket, type quizblox } from "./socketio";
-import type { AppUser, GuestUser } from "./types";
-
+import type { AppUser, GuestUser, Question } from "./types";
 
 export let session: session | null = null;
 export let users: Array<AppUser | GuestUser> = [];
@@ -22,10 +21,10 @@ export async function connectToSession(joinCode: string, username?: string): Pro
             if (!socket) {
                 return reject("Socket not initialized");
             }
-            socket.on("player-joined", (user: AppUser | GuestUser, currentUsers: Array<AppUser | GuestUser>) => {
+            socket.on("player-joined", ({ user, currentUsers }) => {
                 users = currentUsers;
             });
-            socket.on("player-disconnected", (user: AppUser | GuestUser, currentUsers: Array<AppUser | GuestUser>) => {
+            socket.on("player-disconnected", ({ user, currentUsers }) => {
                 users = currentUsers;
             });
             socket.on("disconnect", (reason) => {
@@ -59,8 +58,10 @@ export async function connectToSession(joinCode: string, username?: string): Pro
 }
 
 export async function createSession(quizId: quizblox): Promise<session> {
+    console.log("createSession called with quizId:", quizId);
+    console.log("Current session state:", session);
     if (session) {
-        return new Promise(async (resolve) => {
+        return new Promise(async (resolve, reject) => {
             resolve(session!);
         });
     }
@@ -71,10 +72,10 @@ export async function createSession(quizId: quizblox): Promise<session> {
                 return reject("Socket not initialized");
             }
 
-            socket.on("player-joined", (user: AppUser | GuestUser, currentUsers: Array<AppUser | GuestUser>) => {
+            socket.on("player-joined", (user, currentUsers) => {
                 users = currentUsers;
             });
-            socket.on("player-disconnected", (user: AppUser | GuestUser, currentUsers: Array<AppUser | GuestUser>) => {
+            socket.on("player-disconnected", (user, currentUsers) => {
                 users = currentUsers;
             });
             socket.on("next-question", (index: number) => {
@@ -124,7 +125,7 @@ export async function cancelSession() {
 
 export async function kickPlayer(playerId: string) {
     if (!session) return;
-    socket?.emit("kick-player", playerId, (response: any) => {
+    socket?.emit("kick-player", { playerId }, (response: any) => {
         if (response.error) {
             console.error("Error kicking player:", response.error);
         }
