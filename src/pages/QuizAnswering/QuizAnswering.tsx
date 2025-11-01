@@ -11,16 +11,16 @@ export default function QuizAnswering() {
 
     const colorClasses = [styles.blue, styles.pink, styles.orange, styles.green];
 
+    const [selectedAnswer, setSelectedAnswer] = useState<Answer | null>(null);
     const [selectedColor, setSelectedColor] = useState<string>("");
-    const [selectedAnswer, setSelectedAnswer] = useState(false);
     const [userInput, setUserInput] = useState("null");
     const [waiting, setWaiting] = useState(false);
     const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
     const [questionIndexState, setQuestionIndexState] = useState(questionIndex);
 
     const handleAnswer = (answer: Answer, colorClass: string) => {
+        setSelectedAnswer(answer);
         setSelectedColor(colorClass);
-        setSelectedAnswer(true);
         setWaiting(true);
         socket?.emit("answer-question", { questionId: session?.quiz.questions[questionIndexState].id, answerId: answer.id, userEntry: userInput });
         console.log("Submitted preset/media answer:", answer);
@@ -32,9 +32,10 @@ export default function QuizAnswering() {
 
     const handleTextSubmit = () => {
         if (!userInput.trim()) return;
+        setSelectedAnswer(null);
         setWaiting(true);
         socket?.emit("answer-question", { questionId: session?.quiz.questions[questionIndexState].id, answerId: "custom", userEntry: userInput });
-        setSelectedAnswer(true);
+
         setTimeout(() => {
             const correct = "test";
             const isCorrect = correct && userInput.toLowerCase().includes(correct);
@@ -48,8 +49,8 @@ export default function QuizAnswering() {
     useEffect(() => {
         socket?.on("next-question", (index: number) => {
             setQuestionIndexState(index);
+            setSelectedAnswer(null);
             setSelectedColor("");
-            setSelectedAnswer(false);
             setUserInput("null");
             setWaiting(false);
             setResult(null);
