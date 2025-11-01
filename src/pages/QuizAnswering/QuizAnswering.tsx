@@ -23,7 +23,7 @@ export default function QuizAnswering() {
         setSelectedColor(colorClass);
         setWaiting(true);
         socket?.emit("answer-question", { questionId: session?.quiz.questions[questionIndexState].id, answerId: selectedAnswer?.id, userEntry: userInput });
-
+        console.log("Submitted preset/media answer:", selectedAnswer);
         setTimeout(() => {
             setWaiting(false);
             setResult(selectedAnswer?.isCorrect ? "correct" : "incorrect");
@@ -39,20 +39,22 @@ export default function QuizAnswering() {
         setTimeout(() => {
             const correct = "test";
             const isCorrect = correct && userInput.toLowerCase().includes(correct);
+
+            console.log("Submitted text answer:", userInput, "Correct:", isCorrect);
             setWaiting(false);
             setResult(isCorrect ? "correct" : "incorrect");
         }, 3000);
     };
 
     useEffect(() => {
-        socket?.on("next-question", ({ question, index }: { question: any, index: number }) => {
+        socket?.on("next-question", (index: number) => {
             setQuestionIndexState(index);
             setSelectedAnswer(null);
             setSelectedColor("");
             setUserInput("null");
             setWaiting(false);
             setResult(null);
-        }); 
+        });
         return () => {
             socket?.off("next-question");
         };

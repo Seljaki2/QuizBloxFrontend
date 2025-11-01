@@ -1,11 +1,10 @@
 import { Button, Flex, Image } from "antd";
 import styles from "./QuizHost.module.css";
-import jabuka from './apple_temp.png';
 import { useState, useEffect } from "react";
 import Timer from "../../components/Timer/Timer";
 import Crown from "../../../src/assets/crown.svg";
 import { questionIndex, session } from "../../fetch/GAMINGSESSION";
-import { API_URL, PICTURE_URL } from "../../api";
+import { PICTURE_URL } from "../../api";
 import { socket } from "../../fetch/socketio";
 
 export default function QuizHost() {
@@ -20,7 +19,7 @@ export default function QuizHost() {
     setRotation(randomRotation);
 
     if (socket?.connected) {
-      const callback = socket.on("next-question", ({ question, index }: { question: any, index: number }) => {
+      socket.on("next-question", (index: number) => {
         setQuestionIndexState(index);
         setResetKey(index);
       });

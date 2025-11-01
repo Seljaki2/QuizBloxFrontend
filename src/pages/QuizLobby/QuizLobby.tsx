@@ -52,8 +52,7 @@ export default function QuizLobby() {
             closeSession().catch((err) => console.error("Failed to close session:", err));
         };
 
-        const handlePlayerConnection = (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
-            console.log("Player connection changed:", user, users);
+        const handlePlayerConnection = (users: Array<AppUser | GuestUser>) => {
             setUsersState(users);
         };
 
@@ -67,18 +66,18 @@ export default function QuizLobby() {
             sessionStorage.removeItem('quizId');
             console.log(socket);
             if (socket) {
-                socket.on("player-joined", ({ user, users }) => {
+                socket.on("player-joined", (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
                     console.log("Player joined socket:", user, users);
-                    handlePlayerConnection(user, users);
+                    handlePlayerConnection(users);
                 });
 
-                socket.on("player-disconnected", ({ user, users }) => {
+                socket.on("player-disconnected", (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
                     console.log("Player disconnected socket:", user, users);
-                    handlePlayerConnection(user, users);
+                    handlePlayerConnection(users);
                 });
 
-                socket.on("next-question", ({ question, index }: { question: any, index: number }) => {
-                    console.log("Next question received:", question, index);
+                socket.on("next-question", (index: number) => {
+                    console.log("Next question received:", index);
                     if (session?.session == "User Session") {
                         navigate('/answering');
                     } else {
@@ -102,25 +101,24 @@ export default function QuizLobby() {
                     navigate('/');
                 });
 
-                    socket.on("player-joined", ({ user, users }) => {
-                        console.log("Player joined socket:", user, users);
-                        handlePlayerConnection(user, users);
-                    });
+                socket.on("player-joined", (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+                    console.log("Player joined socket:", user, users);
+                    handlePlayerConnection(users);
+                });
 
-                    socket.on("player-disconnected", ({ user, users }) => {
-                        console.log("Player disconnected socket:", user, users);
-                        handlePlayerConnection(user, users);
-                    });
+                socket.on("player-disconnected", (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+                    console.log("Player disconnected socket:", user, users);
+                    handlePlayerConnection(users);
+                });
 
-                    socket.on("next-question", ({ question, index }: { question: any, index: number }) => {
-                        console.log("Next question received:", question, index);
-                        if (session?.session == "User Session") {
-                            navigate('/answering');
-                        } else {
-                            navigate('/quiz-host');
-                        }
-                    });
-                
+                socket.on("next-question", () => {
+                    if (session?.session == "User Session") {
+                        navigate('/answering');
+                    } else {
+                        navigate('/quiz-host');
+                    }
+                });
+
             }
             loadMoreData();
         }

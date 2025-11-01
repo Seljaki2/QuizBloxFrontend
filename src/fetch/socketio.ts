@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { auth } from "./firebase";
 import { WS_URL } from "../api";
-import type { AppUser, GuestUser, Question } from "./types";
+import type { AppUser, GuestUser } from "./types";
 
 export type clientType = "PLAYER" | "SPECTATOR";
 
@@ -19,7 +19,7 @@ type ServerToClientEvents = {
     "player-joined": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
     "player-disconnected": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
     "ready": () => void;
-    "next-question": ({ question, index }: { question: Question, index: number }) => void;
+    "next-question": (index: number) => void;
 };
 
 type ClientToServerEvents = {

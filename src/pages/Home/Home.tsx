@@ -10,7 +10,6 @@ const QuizJoin: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const [sessionData, setSessionData] = useState<any>(null);
 
   const [form] = Form.useForm();
 
@@ -21,7 +20,6 @@ const QuizJoin: React.FC = () => {
       const data = await connectToSession(values.joinCode, values.username);
       console.log('Joining quiz with:', data);
 
-      setSessionData(data);
       navigate('/lobby');
       message.success(`Joined successfully as ${values.username}!`);
     } catch (error) {
