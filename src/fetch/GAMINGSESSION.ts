@@ -1,7 +1,6 @@
 import type { Session } from "react-router-dom";
 import { closeSocket, initSocket, socket, type quizblox } from "./socketio";
 import type { AppUser, GuestUser } from "./types";
-import { message } from "antd";
 
 export let session: session | null = null;
 export let users: Array<AppUser | GuestUser> = [];
@@ -23,13 +22,9 @@ export async function connectToSession(joinCode: string, username?: string): Pro
                 return reject("Socket not initialized");
             }
             socket.on("player-joined", (user: AppUser | GuestUser, currentUsers: Array<AppUser | GuestUser>) => {
-                const displayName = 'guestUsername' in user ? user.guestUsername : user.username;
-                message.success(`${displayName} se je pridružil/a kvizu.`);
                 users = currentUsers;
             });
             socket.on("player-disconnected", (user: AppUser | GuestUser, currentUsers: Array<AppUser | GuestUser>) => {
-                const displayName = 'guestUsername' in user ? user.guestUsername : user.username;
-                message.warning(`${displayName} se je odjavil/a iz kviza.`);
                 users = currentUsers;
             });
             socket.on("disconnect", (reason) => {
@@ -76,13 +71,9 @@ export async function createSession(quizId: quizblox): Promise<session> {
             }
 
             socket.on("player-joined", (user: AppUser | GuestUser, currentUsers: Array<AppUser | GuestUser>) => {
-                const displayName = 'guestUsername' in user ? user.guestUsername : user.username;
-                message.success(`${displayName} se je pridružil/a kvizu.`);
                 users = currentUsers;
             });
             socket.on("player-disconnected", (user: AppUser | GuestUser, currentUsers: Array<AppUser | GuestUser>) => {
-                const displayName = 'guestUsername' in user ? user.guestUsername : user.username;
-                message.warning(`${displayName} se je odjavil/a iz kviza.`);
                 users = currentUsers;
             });
             socket.on("next-question", (index: number) => {

@@ -21,7 +21,6 @@ const QuizJoin: React.FC = () => {
       console.log('Joining quiz with:', data);
 
       navigate('/lobby');
-      message.success(`Joined successfully as ${values.username}!`);
     } catch (error) {
       console.error(error);
       message.error('Failed to join. Please try again.');
