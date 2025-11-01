@@ -30,6 +30,7 @@ type ClientToServerEvents = {
     "kick-player": (playerId: string, callback: (response: any) => void) => void;
     "start-quiz": (callback: (response: any) => void) => void;
     "next-question": (callback: (response: any) => void) => void;
+    "answer-question": ({ questionId, answerId, userEntry }: { questionId: string, answerId: string | undefined, userEntry: string }, callback?: (response: any) => void) => void;
 };
 
 export let guestId: string | null = null;

@@ -46,7 +46,7 @@ export interface Answer {
   isCorrect: boolean;
   question: Question;
   results?: Result[];
-  media?: string | null;
+  media?: any | null;
 }
 
 
@@ -57,7 +57,7 @@ export interface Question {
 
   text: string;
   answers?: Answer[];
-  media?: string | null;
+  media?: any | null;
   customTime?: number | null;
   questionType: QuestionType;
 }

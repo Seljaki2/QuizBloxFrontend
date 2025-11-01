@@ -1,76 +1,43 @@
 import { useState } from "react";
 import { Button, Flex, Form, Image, Card } from "antd";
-import jabuka from "./apple_temp.png";
-import jabuka2 from "./t1.png";
-import jabuka3 from "./t2.png";
-import jabuka4 from "./t3.png";
 import styles from "./QuizAnswering.module.css";
 import TextArea from "antd/es/input/TextArea";
+import { socket } from "../../fetch/socketio";
+import { questionIndex, session } from "../../fetch/GAMINGSESSION";
+import type { Answer } from "../../fetch/types";
+import { PICTURE_URL } from "../../api";
 
 export default function QuizAnswering() {
-    const testSwitch = 0; 
-
-    type Answer = {
-        content: string;
-        isTrue?: boolean;
-    };
-
-    type Collection = {
-        answerType: number;
-        answers?: Answer[];
-    };
-
-    const testing1: Collection[] = [
-        {
-            answerType: 1,
-            answers: [{ content: "Paris", isTrue: true }],
-        },
-        {
-            answerType: 2,
-            answers: [
-                { content: "Paris", isTrue: true },
-                { content: "London", isTrue: false },
-                { content: "Berlin", isTrue: false },
-                { content: "Rome", isTrue: false },
-            ],
-        },
-        {
-            answerType: 3,
-            answers: [
-                { content: jabuka, isTrue: false },
-                { content: jabuka2, isTrue: false },
-                { content: jabuka3, isTrue: true },
-                { content: jabuka4, isTrue: false },
-            ],
-        },
-    ];
 
     const colorClasses = [styles.blue, styles.pink, styles.orange, styles.green];
 
     const [selectedAnswer, setSelectedAnswer] = useState<Answer | null>(null);
     const [selectedColor, setSelectedColor] = useState<string>("");
-    const [userInput, setUserInput] = useState("");
+    const [userInput, setUserInput] = useState("null");
     const [waiting, setWaiting] = useState(false);
     const [result, setResult] = useState<"correct" | "incorrect" | null>(null);
+    const [questionIndexState, setQuestionIndexState] = useState(questionIndex);
 
     const handleAnswer = (answer: Answer, colorClass: string) => {
         setSelectedAnswer(answer);
         setSelectedColor(colorClass);
         setWaiting(true);
+        socket?.emit("answer-question", { questionId: session?.quiz.questions[questionIndexState].id, answerId: selectedAnswer?.id, userEntry: userInput });
 
         setTimeout(() => {
             setWaiting(false);
-            setResult(answer.isTrue ? "correct" : "incorrect");
+            setResult(answer.isCorrect ? "correct" : "incorrect");
         }, 3000);
     };
 
     const handleTextSubmit = () => {
         if (!userInput.trim()) return;
-        setSelectedAnswer({ content: userInput });
+        setSelectedAnswer(null);
         setWaiting(true);
+        socket?.emit("answer-question", { questionId: session?.quiz.questions[questionIndexState].id, answerId: selectedAnswer?.id, userEntry: userInput });
 
         setTimeout(() => {
-            const correct = testing1[0].answers?.[0].content.toLowerCase();
+            const correct = "test";
             const isCorrect = correct && userInput.toLowerCase().includes(correct);
             setWaiting(false);
             setResult(isCorrect ? "correct" : "incorrect");
@@ -115,7 +82,7 @@ export default function QuizAnswering() {
                 </h1>
             )}
 
-            {testing1[testSwitch].answerType === 1 &&
+            {session?.quiz.questions[questionIndexState].questionType == "CUSTOM_ANWSER" &&
                 !waiting &&
                 !result &&
                 !selectedAnswer && (
@@ -143,13 +110,13 @@ export default function QuizAnswering() {
                     </Form>
                 )}
 
-            {testing1[testSwitch].answerType === 2 &&
+            {session?.quiz.questions[questionIndexState].questionType == "PRESET_ANWSER" &&
                 !waiting &&
                 !result &&
                 !selectedAnswer && (
                     <Form>
                         <Flex wrap="wrap" justify="center" gap="large">
-                            {testing1[testSwitch].answers?.map((answer, index) => {
+                            {session?.quiz.questions[questionIndexState].answers?.map((answer: any, index: any) => {
                                 const color = colorClasses[index % colorClasses.length];
                                 return (
                                     <Button
@@ -160,7 +127,7 @@ export default function QuizAnswering() {
                                         onClick={() => handleAnswer(answer, color)}
                                     >
                                         <div className={styles.textButtonContent}>
-                                            {answer.content}
+                                            {answer.text}
                                         </div>
                                     </Button>
                                 );
@@ -169,7 +136,7 @@ export default function QuizAnswering() {
                     </Form>
                 )}
 
-            {testing1[testSwitch].answerType === 3 &&
+            {session?.quiz.questions[questionIndexState].questionType == "MEDIA_ANWSER" &&
                 !waiting &&
                 !result &&
                 !selectedAnswer && (
@@ -181,7 +148,7 @@ export default function QuizAnswering() {
                             gap="large"
                             style={{ width: "100%" }}
                         >
-                            {testing1[testSwitch].answers?.map((answer, index) => {
+                            {session?.quiz.questions[questionIndexState].answers?.map((answer: any, index: any) => {
                                 const color = colorClasses[index % colorClasses.length];
                                 return (
                                     <Button
@@ -211,7 +178,7 @@ export default function QuizAnswering() {
 
             {selectedAnswer && (
                 <div style={{ marginTop: "2rem" }}>
-                    {testing1[testSwitch].answerType === 1 ? (
+                    {session?.quiz.questions[questionIndexState].questionType == "CUSTOM_ANWSER" ? (
                         <div className={
                             result === "correct"
                                 ? styles.bounce
@@ -220,36 +187,36 @@ export default function QuizAnswering() {
                                     : ""
                         }
                         >
-                            <span className={styles.spanText}> Tvoj dgovor: <span style={{ color: "#64F55F" }}>{selectedAnswer.content} </span> </span>
+                            <span className={styles.spanText}> Tvoj odgovor: <span style={{ color: "#64F55F" }}>{selectedAnswer.text} </span> </span>
                         </div>
-                    ) : testing1[testSwitch].answerType === 2 ? (
+                    ) : session?.quiz.questions[questionIndexState].questionType == "PRESET_ANWSER" ? (
                         <Button
                             type="default"
                             className={`${styles.textButton} ${selectedColor} ${result === "correct"
-                                    ? styles.bounce
-                                    : result === "incorrect"
-                                        ? styles.shake
-                                        : ""
+                                ? styles.bounce
+                                : result === "incorrect"
+                                    ? styles.shake
+                                    : ""
                                 }`}
                             disabled
                         >
                             <div className={styles.textButtonContent}>
-                                {selectedAnswer.content}
+                                {selectedAnswer.text}
                             </div>
                         </Button>
-                    ) : testing1[testSwitch].answerType === 3 ? (
+                    ) : session?.quiz.questions[questionIndexState].questionType == "MEDIA_ANWSER" ? (
                         <Button
                             type="default"
                             className={`${styles.imageButton} ${selectedColor} ${result === "correct"
-                                    ? styles.bounce
-                                    : result === "incorrect"
-                                        ? styles.shake
-                                        : ""
+                                ? styles.bounce
+                                : result === "incorrect"
+                                    ? styles.shake
+                                    : ""
                                 }`} disabled
                         >
                             <div className={styles.imageWrapper}>
                                 <Image
-                                    src={selectedAnswer.content}
+                                    src={PICTURE_URL + selectedAnswer?.media?.path}
                                     preview={false}
                                     style={{
                                         width: "100%",
