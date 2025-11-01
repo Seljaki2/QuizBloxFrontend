@@ -1,10 +1,11 @@
 import type { Session } from "react-router-dom";
 import { closeSocket, initSocket, socket, type quizblox } from "./socketio";
-import type { AppUser, GuestUser } from "./types";
+import type { AppUser, GuestUser, Quiz } from "./types";
 
 export let session: session | null = null;
 export let users: Array<AppUser | GuestUser> = [];
 export let status: sessionStatus = "closed";
+export let quiz: Quiz | null = null;
 export let questionIndex: number = -1;
 
 export type sessionStatus = "waiting" | "in-progress" | "finished" | "closed";
@@ -49,6 +50,7 @@ export async function connectToSession(joinCode: string, username?: string): Pro
                 };
                 session = sessionData;
                 users = response.players;
+                quiz = response.quiz;
                 status = "waiting";
                 console.log("Connected to session:", sessionData);
                 resolve(sessionData);

@@ -3,7 +3,7 @@ import { Button, Flex, Form, Image, Card } from "antd";
 import styles from "./QuizAnswering.module.css";
 import TextArea from "antd/es/input/TextArea";
 import { socket } from "../../fetch/socketio";
-import { questionIndex, session } from "../../fetch/GAMINGSESSION";
+import { questionIndex, quiz } from "../../fetch/GAMINGSESSION";
 import type { Answer } from "../../fetch/types";
 import { PICTURE_URL } from "../../api";
 
@@ -22,7 +22,7 @@ export default function QuizAnswering() {
         setSelectedAnswer(answer);
         setSelectedColor(colorClass);
         setWaiting(true);
-        socket?.emit("answer-question", { questionId: session?.quiz.questions[questionIndexState].id, answerId: selectedAnswer?.id, userEntry: userInput });
+        socket?.emit("answer-question", { questionId: quiz?.questions[questionIndexState].id, answerId: selectedAnswer?.id, userEntry: userInput });
         console.log("Submitted preset/media answer:", selectedAnswer);
         setTimeout(() => {
             setWaiting(false);
@@ -34,7 +34,7 @@ export default function QuizAnswering() {
         if (!userInput.trim()) return;
         setSelectedAnswer(null);
         setWaiting(true);
-        socket?.emit("answer-question", { questionId: session?.quiz.questions[questionIndexState].id, answerId: selectedAnswer?.id, userEntry: userInput });
+        socket?.emit("answer-question", { questionId: quiz?.questions[questionIndexState].id, answerId: selectedAnswer?.id, userEntry: userInput });
 
         setTimeout(() => {
             const correct = "test";
@@ -98,7 +98,7 @@ export default function QuizAnswering() {
                 </h1>
             )}
 
-            {session?.quiz.questions[questionIndexState].questionType == "CUSTOM_ANWSER" &&
+            {quiz?.questions[questionIndexState].questionType == "CUSTOM_ANWSER" &&
                 !waiting &&
                 !result &&
                 !selectedAnswer && (
@@ -126,13 +126,13 @@ export default function QuizAnswering() {
                     </Form>
                 )}
 
-            {session?.quiz.questions[questionIndexState].questionType == "PRESET_ANWSER" &&
+            {quiz?.questions[questionIndexState].questionType == "PRESET_ANWSER" &&
                 !waiting &&
                 !result &&
                 !selectedAnswer && (
                     <Form>
                         <Flex wrap="wrap" justify="center" gap="large">
-                            {session?.quiz.questions[questionIndexState].answers?.map((answer: any, index: any) => {
+                            {quiz?.questions[questionIndexState].answers?.map((answer: any, index: any) => {
                                 const color = colorClasses[index % colorClasses.length];
                                 return (
                                     <Button
@@ -152,7 +152,7 @@ export default function QuizAnswering() {
                     </Form>
                 )}
 
-            {session?.quiz.questions[questionIndexState].questionType == "MEDIA_ANWSER" &&
+            {quiz?.questions[questionIndexState].questionType == "MEDIA_ANWSER" &&
                 !waiting &&
                 !result &&
                 !selectedAnswer && (
@@ -164,7 +164,7 @@ export default function QuizAnswering() {
                             gap="large"
                             style={{ width: "100%" }}
                         >
-                            {session?.quiz.questions[questionIndexState].answers?.map((answer: any, index: any) => {
+                            {quiz?.questions[questionIndexState].answers?.map((answer: any, index: any) => {
                                 const color = colorClasses[index % colorClasses.length];
                                 return (
                                     <Button
@@ -194,7 +194,7 @@ export default function QuizAnswering() {
 
             {selectedAnswer && (
                 <div style={{ marginTop: "2rem" }}>
-                    {session?.quiz.questions[questionIndexState].questionType == "CUSTOM_ANWSER" ? (
+                    {quiz?.questions[questionIndexState].questionType == "CUSTOM_ANWSER" ? (
                         <div className={
                             result === "correct"
                                 ? styles.bounce
@@ -205,7 +205,7 @@ export default function QuizAnswering() {
                         >
                             <span className={styles.spanText}> Tvoj odgovor: <span style={{ color: "#64F55F" }}>{selectedAnswer.text} </span> </span>
                         </div>
-                    ) : session?.quiz.questions[questionIndexState].questionType == "PRESET_ANWSER" ? (
+                    ) : quiz?.questions[questionIndexState].questionType == "PRESET_ANWSER" ? (
                         <Button
                             type="default"
                             className={`${styles.textButton} ${selectedColor} ${result === "correct"
@@ -220,7 +220,7 @@ export default function QuizAnswering() {
                                 {selectedAnswer.text}
                             </div>
                         </Button>
-                    ) : session?.quiz.questions[questionIndexState].questionType == "MEDIA_ANWSER" ? (
+                    ) : quiz?.questions[questionIndexState].questionType == "MEDIA_ANWSER" ? (
                         <Button
                             type="default"
                             className={`${styles.imageButton} ${selectedColor} ${result === "correct"
