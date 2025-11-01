@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Flex, Form, Image, Card } from "antd";
 import styles from "./QuizAnswering.module.css";
 import TextArea from "antd/es/input/TextArea";
@@ -26,7 +26,7 @@ export default function QuizAnswering() {
 
         setTimeout(() => {
             setWaiting(false);
-            setResult(answer.isCorrect ? "correct" : "incorrect");
+            setResult(selectedAnswer?.isCorrect ? "correct" : "incorrect");
         }, 3000);
     };
 
@@ -43,6 +43,20 @@ export default function QuizAnswering() {
             setResult(isCorrect ? "correct" : "incorrect");
         }, 3000);
     };
+
+    useEffect(() => {
+        socket?.on("next-question", ({ question, index }: { question: any, index: number }) => {
+            setQuestionIndexState(index);
+            setSelectedAnswer(null);
+            setSelectedColor("");
+            setUserInput("null");
+            setWaiting(false);
+            setResult(null);
+        }); 
+        return () => {
+            socket?.off("next-question");
+        };
+    }, []);
 
     return (
         <Flex
