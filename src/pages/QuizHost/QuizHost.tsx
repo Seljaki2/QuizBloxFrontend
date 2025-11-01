@@ -63,14 +63,14 @@ export default function QuizHost() {
 
           <Flex className={styles.question}>
             <Button onClick={handleNextQuestion}></Button>
-            {(session?.quiz.questions[questionIndexState].media) ? <Image
+            {(session?.quiz?.questions[questionIndexState]?.media) ? <Image
               className={styles.image}
-              src={PICTURE_URL + session?.quiz.questions[questionIndexState].media.path}
+              src={PICTURE_URL + session?.quiz?.questions[questionIndexState]?.media.path}
               preview={false}
               style={{ transform: `rotate(${rotation}deg)`, marginBottom: '10px', maxHeight: '50vh' }}
             /> : null}
             <h1 style={{ margin: '0px', textAlign: 'center' }}>
-              {session?.quiz.questions[questionIndexState].text}
+              {session?.quiz?.questions[questionIndexState]?.text}
             </h1>
           </Flex>
         </>
