@@ -6,15 +6,20 @@ import styles from './Timer.module.css';
 interface TimerProps {
   totalSeconds?: number;
   onFinish?: () => void;
+  reset?: any;
 }
 
-export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
+export default function Timer({ totalSeconds = 10, onFinish, reset }: TimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [flashRed, setFlashRed] = useState(false);
 
   useEffect(() => {
+    setSecondsLeft(totalSeconds);
+  }, [totalSeconds, reset]);
+  
+  useEffect(() => {
     if (secondsLeft <= 0) {
-      if (onFinish) onFinish(); 
+      if (onFinish) onFinish();
       return;
     }
 
@@ -22,7 +27,6 @@ export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
       setSecondsLeft(prev => {
         if (prev <= 1) {
           clearInterval(interval);
-          if (onTimeUp) onTimeUp();
           return 0;
         }
         return prev - 1;
@@ -48,17 +52,17 @@ export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
   const pathColor = flashRed ? '#d33434' : '#34D399';
 
   return (
-      <CircularProgressbar
-        value={percentage}
-        text={`${secondsLeft}s`}
-        strokeWidth={10}
-        styles={buildStyles({
-          pathColor,
-          trailColor: '#ffffff',
-          textColor: '#000000',
-          textSize: '24px',
-        })}
-        className={styles.text}
-      />
-    );
+    <CircularProgressbar
+      value={percentage}
+      text={`${secondsLeft}s`}
+      strokeWidth={10}
+      styles={buildStyles({
+        pathColor,
+        trailColor: '#ffffff',
+        textColor: '#000000',
+        textSize: '24px',
+      })}
+      className={styles.text}
+    />
+  );
 }

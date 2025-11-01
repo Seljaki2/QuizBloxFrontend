@@ -10,12 +10,14 @@ type UserContextType = {
     user: AppUser | null;
     signOut: () => Promise<void>;
     getToken: () => Promise<string>;
+    refreshUser: () => Promise<void>;
 };
 
 const defaultContext: UserContextType = {
     user: null,
     signOut: async () => { },
     getToken: async (): Promise<string> => { throw new Error('No bearer token'); },
+    refreshUser: async () => { },
 };
 
 export const UserContext = createContext<UserContextType>(defaultContext);
@@ -80,5 +82,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('No bearer token')
     }
 
-    return <UserContext.Provider value={{ user, signOut, getToken }}>{children}</UserContext.Provider>;
+    const refreshUser = async () => {
+        const appUser = await getUserProfile();
+        setUser(appUser);
+    };
+
+    return <UserContext.Provider value={{ user, signOut, getToken, refreshUser }}>{children}</UserContext.Provider>;
 };
