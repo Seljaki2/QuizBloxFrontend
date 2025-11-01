@@ -57,7 +57,7 @@ export default function QuizHost() {
       {!showLead ? (
         <>
           <div className={styles.timerWrapper}>
-            <Timer totalSeconds={session?.quiz.questions[questionIndexState].customTime} onFinish={handleTimerFinish} reset={resetKey} />
+            <Timer totalSeconds={session?.quiz?.questions[questionIndexState]?.customTime} onFinish={handleTimerFinish} reset={resetKey} />
           </div>
 
 
