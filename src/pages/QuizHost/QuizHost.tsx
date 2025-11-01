@@ -10,6 +10,7 @@ import { socket } from "../../fetch/socketio";
 export default function QuizHost() {
   const [rotation, setRotation] = useState(0);
   const [questionIndexState, setQuestionIndexState] = useState(questionIndex);
+  const [sessionState, setSessionState] = useState(session);
   const [resetKey, setResetKey] = useState(0);
   const [showLead, setShowLead] = useState(false);
   console.log(session);
@@ -57,20 +58,20 @@ export default function QuizHost() {
       {!showLead ? (
         <>
           <div className={styles.timerWrapper}>
-            <Timer totalSeconds={session?.quiz?.questions[questionIndexState]?.customTime} onFinish={handleTimerFinish} reset={resetKey} />
+            <Timer totalSeconds={sessionState?.quiz?.questions[questionIndexState]?.customTime} onFinish={handleTimerFinish} reset={resetKey} />
           </div>
 
 
           <Flex className={styles.question}>
             <Button onClick={handleNextQuestion}></Button>
-            {(session?.quiz?.questions[questionIndexState]?.media) ? <Image
+            {(sessionState?.quiz?.questions[questionIndexState]?.media) ? <Image
               className={styles.image}
-              src={PICTURE_URL + session?.quiz?.questions[questionIndexState]?.media.path}
+              src={PICTURE_URL + sessionState?.quiz?.questions[questionIndexState]?.media.path}
               preview={false}
               style={{ transform: `rotate(${rotation}deg)`, marginBottom: '10px', maxHeight: '50vh' }}
             /> : null}
             <h1 style={{ margin: '0px', textAlign: 'center' }}>
-              {session?.quiz?.questions[questionIndexState]?.text}
+              {sessionState?.quiz?.questions[questionIndexState]?.text}
             </h1>
           </Flex>
         </>
