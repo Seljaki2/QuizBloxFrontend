@@ -1,6 +1,6 @@
 import styles from './QuizLobby.module.css'
 import { useEffect, useState, useRef } from 'react';
-import { Button, Flex, List } from 'antd';
+import { Button, Flex, List, message } from 'antd';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { cancelSession, closeSession, createSession, kickPlayer, session, startQuiz, users } from '../../fetch/GAMINGSESSION';
 import type { AppUser, GuestUser } from '../../fetch/types';
@@ -11,7 +11,7 @@ export default function QuizLobby() {
     const navigate = useNavigate();
     const quizId = sessionStorage.getItem('quizId');
     const [sessionState, setSessionState] = useState<any>(null);
-    const [usersState, setUsersState] = useState<Array<any>>([]);
+    const [usersState, setUsersState] = useState<Array<AppUser | GuestUser>>([]);
 
 
     const [loading, setLoading] = useState(false);
@@ -53,7 +53,6 @@ export default function QuizLobby() {
         };
 
         const handlePlayerConnection = (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
-            console.log("Player connection changed:", user, users);
             setUsersState(users);
         };
 
@@ -62,23 +61,28 @@ export default function QuizLobby() {
 
         const init = async () => {
             const sessionData = await createSession({ quizId: quizId! });
-            console.log("Session data:", sessionData);
             setSessionState(sessionData);
             sessionStorage.removeItem('quizId');
-            console.log(socket);
             if (socket) {
                 socket.on("player-joined", ({ user, users }) => {
-                    console.log("Player joined socket:", user, users);
                     handlePlayerConnection(user, users);
+                    if(user.guestUsername) {
+                      message.info("Uporabnik pridružil igri: " + user.guestUsername)
+                    }else{
+                      message.info("Uporabnik pridružil igri: " + user.username)
+                    }
                 });
 
                 socket.on("player-disconnected", ({ user, users }) => {
-                    console.log("Player disconnected socket:", user, users);
                     handlePlayerConnection(user, users);
+                  if(user.guestUsername) {
+                    message.info("Uporabnik zapustil igro: " + user.guestUsername)
+                  }else{
+                    message.info("Uporabnik zapustil igro: " + user.username)
+                  }
                 });
 
-                socket.on("next-question", ({ question, index }: { question: any, index: number }) => {
-                    console.log("Next question received:", question, index);
+                socket.on("next-question", () => {
                     if (session?.session == "User Session") {
                         navigate('/answering');
                     } else {
@@ -93,7 +97,6 @@ export default function QuizLobby() {
             if (!socket?.connected) {
                 init();
             } else {
-                console.log("Socket already connected", socket);
                 setSessionState(session);
                 setUsersState(users);
 
@@ -102,25 +105,22 @@ export default function QuizLobby() {
                     navigate('/');
                 });
 
-                    socket.on("player-joined", ({ user, users }) => {
-                        console.log("Player joined socket:", user, users);
-                        handlePlayerConnection(user, users);
-                    });
+                socket.on("player-joined", ({ user, users }) => {
+                    handlePlayerConnection(user, users);
+                });
 
-                    socket.on("player-disconnected", ({ user, users }) => {
-                        console.log("Player disconnected socket:", user, users);
-                        handlePlayerConnection(user, users);
-                    });
+                socket.on("player-disconnected", ({ user, users }) => {
+                    handlePlayerConnection(user, users);
+                });
 
-                    socket.on("next-question", ({ question, index }: { question: any, index: number }) => {
-                        console.log("Next question received:", question, index);
-                        if (session?.session == "User Session") {
-                            navigate('/answering');
-                        } else {
-                            navigate('/quiz-host');
-                        }
-                    });
-                
+                socket.on("next-question", () => {
+                    if (session?.session == "User Session") {
+                        navigate('/answering');
+                    } else {
+                        navigate('/quiz-host');
+                    }
+                });
+
             }
             loadMoreData();
         }

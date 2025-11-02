@@ -21,10 +21,10 @@ export default function Routing() {
                 <Route path="/newQuiz" element={<AddNewQuiz />} />
             </Route>
 
-            <Route element={<QuizLayoutWrapper/>}>
+            <Route element={<QuizLayoutWrapper />}>
                 <Route path="/quiz-host" element={<QuizHost />} />
                 <Route path="/lobby" element={<QuizLobby />} />
-                <Route path="/answering" element={<QuizAnswering/>} />
+                <Route path="/answering" element={<QuizAnswering />} />
             </Route>
         </Routes>
     );

@@ -30,8 +30,6 @@ export default function Login() {
                 Boolean(values.remember)
             );
 
-            console.log("Firebase user:", user);
-
             navigate("/");
         } catch (error: any) {
             console.error("Registration failed:", error);

@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { connectToSession } from '../../fetch/GAMINGSESSION';
 import { useNavigate } from 'react-router-dom';
 import { closeSocket, socket } from '../../fetch/socketio';
 import styles from "./Home.module.css";
+import { UserContext } from '../../context/UserContext';
 
 const QuizJoin: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const [sessionData, setSessionData] = useState<any>(null);
 
   const [form] = Form.useForm();
 
@@ -17,11 +18,8 @@ const QuizJoin: React.FC = () => {
       closeSocket();
       setLoading(true);
       const data = await connectToSession(values.joinCode, values.username);
-      console.log('Joining quiz with:', data);
 
-      setSessionData(data);
       navigate('/lobby');
-      message.success(`Joined successfully as ${values.username}!`);
     } catch (error) {
       console.error(error);
       message.error('Failed to join. Please try again.');
@@ -50,14 +48,13 @@ const QuizJoin: React.FC = () => {
           <Input placeholder="Vnesi kodo" />
         </Form.Item>
 
-        <Form.Item
+        {(!user) ? <Form.Item
           label="Uporabniško ime"
           name="username"
           rules={[{ required: true, message: 'Niste prijavljeni, rabite uporabniško ime' }]}
         >
           <Input placeholder="izberite uporabniško ime" />
-        </Form.Item>
-
+        </Form.Item> : null}
         <Form.Item>
           <Button
             type="primary"

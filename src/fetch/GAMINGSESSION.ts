@@ -1,21 +1,22 @@
 import type { Session } from "react-router-dom";
 import { closeSocket, initSocket, socket, type quizblox } from "./socketio";
-import type { AppUser, GuestUser, Question, Quiz } from "./types";
-
-export let session: session | null = null;
+import type { AppUser, GuestUser, Quiz } from "./types";
+export let session: sessionType | null = null;
 export let users: Array<AppUser | GuestUser> = [];
 export let status: sessionStatus = "closed";
 export let questionIndex: number = -1;
+export let guestUsername: string | null = null;
 
 export type sessionStatus = "waiting" | "in-progress" | "finished" | "closed";
 
-export type session = {
+export type sessionType = {
     session: Session | string;
     joinCode: string | null;
-    quiz: any;
+    quiz: Quiz;
 }
 
-export async function connectToSession(joinCode: string, username?: string): Promise<session> {
+export async function connectToSession(joinCode: string, username?: string): Promise<sessionType> {
+  if(username) guestUsername=username;
     return new Promise(async (resolve, reject) => {
         await initSocket(() => {
             if (!socket) {
@@ -29,20 +30,24 @@ export async function connectToSession(joinCode: string, username?: string): Pro
             });
             socket.on("disconnect", (reason) => {
                 console.warn("⚠️ Disconnected from server:", reason);
+                guestUsername=null;
                 status = "closed";
                 session = null;
                 users = [];
             });
-            socket.on("next-question", ({ question, index }: { question: Question, index: number }) => {
+            socket.on("next-question", (index: number) => {
                 questionIndex = index;
             });
+          socket.on("finish-question", (currentUsers: Array<AppUser|GuestUser>) => {
+                users=currentUsers;
+          });
 
             socket.emit("join-session", { joinCode, clientType: "PLAYER" }, (response: any) => {
                 if (response.joined == false) {
                     return reject(new Error("Failed to join session: "));
                 }
 
-                const sessionData: session = {
+                const sessionData: sessionType = {
                     session: "User Session",
                     joinCode: null,
                     quiz: response.quiz,
@@ -50,16 +55,13 @@ export async function connectToSession(joinCode: string, username?: string): Pro
                 session = sessionData;
                 users = response.players;
                 status = "waiting";
-                console.log("Connected to session:", sessionData);
                 resolve(sessionData);
             });
         }, username);
     });
 }
 
-export async function createSession(quizId: quizblox): Promise<session> {
-    console.log("createSession called with quizId:", quizId);
-    console.log("Current session state:", session);
+export async function createSession(quizId: quizblox): Promise<sessionType> {
     if (session) {
         return new Promise(async (resolve, reject) => {
             resolve(session!);
@@ -78,22 +80,20 @@ export async function createSession(quizId: quizblox): Promise<session> {
             socket.on("player-disconnected", (user, currentUsers) => {
                 users = currentUsers;
             });
-            socket.on("next-question", ({ question, index }: { question: Question, index: number }) => {
+            socket.on("next-question", (index: number) => {
                 questionIndex = index;
             });
 
             socket.emit("create-session", quizId, (response: any) => {
-                console.log("Creating session");
                 if (response.error) {
                     return reject(response.error);
                 }
 
-                const sessionData: session = {
+                const sessionData: sessionType = {
                     session: response.session,
                     joinCode: response.joinCode,
                     quiz: response.quiz,
                 };
-                console.log("Session created:", sessionData);
                 session = sessionData;
                 status = "waiting";
                 resolve(sessionData);
@@ -104,10 +104,16 @@ export async function createSession(quizId: quizblox): Promise<session> {
 
 export async function closeSession() {
     if (!session) return;
-    session = null;
-    users = [];
-    status = "closed";
+    clearSession();
     closeSocket();
+}
+
+export async function clearSession(){
+  session = null;
+  users = [];
+  status = "closed";
+  questionIndex=-1;
+  guestUsername = null;
 }
 
 export async function cancelSession() {
@@ -120,12 +126,13 @@ export async function cancelSession() {
     session = null;
     users = [];
     status = "closed";
+    guestUsername = null;
     closeSocket();
 }
 
 export async function kickPlayer(playerId: string) {
     if (!session) return;
-    socket?.emit("kick-player", { playerId }, (response: any) => {
+    socket?.emit("kick-player", playerId, (response: any) => {
         if (response.error) {
             console.error("Error kicking player:", response.error);
         }
@@ -138,5 +145,15 @@ export async function startQuiz() {
         if (response.error) {
             console.error("Error starting quiz:", response.error);
         }
+        status="in-progress"
     });
+}
+
+export async function finishQuiz(){
+  if(!session) return;
+    closeSocket();
+    session=null;
+    users=[];
+    questionIndex=-1;
+    status="finished";
 }
