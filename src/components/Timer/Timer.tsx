@@ -6,17 +6,31 @@ import styles from './Timer.module.css';
 interface TimerProps {
   totalSeconds?: number;
   onFinish?: () => void;
+  reset?: any;
 }
 
-export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
+export default function Timer({ totalSeconds = 10, onFinish, reset }: TimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [flashRed, setFlashRed] = useState(false);
 
   useEffect(() => {
-    if (secondsLeft <= 0) return;
+    setSecondsLeft(totalSeconds);
+  }, [totalSeconds, reset]);
+  
+  useEffect(() => {
+    if (secondsLeft <= 0) {
+      if (onFinish) onFinish();
+      return;
+    }
 
     const interval = setInterval(() => {
-      setSecondsLeft(prev => Math.max(prev - 1, 0));
+      setSecondsLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(interval);

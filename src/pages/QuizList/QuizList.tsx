@@ -203,8 +203,8 @@ export default function QuizList() {
             render: (_, record) => (
                 <Space size="middle">
                     {user?.isTeacher ? <a onClick={() => openSessionWindow(record.id)} style={{ color: '#34D399' }}>Začni kviz</a> : <></>}
-                    {(user?.id == record.creator?.id || user?.isAdmin) ? <a onClick={() => console.log("TODO")}>Uredi</a> : <></>}
-                    {(user?.id == record.creator?.id || user?.isAdmin) ? <a onClick={() => handleDelete(record.id)} style={{ color: 'red' }}>Izbriši</a> : <></>}
+                    {((user?.id == record.creator?.id || user?.isAdmin) && user) ? <a onClick={() => console.log("TODO")}>Uredi</a> : <></>}
+                    {((user?.id == record.creator?.id || user?.isAdmin) && user) ? <a onClick={() => handleDelete(record.id)} style={{ color: 'red' }}>Izbriši</a> : <></>}
                 </Space>
             ),
         },

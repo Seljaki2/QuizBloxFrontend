@@ -46,7 +46,7 @@ export interface Answer {
   isCorrect: boolean;
   question: Question;
   results?: Result[];
-  media?: string | null;
+  media?: any | null;
 }
 
 
@@ -57,19 +57,20 @@ export interface Question {
 
   text: string;
   answers?: Answer[];
-  media?: string | null;
-  customTime?: number | null;
+  media?: any | null;
+  customTime?: number;
   questionType: QuestionType;
 }
 
 export interface AppUser {
-  isAdmin: any;
+  isAdmin: boolean;
   id: string;
   email: string;
   firstName: string;
   lastName: string;
   username: string;
   isTeacher: boolean;
+  totalScore: number | undefined;
 };
 
 export interface Session {
@@ -81,6 +82,7 @@ export interface Session {
 export interface GuestUser {
   guestUsername: string;
   guestId: string;
+  totalScore: number | undefined;
 }
 export type QuestionType =
   | 'CUSTOM_ANWSER'

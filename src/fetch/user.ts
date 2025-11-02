@@ -3,6 +3,7 @@ import { API_URL } from "../api";
 import { auth } from "./firebase";
 
 
+
 export async function registerUser(email: string, password: string, firstName: string, lastName: string, username: string, isTeacher: boolean) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const token = await userCredential.user.getIdToken();

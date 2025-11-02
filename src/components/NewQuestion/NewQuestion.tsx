@@ -68,7 +68,7 @@ export default function NewQuestion({ index, onTitleChange, onAnswerTypeChange }
 
             {value === 1 && (
                 <Form.Item
-                    label="Naštejte vse možnosti:"
+                    label="Naštejte vse možnosti: (Besede naj bodo ločene z , )"
                     name={["questions", index, "keywords"]}
                     rules={[{ required: true, message: "Podajte možnosti" }]}
                 >

@@ -3,6 +3,10 @@ import styles from "./Register.module.css"
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../fetch/user";
 import React from "react";
+import type { User } from "firebase/auth";
+import type { AppUser } from "../../fetch/types";
+import { useContext } from "react";
+import { UserContext } from "../../context/UserContext";
 
 type FieldType = {
     firstName?: string;
@@ -16,7 +20,7 @@ type FieldType = {
 
 export default function Register() {
     const navigate = useNavigate();
-
+    const { refreshUser } = useContext(UserContext);
     const [form] = Form.useForm();
     const [loading, setLoading] = React.useState(false);
 
@@ -33,7 +37,7 @@ export default function Register() {
                 }
             }
 
-            const { user, backendData } = await registerUser(
+            const { user, backendData }:{user:User,backendData:AppUser} = await registerUser(
                 values.email!,
                 values.password!,
                 values.firstName!,
@@ -41,9 +45,10 @@ export default function Register() {
                 values.username!,
                 values.isTeacher!,
             );
-
             console.log("Firebase user:", user);
             console.log("Backend response:", backendData);
+            
+            refreshUser();
 
             navigate("/");
         } catch (error: any) {

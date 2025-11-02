@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { auth } from "./firebase";
 import { WS_URL } from "../api";
-import type { AppUser, GuestUser, Question } from "./types";
+import type { AppUser, GuestUser } from "./types";
 
 export type clientType = "PLAYER" | "SPECTATOR";
 
@@ -19,7 +19,8 @@ type ServerToClientEvents = {
     "player-joined": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
     "player-disconnected": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
     "ready": () => void;
-    "next-question": ({ question, index }: { question: Question, index: number }) => void;
+    "next-question": (index: number) => void;
+    "finish-question": (users: Array<AppUser|GuestUser>) => void;
 };
 
 type ClientToServerEvents = {
@@ -30,6 +31,8 @@ type ClientToServerEvents = {
     "kick-player": (playerId: string, callback: (response: any) => void) => void;
     "start-quiz": (callback: (response: any) => void) => void;
     "next-question": (callback: (response: any) => void) => void;
+    "answer-question": ({ questionId, answerId, userEntry, answerTime, isCustomCorrect }: { questionId: string , answerId: string | null, userEntry: string, answerTime: number, isCustomCorrect:string | undefined  }, callback?: (response: any) => void) => void;
+    "time-elapsed-question": (hostId: string | undefined, callback?: (response:any) => void) => void;
 };
 
 export let guestId: string | null = null;
