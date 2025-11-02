@@ -1,5 +1,8 @@
-import { Button, Flex, Image } from "antd";
+import { Button, Flex, Image, List } from "antd";
 import styles from "./QuizHost.module.css";
+import { socket } from "../../fetch/socketio";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from 'react';
 import Timer from "../../components/Timer/Timer";
 import Crown from "../../../src/assets/crown.svg";
@@ -15,6 +18,9 @@ export default function QuizHost() {
   const [questionIndexState, setQuestionIndexState] = useState(questionIndex);
   const [resetKey, setResetKey] = useState(0);
   const [showLead, setShowLead] = useState(false);
+  const navigate = useNavigate();
+
+  const isQuizOver = true;
   const [usersState, setUsersState] = useState(users);
 
   useEffect(() => {
@@ -63,7 +69,6 @@ export default function QuizHost() {
       }
     });
   };
-
 
   return (
     <>
@@ -122,6 +127,53 @@ export default function QuizHost() {
           </Button>
         </Flex>
       )}
+
+      {showLead && isQuizOver && (
+        <Flex className={styles.container} vertical gap="middle">
+          <h1>Rezultati:</h1>
+
+          <div id="scrollableDiv" className={styles.scrollArea}>
+            <InfiniteScroll
+              dataLength={testUsers.length}
+              next={() => {}}
+              hasMore={false}
+              scrollableTarget="scrollableDiv"
+              loader={<div>Nalaganje...</div>}
+            >
+              <List
+                dataSource={testUsers}
+                renderItem={(item, index) => (
+                  <List.Item
+                    key={item.id}
+                    style={{
+                      padding: "5px 0px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      fontFamily: '"PlusJakartaSans", "sans-serif"'
+                    }}
+                  >
+                    <span>
+                      {index + 1}. {item.username}
+                    </span>
+                    <span>{item.score} točk</span>
+                  </List.Item>
+                )}
+              />
+            </InfiniteScroll>
+          </div>
+
+          <Flex justify="center" style={{ width: "100%" }} gap="middle">
+            <Button className={styles.button} type="primary" onClick={() => navigate("/")}>
+              Poglej poročilo
+            </Button>
+            <Button className={styles.homeButton} type="primary" onClick={() => navigate("/")}>
+              Končaj Kviz
+            </Button>
+          </Flex>
+        </Flex >
+      )
+}
     </>
   );
 }

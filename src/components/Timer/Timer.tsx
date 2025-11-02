@@ -34,14 +34,20 @@ export default function Timer({ totalSeconds = 10, onFinish, reset }: TimerProps
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [secondsLeft, totalSeconds, onFinish]);
+  }, [totalSeconds]);
+
+  useEffect(() => {
+    if (secondsLeft === 0 && onFinish) {
+      const timeout = setTimeout(() => onFinish(), 0);
+      return () => clearTimeout(timeout);
+    }
+  }, [secondsLeft, onFinish]);
 
   useEffect(() => {
     if (secondsLeft > 0 && secondsLeft <= 5) {
       const flashInterval = setInterval(() => {
         setFlashRed(prev => !prev);
       }, 300);
-
       return () => clearInterval(flashInterval);
     } else {
       setFlashRed(false);
