@@ -161,11 +161,8 @@ export default function AddNewQuiz() {
         questions: values.questions,
       };
 
-      console.log('Quiz data being sent:', quizData);
-
       const res = await createQuiz(quizData);
 
-      console.log('Quiz created successfully:', res);
       navigate('/');
 
     } catch (error) {
@@ -246,9 +243,7 @@ export default function AddNewQuiz() {
         if (!res.ok) throw new Error('Failed to fetch subjects');
 
         const data = await res.json();
-        console.log('Fetched subjects:', data);
         setSubjects(data.subjects);
-        console.log('Subjects set in state:', subjects);
       } catch (error) {
         console.error('Error fetching subjects:', error);
       }

@@ -6,8 +6,6 @@ import { auth } from "./firebase";
 export async function createQuiz(quizData: any) {
     const token = await auth.currentUser?.getIdToken();
 
-    console.log(quizData)
-
     const res = await fetch(`${API_URL}/quizzes`, {
         method: "POST",
         headers: {
@@ -26,21 +24,15 @@ export async function createQuiz(quizData: any) {
     const data = await res.json();
     let type = -1;
     const questionsArray = Object.values(quizData.questions);
-    console.log("Questions to be added:", questionsArray);
     for (let question of questionsArray) {
-        console.log("Processing question:", question);
         const questionFormData = new FormData();
         questionFormData.append("text", question.question);
         questionFormData.append("quizId", data.id);
         if (question.keywords) {
-            questionFormData.append("questionType", "CUSTOM_ANWSER");
             type = 0;
         } else if (question.ans1) {
-            questionFormData.append("questionType", "PRESET_ANWSER");
             type = 1;
-
         } else if (question.questionImage1) {
-            questionFormData.append("questionType", "MEDIA_ANWSER");
             type = 2;
         }
 
@@ -57,7 +49,6 @@ export async function createQuiz(quizData: any) {
 
         if (!questionRes.ok) throw new Error("Failed to create question");
         const questionData = await questionRes.json();
-        console.log("Created question:", questionData);
         if (type === 0) {
             const answerFormData = new FormData();
             answerFormData.append("questionId", questionData.id);
@@ -74,7 +65,6 @@ export async function createQuiz(quizData: any) {
 
             if (!ansRes.ok) throw new Error("Failed to create answer");
             const answerData = await ansRes.json();
-            console.log("Created answer:", answerData);
         } else if (type === 1) {
             const answerTexts: string[] = [];
             const correctFlags: boolean[] = [false, false, false, false];
@@ -108,7 +98,6 @@ export async function createQuiz(quizData: any) {
 
                 if (!ansRes.ok) throw new Error("Failed to create answer");
                 const answerData = await ansRes.json();
-                console.log("Created answer:", answerData);
             }
         } else if (type === 2) {
             const answerImages: string[] = [];
@@ -144,8 +133,6 @@ export async function createQuiz(quizData: any) {
 
                 if (!ansRes.ok) throw new Error("Failed to create answer");
                 const answerData = await ansRes.json();
-                console.log("Created answer:", answerData);
-
             }
         }
     }

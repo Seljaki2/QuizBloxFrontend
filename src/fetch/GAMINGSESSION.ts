@@ -55,7 +55,6 @@ export async function connectToSession(joinCode: string, username?: string): Pro
                 session = sessionData;
                 users = response.players;
                 status = "waiting";
-                console.log("Connected to session:", sessionData);
                 resolve(sessionData);
             });
         }, username);
@@ -63,8 +62,6 @@ export async function connectToSession(joinCode: string, username?: string): Pro
 }
 
 export async function createSession(quizId: quizblox): Promise<sessionType> {
-    console.log("createSession called with quizId:", quizId);
-    console.log("Current session state:", session);
     if (session) {
         return new Promise(async (resolve, reject) => {
             resolve(session!);
@@ -88,7 +85,6 @@ export async function createSession(quizId: quizblox): Promise<sessionType> {
             });
 
             socket.emit("create-session", quizId, (response: any) => {
-                console.log("Creating session");
                 if (response.error) {
                     return reject(response.error);
                 }
@@ -98,7 +94,6 @@ export async function createSession(quizId: quizblox): Promise<sessionType> {
                     joinCode: response.joinCode,
                     quiz: response.quiz,
                 };
-                console.log("Session created:", sessionData);
                 session = sessionData;
                 status = "waiting";
                 resolve(sessionData);

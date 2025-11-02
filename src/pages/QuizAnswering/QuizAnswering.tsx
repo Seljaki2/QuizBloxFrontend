@@ -74,7 +74,6 @@ export default function QuizAnswering() {
     setWaiting(true);
     const isCorrect = handleCustomQuestion();
     sendQuestion(session?.quiz.questions[questionIndexState].id, null, userInput, Date.now(), isCorrect.toString());
-    console.log('handleTextSubmit', 'zaj sem v handleTextSubmit');
     setResult(isCorrect ? 'correct' : 'incorrect');
   };
 
@@ -87,7 +86,6 @@ export default function QuizAnswering() {
       setResult(null);
       setUserInput('');
       getUserIndex();
-      console.log("all data", session);
     });
     socket?.on('finish-question', (currentUsers: Array<AppUser | GuestUser>) => {
       setUsersState(currentUsers);

@@ -63,7 +63,6 @@ export default function QuizList() {
                 if (!res.ok) throw new Error("Failed to fetch quizzes");
 
                 const data = await res.json();
-                console.log("Fetched quizzes:", data);
                 setData(data);
             } catch (error) {
                 console.error("Error fetching quizzes:", error);

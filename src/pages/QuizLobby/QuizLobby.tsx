@@ -63,7 +63,6 @@ export default function QuizLobby() {
             const sessionData = await createSession({ quizId: quizId! });
             setSessionState(sessionData);
             sessionStorage.removeItem('quizId');
-            console.log(socket);
             if (socket) {
                 socket.on("player-joined", ({ user, users }) => {
                     handlePlayerConnection(user, users);

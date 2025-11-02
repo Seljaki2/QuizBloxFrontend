@@ -62,8 +62,6 @@ export default function QuizHost() {
     socket?.emit("next-question", (response: any) => {
       if (response.error) {
         console.error("Error moving to next question:", response.error);
-      } else {
-        console.log("Moved to next question:", response)
       }
     });
   };

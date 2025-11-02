@@ -39,7 +39,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
         if (!res.ok) throw new Error("Backend registration failed");
         const data = await res.json();
-        console.log("Fetched user profile data:", data);
         const appUser: AppUser = {
             id: String(data.id),
             email: data.email,

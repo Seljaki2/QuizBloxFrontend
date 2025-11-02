@@ -45,8 +45,6 @@ export default function Register() {
                 values.username!,
                 values.isTeacher!,
             );
-            console.log("Firebase user:", user);
-            console.log("Backend response:", backendData);
             
             refreshUser();
 
