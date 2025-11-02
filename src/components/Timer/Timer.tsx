@@ -13,31 +13,27 @@ export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
   const [flashRed, setFlashRed] = useState(false);
 
   useEffect(() => {
-    if (secondsLeft <= 0) {
-      if (onFinish) onFinish(); 
-      return;
-    }
+    if (secondsLeft <= 0) return;
 
     const interval = setInterval(() => {
-      setSecondsLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          if (onTimeUp) onTimeUp();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setSecondsLeft(prev => Math.max(prev - 1, 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [secondsLeft, totalSeconds, onFinish]);
+  }, [totalSeconds]);
+
+  useEffect(() => {
+    if (secondsLeft === 0 && onFinish) {
+      const timeout = setTimeout(() => onFinish(), 0);
+      return () => clearTimeout(timeout);
+    }
+  }, [secondsLeft, onFinish]);
 
   useEffect(() => {
     if (secondsLeft > 0 && secondsLeft <= 5) {
       const flashInterval = setInterval(() => {
         setFlashRed(prev => !prev);
       }, 300);
-
       return () => clearInterval(flashInterval);
     } else {
       setFlashRed(false);
@@ -48,17 +44,17 @@ export default function Timer({ totalSeconds = 10, onFinish }: TimerProps) {
   const pathColor = flashRed ? '#d33434' : '#34D399';
 
   return (
-      <CircularProgressbar
-        value={percentage}
-        text={`${secondsLeft}s`}
-        strokeWidth={10}
-        styles={buildStyles({
-          pathColor,
-          trailColor: '#ffffff',
-          textColor: '#000000',
-          textSize: '24px',
-        })}
-        className={styles.text}
-      />
-    );
+    <CircularProgressbar
+      value={percentage}
+      text={`${secondsLeft}s`}
+      strokeWidth={10}
+      styles={buildStyles({
+        pathColor,
+        trailColor: '#ffffff',
+        textColor: '#000000',
+        textSize: '24px',
+      })}
+      className={styles.text}
+    />
+  );
 }
