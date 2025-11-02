@@ -18,7 +18,6 @@ const QuizJoin: React.FC = () => {
       closeSocket();
       setLoading(true);
       const data = await connectToSession(values.joinCode, values.username);
-      console.log('Joining quiz with:', data);
 
       navigate('/lobby');
     } catch (error) {

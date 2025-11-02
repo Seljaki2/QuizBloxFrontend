@@ -6,9 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useContext } from 'react';
 import Timer from "../../components/Timer/Timer";
 import Crown from "../../../src/assets/crown.svg";
-import { questionIndex, session, users } from '../../fetch/GAMINGSESSION';
+import { closeSession, questionIndex, session, users } from '../../fetch/GAMINGSESSION';
 import { PICTURE_URL } from "../../api";
-import { socket } from "../../fetch/socketio";
 import { UserContext } from '../../context/UserContext.tsx';
 import type { AppUser, GuestUser } from '../../fetch/types.tsx';
 
@@ -19,8 +18,7 @@ export default function QuizHost() {
   const [resetKey, setResetKey] = useState(0);
   const [showLead, setShowLead] = useState(false);
   const navigate = useNavigate();
-
-  const isQuizOver = true;
+  const [isQuizOver, setIsQuizOver] = useState(false);
   const [usersState, setUsersState] = useState(users);
 
   useEffect(() => {
@@ -35,10 +33,10 @@ export default function QuizHost() {
       });
 
       socket.on("finish-question", (currentUsers: Array<AppUser|GuestUser>) => {
-        console.log("finished", currentUsers)
         setUsersState(currentUsers);
-        console.log("test", usersState)
         setShowLead(true);
+        if(questionIndexState>=session?.quiz.questions.length-1)
+          setIsQuizOver(true);
       });
     }
 
@@ -94,8 +92,7 @@ export default function QuizHost() {
       ) : (
         <Flex vertical align="center" style={{ width: "100vh" }}>
           <img src={Crown} alt="Crown" />
-          {console.log("usersState.log", usersState)}
-          {(usersState[0]?.guestUsername) ? <h1 className={styles.topScores}>1. {usersState[0]?.guestUsername}</h1> : <h1 className={styles.topScores}>1. {usersState[0]?.username}</h1>}
+          {(usersState[0]?.guestUsername) ? <h1 className={styles.score1}>1. {usersState[0]?.guestUsername}</h1> : <h1 className={styles.score1}>1. {usersState[0]?.username}</h1>}
           <span className={styles.scores}>{usersState[0]?.totalScore} točk</span>
 
           <Flex gap="middle" justify="center" style={{ width: "100vh" }}>
@@ -107,7 +104,7 @@ export default function QuizHost() {
                 width: "50vh",
               }}
             >
-              {(usersState[1]?.guestUsername) ? <h1 className={styles.topScores}>2. {usersState[1]?.guestUsername}</h1> : <h1 className={styles.topScores}>2. {usersState[1]?.username}</h1>}
+              {(usersState[1]?.guestUsername) ? <h1 className={styles.score2}>2. {usersState[1]?.guestUsername}</h1> : <h1 className={styles.score2}>2. {usersState[1]?.username}</h1>}
                 <span className={styles.scores}>{usersState[1]?.totalScore} točk</span>
             </Flex>:null}
             {(usersState.length>=3)?<Flex
@@ -118,13 +115,13 @@ export default function QuizHost() {
                 width: "50vh",
               }}
             >
-              {(usersState[2]?.guestUsername) ? <h1 className={styles.topScores}>3. {usersState[2]?.guestUsername}</h1> : <h1 className={styles.topScores}>3. {usersState[2]?.username}</h1>}
+              {(usersState[2]?.guestUsername) ? <h1 className={styles.score3}>3. {usersState[2]?.guestUsername}</h1> : <h1 className={styles.score3}>3. {usersState[2]?.username}</h1>}
               <span className={styles.scores}>{usersState[2]?.totalScore} točk</span>
             </Flex>:null}
           </Flex>
-          <Button onClick={handleNextQuestion} style={{ marginTop: '100px' }}>
-            {(questionIndexState>=session?.quiz.questions.length) ? "NEXT QUESTION":"FINISH QUIZ"}
-          </Button>
+          {(questionIndexState<session?.quiz.questions.length-1) ? <Button onClick={handleNextQuestion} style={{ marginTop: '100px' }} className={styles.homeButton} type="primary">
+            Naslednje Vprašanje
+          </Button> : null}
         </Flex>
       )}
 
@@ -134,17 +131,17 @@ export default function QuizHost() {
 
           <div id="scrollableDiv" className={styles.scrollArea}>
             <InfiniteScroll
-              dataLength={testUsers.length}
+              dataLength={usersState?.length}
               next={() => {}}
               hasMore={false}
               scrollableTarget="scrollableDiv"
               loader={<div>Nalaganje...</div>}
             >
               <List
-                dataSource={testUsers}
+                dataSource={usersState}
                 renderItem={(item, index) => (
                   <List.Item
-                    key={item.id}
+                    key={item.totalScore}
                     style={{
                       padding: "5px 0px",
                       display: "flex",
@@ -154,9 +151,9 @@ export default function QuizHost() {
                     }}
                   >
                     <span>
-                      {index + 1}. {item.username}
+                      {index + 1}. {(item.guestUsername) ? item.guestUsername : item.username}
                     </span>
-                    <span>{item.score} točk</span>
+                    <span>{item.totalScore} točk</span>
                   </List.Item>
                 )}
               />
@@ -164,10 +161,10 @@ export default function QuizHost() {
           </div>
 
           <Flex justify="center" style={{ width: "100%" }} gap="middle">
-            <Button className={styles.button} type="primary" onClick={() => navigate("/")}>
+            <Button className={styles.button} type="primary" onClick={() => {closeSession(); window.close();}}>
               Poglej poročilo
             </Button>
-            <Button className={styles.homeButton} type="primary" onClick={() => navigate("/")}>
+            <Button className={styles.homeButton} type="primary" onClick={() => {closeSession(); window.close();}}>
               Končaj Kviz
             </Button>
           </Flex>

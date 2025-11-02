@@ -5,6 +5,7 @@ export let session: sessionType | null = null;
 export let users: Array<AppUser | GuestUser> = [];
 export let status: sessionStatus = "closed";
 export let questionIndex: number = -1;
+export let guestUsername: string | null = null;
 
 export type sessionStatus = "waiting" | "in-progress" | "finished" | "closed";
 
@@ -15,6 +16,7 @@ export type sessionType = {
 }
 
 export async function connectToSession(joinCode: string, username?: string): Promise<sessionType> {
+  if(username) guestUsername=username;
     return new Promise(async (resolve, reject) => {
         await initSocket(() => {
             if (!socket) {
@@ -28,6 +30,7 @@ export async function connectToSession(joinCode: string, username?: string): Pro
             });
             socket.on("disconnect", (reason) => {
                 console.warn("⚠️ Disconnected from server:", reason);
+                guestUsername=null;
                 status = "closed";
                 session = null;
                 users = [];
@@ -106,10 +109,16 @@ export async function createSession(quizId: quizblox): Promise<sessionType> {
 
 export async function closeSession() {
     if (!session) return;
-    session = null;
-    users = [];
-    status = "closed";
+    clearSession();
     closeSocket();
+}
+
+export async function clearSession(){
+  session = null;
+  users = [];
+  status = "closed";
+  questionIndex=-1;
+  guestUsername = null;
 }
 
 export async function cancelSession() {
@@ -122,6 +131,7 @@ export async function cancelSession() {
     session = null;
     users = [];
     status = "closed";
+    guestUsername = null;
     closeSocket();
 }
 

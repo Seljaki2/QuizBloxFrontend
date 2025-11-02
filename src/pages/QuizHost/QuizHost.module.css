@@ -43,10 +43,26 @@
   max-width: 200px;
 }
 
-.topScores{
+.score1 {
+    color: gold;
     font-family: 'PlusJakartaSans', sans-serif;
     margin: 0px;
 }
+
+.score2 {
+    color: silver;
+    font-family: 'PlusJakartaSans', sans-serif;
+    margin: 0px;
+}
+
+.score3 {
+    color: #cd7f32;
+    font-family: 'PlusJakartaSans', sans-serif;
+    margin: 0px;
+}
+
+
+
 .scores{
 font-family: 'PlusJakartaSans', sans-serif;
     font-size: large;
