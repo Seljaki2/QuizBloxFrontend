@@ -1,4 +1,4 @@
-import { Card, Button, Checkbox, Form, Input, type FormProps } from "antd";
+import { Card, Button, Checkbox, Form, Input, type FormProps, message } from "antd";
 import styles from "./Login.module.css"
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../fetch/user";
@@ -33,6 +33,15 @@ export default function Login() {
             navigate("/");
         } catch (error: any) {
             console.error("Registration failed:", error);
+            if (error.code === "auth/user-not-found") {
+                message.error("Uporabnik s tem e-poštnim naslovom ne obstaja.");
+            } else if (error.code === "auth/wrong-password") {
+                message.error("Napačno geslo. Poskusite znova.");
+            } else if (error.code === "auth/invalid-credential") {
+                message.error("Neveljavni podatki za prijavo. Preverite e-pošto in geslo.");
+            } else {
+                message.error("Prišlo je do napake pri prijavi. Poskusite znova pozneje.");
+            }
         }
     };
 

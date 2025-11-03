@@ -1,4 +1,4 @@
-import { Card, Button, Checkbox, Form, Input, type FormProps } from "antd";
+import { Card, Button, Checkbox, Form, Input, type FormProps, message } from "antd";
 import styles from "./Register.module.css"
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../fetch/user";
@@ -51,6 +51,7 @@ export default function Register() {
             navigate("/");
         } catch (error: any) {
             console.error("Registration failed:", error);
+            message.error("Registracija ni uspela");
         } finally {
             setLoading(false);
         }
