@@ -13,8 +13,10 @@ import { writeFileSync } from 'fs';
  */
 function getGitCommits() {
   try {
+    // Use a special separator that's unlikely to appear in commit messages
+    const separator = '|||';
     const output = execSync(
-      'git log --all --pretty=format:"%an|%ae|%ad|%s" --date=iso',
+      `git log --all --pretty=format:"%an${separator}%ae${separator}%ad${separator}%s" --date=iso`,
       { encoding: 'utf-8' }
     );
     
@@ -23,14 +25,20 @@ function getGitCommits() {
     }
     
     return output.trim().split('\n').map(line => {
-      const [author, email, date, ...messageParts] = line.split('|');
+      const parts = line.split(separator);
+      if (parts.length < 4) {
+        // Fallback: if separator is not found, try to parse as best as we can
+        console.warn(`Warning: Could not properly parse commit line: ${line}`);
+        return null;
+      }
+      
       return {
-        author: author.trim(),
-        email: email.trim(),
-        date: new Date(date.trim()),
-        message: messageParts.join('|').trim()
+        author: parts[0].trim(),
+        email: parts[1].trim(),
+        date: new Date(parts[2].trim()),
+        message: parts.slice(3).join(separator).trim()
       };
-    });
+    }).filter(commit => commit !== null);
   } catch (error) {
     console.error('Error fetching git commits:', error.message);
     return [];
@@ -84,7 +92,6 @@ function groupCommitsByAuthorAndWeek(commits) {
  * Generate a summary of what was done in a week based on commit messages
  */
 function generateWeeklySummary(commits) {
-  const messages = commits.map(c => c.message.toLowerCase());
   const keywords = {
     features: ['add', 'implement', 'create', 'new', 'integrate'],
     fixes: ['fix', 'resolve', 'correct', 'patch'],
@@ -155,7 +162,11 @@ function generateWeeklySummary(commits) {
     summaryText += `**Merges:** ${summary.merges.length} commit(s)\n\n`;
   }
   
-  if (summary.other.length > 0 && summary.features.length === 0 && summary.fixes.length === 0 && summary.refactors.length === 0) {
+  // Show other work only if there are no other categories
+  const hasMainCategories = summary.features.length > 0 || summary.fixes.length > 0 || 
+                            summary.refactors.length > 0 || summary.merges.length > 0;
+  
+  if (summary.other.length > 0 && !hasMainCategories) {
     summaryText += `**Other work:** ${summary.other.length} commit(s) - `;
     summaryText += summary.other.slice(0, 2).map(m => `"${m}"`).join(', ');
     if (summary.other.length > 2) summaryText += `, and ${summary.other.length - 2} more`;
