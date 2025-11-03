@@ -21,6 +21,13 @@ export default function QuizHost() {
   const [isQuizOver, setIsQuizOver] = useState(false);
   const [usersState, setUsersState] = useState(users);
 
+  const openReport = () => {
+        const sessionId = session?.session.id;
+        if (window.opener && !window.opener.closed) {
+      window.opener.postMessage({ sessionIdQuizBlox: sessionId }, "*");
+    }
+  };
+
   useEffect(() => {
     const randomRotation = Math.floor(Math.random() * 21) - 10;
     setRotation(randomRotation);
@@ -40,9 +47,17 @@ export default function QuizHost() {
       });
     }
 
+  const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    closeSession();
+  };
+
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+
     return () => {
       socket?.off("next-question");
-      socket?.off("finish-question")
+      socket?.off("finish-question");
+          window.removeEventListener("beforeunload", handleBeforeUnload);
     }
   }, [usersState, showLead, resetKey]);
 
@@ -159,7 +174,7 @@ export default function QuizHost() {
           </div>
 
           <Flex justify="center" style={{ width: "100%" }} gap="middle">
-            <Button className={styles.button} type="primary" onClick={() => {closeSession(); window.close();}}>
+            <Button className={styles.button} type="primary" onClick={() => {openReport(); closeSession(); window.close();}}>
               Poglej poročilo
             </Button>
             <Button className={styles.homeButton} type="primary" onClick={() => {closeSession(); window.close();}}>

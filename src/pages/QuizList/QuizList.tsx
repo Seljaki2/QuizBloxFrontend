@@ -36,6 +36,21 @@ function openSessionWindow(quizId: string) {
     const sessionWindow = window.open(`/lobby`, '_blank', features);
     if (sessionWindow) {
         sessionWindow.focus();
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.sessionIdQuizBlox) {
+        console.log("✅ Received message from session window:", event.data);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    const checkClosedInterval = setInterval(() => {
+      if (sessionWindow.closed) {
+        clearInterval(checkClosedInterval);
+        window.removeEventListener("message", handleMessage);
+      }
+    }, 1000);
     }
 }
 
