@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, use, useContext } from "react";
 import { Table, Input, Button, Space, Flex } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnType } from "antd";
@@ -15,83 +15,22 @@ import {
 } from "recharts";
 import styles from "./Reports.module.css";
 import type { StudentReport, TeacherReport } from "../../fetch/types";
+import { fetchResults } from "../../fetch/results";
+import { UserContext } from "../../context/UserContext";
 
 export default function Reports() {
-    const ifteacher = true;
-
-    const quizReportsTeacher: TeacherReport[] = [
-        {
-            id: "1",
-            title: "Matematika - Test 1",
-            predmet: "Matematika",
-            description: "Test iz osnovnih računskih operacij.",
-            avg_score: 130,
-            questiong_percentages: [44, 65, 12, 76],
-            quiz_correct_percentage: 50,
-            total_students: 50,
-        },
-        {
-            id: "2",
-            title: "Fizika - Test 2",
-            predmet: "Fizika",
-            description: "Osnovni pojmi o energiji in gibanju.",
-            avg_score: 1308,
-            questiong_percentages: [30, 85, 27, 67, 45, 12, 64],
-            quiz_correct_percentage: 55,
-            total_students: 40,
-        },
-    ];
-
-    const quizReportsStudent: StudentReport[] = [
-        {
-            id: "1",
-            title: "Matematika - Test 1",
-            predmet: "Matematika",
-            description: "Test iz osnovnih računskih operacij.",
-            totalScore: 106,
-            avg_score: 130,
-            questionsAndAnswers: [
-                {
-                    question_img_path: "",
-                    question: "kaj je 2 + 2",
-                    correct_answer: ["4"],
-                    is_user_answer_img: false,
-                    user_answer: "3",
-                },
-                {
-                    question_img_path: "",
-                    question: "ali razumemo matematiko?",
-                    correct_answer: ["ja", "mogoče"],
-                    is_user_answer_img: false,
-                    user_answer: "ne",
-                },
-            ],
-
-        },
-        {
-            id: "2",
-            title: "Fizika - Test 2",
-            predmet: "Fizika",
-            description: "Osnovni pojmi o energiji in gibanju.",
-            totalScore: 1603,
-            avg_score: 1308,
-
-            questionsAndAnswers: [
-                {
-                    question_img_path: jabuka,
-                    question: "ali razumemo fiziko?",
-                    correct_answer: [jabuka, jabuka],
-                    is_user_answer_img: true,
-                    user_answer: jabuka
-                },
-            ],
-
-        },
-    ];
-
     const [searchText, setSearchText] = useState("");
     const [searchedColumn, setSearchedColumn] = useState("");
     const searchInput = useRef<InputRef>(null);
+    const [stats, setStats] = useState<TeacherReport[] | StudentReport[]>([]);
+    const { user } = useContext(UserContext);
+
+    useEffect(() => {
+        fetchResults().then((data) => {
+            console.log(data)
+            setStats(data);
+        });
+    }, []);
 
     const handleSearch = (
         selectedKeys: string[],
@@ -108,11 +47,7 @@ export default function Reports() {
         setSearchText("");
     };
 
-    const getColumnSearchProps = <
-        T extends TeacherReport | StudentReport
-    >(
-        dataIndex: keyof T
-    ): TableColumnType<T> => ({
+    const getColumnSearchProps = (dataIndex: keyof T): TableColumnType<T> => ({
         filterDropdown: ({
             setSelectedKeys,
             selectedKeys,
@@ -127,7 +62,7 @@ export default function Reports() {
             >
                 <Input
                     ref={searchInput}
-                    placeholder={`Išči`}
+                    placeholder="Išči"
                     value={selectedKeys[0]}
                     onChange={(e) =>
                         setSelectedKeys(e.target.value ? [e.target.value] : [])
@@ -180,9 +115,11 @@ export default function Reports() {
         ),
         onFilter: (value, record) =>
             record[dataIndex]
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
+                ? record[dataIndex]!
+                    .toString()
+                    .toLowerCase()
+                    .includes((value as string).toLowerCase())
+                : false,
         render: (text: any) =>
             searchedColumn === dataIndex ? (
                 <Highlighter
@@ -196,58 +133,53 @@ export default function Reports() {
             ),
     });
 
+
     const columnsTeacher: TableColumnType<TeacherReport>[] = [
         {
             title: "Naziv",
-            dataIndex: "title",
-            key: "title",
-            ...getColumnSearchProps<TeacherReport>("title"),
-        },
-        {
-            title: "Predmet",
-            dataIndex: "predmet",
-            key: "predmet",
-            ...getColumnSearchProps<TeacherReport>("predmet"),
+            dataIndex: ["session", "quiz", "name"],
+            key: "quizName",
+            ...getColumnSearchProps("session"),
+            render: (_, record) => record.session.quiz.name,
         },
         {
             title: "Povprečje točk",
-            dataIndex: "avg_score",
+            dataIndex: "quizAverageScore",
             key: "avg_score",
         },
         {
             title: "Pravilni odgovori (%)",
-            dataIndex: "quiz_correct_percentage",
+            dataIndex: "quizAveragePercentage",
             key: "quiz_correct_percentage",
         },
     ];
 
+
     const columnsStudent: TableColumnType<StudentReport>[] = [
         {
             title: "Naziv",
-            dataIndex: "title",
-            key: "title",
-            ...getColumnSearchProps<StudentReport>("title"),
-        },
-        {
-            title: "Predmet",
-            dataIndex: "predmet",
-            key: "predmet",
-            ...getColumnSearchProps<StudentReport>("predmet"),
+            dataIndex: ["session", "quiz", "name"],
+            key: "quizName",
+            ...getColumnSearchProps("session"),
+            render: (_, record) => record.session.quiz.name,
         },
         {
             title: "Skupne točke",
-            dataIndex: "totalScore",
+            dataIndex: ["userScore", "totalScore"],
             key: "totalScore",
+            render: (_, record) => record.userScore.totalScore,
         },
         {
             title: "Povprečje točk",
-            dataIndex: "avg_score",
+            dataIndex: "quizAverageScore",
             key: "avg_score",
         },
     ];
 
-    const data = ifteacher ? quizReportsTeacher : quizReportsStudent;
-    const columns = ifteacher ? columnsTeacher : columnsStudent;
+    const data = stats;
+    const columns = user?.isTeacher ? columnsTeacher : columnsStudent;
+    console.log(data)
+    console.log(columns)
 
     return (
         <Flex vertical gap="large" align="flex-end">
@@ -259,29 +191,27 @@ export default function Reports() {
                 expandable={{
                     expandedRowRender: (record) => (
                         <div className={styles.expandedRow}>
-                            <p>{record.description}</p>
-
-                            {ifteacher && "questiong_percentages" in record && (
+                            {user?.isTeacher && "averageStatsByQuestionId" in record && (
                                 <ResponsiveContainer width="100%" height={200}>
                                     <BarChart
-                                        data={record.questiong_percentages.map((p, i) => {
-                                            const correct = Math.round((p / 100) * record.total_students);
+                                        data={Object.entries(record.averageStatsByQuestionId).map(([questionId, percent], i) => {
+                                            const correct = Math.round((percent / 100) * record.session.playerCount);
                                             return {
                                                 question: `VPR ${i + 1}`,
                                                 correct,
-                                                percent: p,
+                                                percent,
                                             };
                                         })}
                                         margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
                                         className={styles.chart}
                                     >
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="question" tick={{ fill: "#9CA3AF" }}/>
-                                        <YAxis tick={{ fill: "#9CA3AF" }}/>
+                                        <XAxis dataKey="question" tick={{ fill: "#9CA3AF" }} />
+                                        <YAxis tick={{ fill: "#9CA3AF" }} />
                                         <Tooltip
                                             formatter={(value: number, name: string, props: any) => {
                                                 const percent = props.payload.percent;
-                                                const total = record.total_students;
+                                                const total = record.session.playerCount;
                                                 return [
                                                     `${value} od ${total} učencev (${percent}%)`,
                                                     "Pravilni odgovori",
@@ -301,14 +231,14 @@ export default function Reports() {
                                             labelStyle={{
                                                 fontWeight: 600,
                                             }}
-                                            cursor={{fill: 'transparent'}}
+                                            cursor={{ fill: 'transparent' }}
                                         />
                                         <Bar dataKey="correct" fill="#34D399" />
                                     </BarChart>
                                 </ResponsiveContainer>
                             )}
 
-                            {!ifteacher && "questionsAndAnswers" in record && (
+                            {!user?.isTeacher && "questionsAndAnswers" in record && (
                                 <div className={styles.questionsContainer}>
                                     {record.questionsAndAnswers.map((qa, index) => {
                                         const isCorrect =
@@ -384,7 +314,7 @@ export default function Reports() {
                     emptyText: (
                         <div className={styles.noDataContainer}>
                             <SearchOutlined style={{ fontSize: 20 }} />
-                            <p>nič najdenih poročil</p>
+                            <p>Nič najdenih poročil</p>
                         </div>
                     ),
                 }}

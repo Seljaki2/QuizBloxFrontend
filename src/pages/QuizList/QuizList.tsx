@@ -12,15 +12,27 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { deleteQuiz } from '../../fetch/quiz';
 
-const navigate = useNavigate();
 
-function openSessionWindow(quizId: string) {
-    const width = 800;
-    const height = 600;
-    const left = (window.screen.width - width) / 2;
-    const top = (window.screen.height - height) / 2;
 
-    const features = `
+
+type DataIndex = keyof Quiz;
+
+
+export default function QuizList() {
+    const navigate = useNavigate();
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef<InputRef>(null);
+    const [data, setData] = useState<Quiz[]>([]);
+    const { user } = useContext(UserContext);
+
+    function openSessionWindow(quizId: string) {
+        const width = 800;
+        const height = 600;
+        const left = (window.screen.width - width) / 2;
+        const top = (window.screen.height - height) / 2;
+
+        const features = `
         width=${width},
         height=${height},
         left=${left},
@@ -32,44 +44,32 @@ function openSessionWindow(quizId: string) {
         menubar=no
     `.replace(/\s+/g, '');
 
-    sessionStorage.setItem('quizId', quizId);
-    const sessionWindow = window.open(`/lobby`, '_blank', features);
-    if (sessionWindow) {
-        sessionWindow.focus();
+        sessionStorage.setItem('quizId', quizId);
+        const sessionWindow = window.open(`/lobby`, '_blank', features);
+        if (sessionWindow) {
+            sessionWindow.focus();
 
-        const handleMessage = (event: MessageEvent) => {
-            if (event.data?.sessionIdQuizBlox) {
-                console.log("✅ Received message from session window:", event.data);
-                navigate('/reports', {
-                    state: {
-                        sessionId: event.data.sessionIdQuizBlox
-                    }
-                });
-            };
-        }
-
-        window.addEventListener("message", handleMessage);
-
-        const checkClosedInterval = setInterval(() => {
-            if (sessionWindow?.closed) {
-                clearInterval(checkClosedInterval);
-                window.removeEventListener("message", handleMessage);
+            const handleMessage = (event: MessageEvent) => {
+                if (event.data?.sessionIdQuizBlox) {
+                    console.log("✅ Received message from session window:", event.data);
+                    navigate('/reports', {
+                        state: {
+                            sessionId: event.data.sessionIdQuizBlox
+                        }
+                    });
+                };
             }
-        }, 1000);
-    }
-};
 
+            window.addEventListener("message", handleMessage);
 
-
-type DataIndex = keyof Quiz;
-
-
-export default function QuizList() {
-    const [searchText, setSearchText] = useState('');
-    const [searchedColumn, setSearchedColumn] = useState('');
-    const searchInput = useRef<InputRef>(null);
-    const [data, setData] = useState<Quiz[]>([]);
-    const { user } = useContext(UserContext);
+            const checkClosedInterval = setInterval(() => {
+                if (sessionWindow?.closed) {
+                    clearInterval(checkClosedInterval);
+                    window.removeEventListener("message", handleMessage);
+                }
+            }, 1000);
+        }
+    };
 
 
     useEffect(() => {

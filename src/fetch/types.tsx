@@ -1,3 +1,5 @@
+import type { User } from "firebase/auth";
+
 export interface Quiz {
   id: string;
   createdAt: Date;
@@ -22,6 +24,8 @@ export interface Result {
   username?: string | null;
   answer: Answer;
   userEntry?: string | null;
+  isUserEntryCorrect?: boolean | null;
+  session: Session;
 }
 
 export interface Subject {
@@ -77,6 +81,8 @@ export interface Session {
   id: String;
   host: AppUser;
   quiz: Quiz;
+  playerCount: number;
+  endTime: Date;
 }
 
 export interface GuestUser {
@@ -89,31 +95,37 @@ export type QuestionType =
   | 'MEDIA_ANWSER'
   | 'PRESET_ANWSER';
 
+export interface UserSessionScore {
+  id: string;
+  user: AppUser;
+  session: Session;
+  totalScore: number;
+}
+
 export interface TeacherReport {
-    id: string,
-    title: string;
-    predmet: string;
-    description: string;
-    avg_score: number;
-    questiong_percentages: number[];
-    quiz_correct_percentage: number;
-    total_students: number;
+  id: string,
+  resultStatsByQuestionId: any,
+  averageStatsByQuestionId: any,
+  quizAveragePercentage: number,
+  session: Session,
+  quizAverageScore: number;
+  usersScore: UserSessionScore[];
 };
 
+
+
 export interface StudentReport {
-    id: string,
-    title: string;
-    predmet: string;
-    description: string;
-    totalScore: number;
-    avg_score: number;
-    questionsAndAnswers: QuestionsAndAnswers[];
+  id: string,
+  quizAverageScore: number;
+  session: Session,
+  userScore: UserSessionScore;
+  userQuestionAnswers: Result[];
 };
 
 export interface QuestionsAndAnswers {
-    question_img_path: string;
-    question: string;
-    correct_answer: string[];
-    is_user_answer_img: boolean;
-    user_answer: string;
+  question_img_path: string;
+  question: string;
+  correct_answer: string[];
+  is_user_answer_img: boolean;
+  user_answer: string;
 };
