@@ -58,3 +58,9 @@
         font-family: 'PlusJakartaSans', sans-serif;
     padding: 20px;
 }
+
+.noDataContainer{
+font-family: 'PlusJakartaSans', sans-serif;
+  color: var(--TEXT) !important;
+  font-size: large;
+}
