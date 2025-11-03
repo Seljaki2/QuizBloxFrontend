@@ -77,7 +77,6 @@ export interface Session {
   id: String;
   host: AppUser;
   quiz: Quiz;
-  endTime: Date;
 }
 
 export interface GuestUser {
