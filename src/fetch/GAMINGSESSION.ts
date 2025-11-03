@@ -1,6 +1,5 @@
-import type { Session } from "react-router-dom";
 import { closeSocket, initSocket, socket, type quizblox } from "./socketio";
-import type { AppUser, GuestUser, Quiz } from "./types";
+import type { AppUser, GuestUser, Quiz, Session } from "./types";
 export let session: sessionType | null = null;
 export let users: Array<AppUser | GuestUser> = [];
 export let status: sessionStatus = "closed";
