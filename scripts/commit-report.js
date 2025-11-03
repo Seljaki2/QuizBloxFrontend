@@ -81,6 +81,91 @@ function groupCommitsByAuthorAndWeek(commits) {
 }
 
 /**
+ * Generate a summary of what was done in a week based on commit messages
+ */
+function generateWeeklySummary(commits) {
+  const messages = commits.map(c => c.message.toLowerCase());
+  const keywords = {
+    features: ['add', 'implement', 'create', 'new', 'integrate'],
+    fixes: ['fix', 'resolve', 'correct', 'patch'],
+    refactors: ['refactor', 'improve', 'enhance', 'update', 'cleanup', 'remove unnecessary'],
+    merges: ['merge'],
+    other: []
+  };
+  
+  const summary = {
+    features: [],
+    fixes: [],
+    refactors: [],
+    merges: [],
+    other: []
+  };
+  
+  commits.forEach(commit => {
+    const msg = commit.message;
+    const msgLower = msg.toLowerCase();
+    let categorized = false;
+    
+    // Check for merges first
+    if (msgLower.includes('merge')) {
+      summary.merges.push(msg);
+      categorized = true;
+    } else {
+      // Check other categories
+      for (const [category, words] of Object.entries(keywords)) {
+        if (category === 'other' || category === 'merges') continue;
+        
+        if (words.some(word => msgLower.includes(word))) {
+          summary[category].push(msg);
+          categorized = true;
+          break;
+        }
+      }
+    }
+    
+    if (!categorized) {
+      summary.other.push(msg);
+    }
+  });
+  
+  let summaryText = '';
+  
+  if (summary.features.length > 0) {
+    summaryText += `**Features & Additions:** ${summary.features.length} commit(s) - `;
+    summaryText += summary.features.slice(0, 2).map(m => `"${m}"`).join(', ');
+    if (summary.features.length > 2) summaryText += `, and ${summary.features.length - 2} more`;
+    summaryText += '\n\n';
+  }
+  
+  if (summary.fixes.length > 0) {
+    summaryText += `**Fixes:** ${summary.fixes.length} commit(s) - `;
+    summaryText += summary.fixes.slice(0, 2).map(m => `"${m}"`).join(', ');
+    if (summary.fixes.length > 2) summaryText += `, and ${summary.fixes.length - 2} more`;
+    summaryText += '\n\n';
+  }
+  
+  if (summary.refactors.length > 0) {
+    summaryText += `**Refactoring & Improvements:** ${summary.refactors.length} commit(s) - `;
+    summaryText += summary.refactors.slice(0, 2).map(m => `"${m}"`).join(', ');
+    if (summary.refactors.length > 2) summaryText += `, and ${summary.refactors.length - 2} more`;
+    summaryText += '\n\n';
+  }
+  
+  if (summary.merges.length > 0) {
+    summaryText += `**Merges:** ${summary.merges.length} commit(s)\n\n`;
+  }
+  
+  if (summary.other.length > 0 && summary.features.length === 0 && summary.fixes.length === 0 && summary.refactors.length === 0) {
+    summaryText += `**Other work:** ${summary.other.length} commit(s) - `;
+    summaryText += summary.other.slice(0, 2).map(m => `"${m}"`).join(', ');
+    if (summary.other.length > 2) summaryText += `, and ${summary.other.length - 2} more`;
+    summaryText += '\n\n';
+  }
+  
+  return summaryText || 'General development work\n\n';
+}
+
+/**
  * Generate a formatted report
  */
 function generateReport(groupedData) {
@@ -101,6 +186,12 @@ function generateReport(groupedData) {
       const weekData = groupedData[author][week];
       report += `### ${week} (${weekData.count} commit${weekData.count !== 1 ? 's' : ''})\n\n`;
       
+      // Add weekly summary
+      report += '**Weekly Summary:**\n\n';
+      report += generateWeeklySummary(weekData.commits);
+      
+      // Add detailed commit list
+      report += '**Detailed Commits:**\n\n';
       weekData.commits.forEach((commit, index) => {
         const commitDate = new Date(commit.date).toLocaleString();
         report += `${index + 1}. **${commitDate}**: ${commit.message}\n`;
