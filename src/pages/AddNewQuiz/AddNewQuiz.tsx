@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState, useCallback } from 'react';
 import {
   Button,
   Card,
@@ -49,10 +49,12 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Failed:', errorInfo);
 };
 
-function SortableQuestion({ id, item, onDelete }: {
+function SortableQuestion({ id, item, onDelete, onTitleChange, onAnswerTypeChange }: {
   id: string;
   item: QuestionItem;
   onDelete: (key: string) => void;
+  onTitleChange: (key: string, newTitle: string) => void;
+  onAnswerTypeChange: (key: string, newType: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
@@ -126,7 +128,13 @@ function SortableQuestion({ id, item, onDelete }: {
               {
                 key: item.key,
                 label: customLabel,
-                children: item.content,
+                children: (
+                  <NewQuestion
+                    index={item.key}
+                    onTitleChange={(newTitle) => onTitleChange(item.key, newTitle)}
+                    onAnswerTypeChange={(newType) => onAnswerTypeChange(item.key, newType)}
+                  />
+                ),
                 className: styles.panelStyle,
               },
             ]}
@@ -170,7 +178,7 @@ export default function AddNewQuiz() {
     }
   };
 
-  const mapJsonToQuestions = (jsonQuestions: any[]): QuestionItem[] => {
+  const mapJsonToQuestions = useCallback((jsonQuestions: any[]): QuestionItem[] => {
     return jsonQuestions.map((q, index) => {
       const key = (index + 1).toString();
 
@@ -193,7 +201,7 @@ export default function AddNewQuiz() {
         originalData: q,
       };
     });
-  };
+  }, [handleQuestionTitleChange, handleQuestionAnswerTypeChange]);
 
   useEffect(() => {
 
@@ -250,29 +258,29 @@ export default function AddNewQuiz() {
     }
 
     fetchSubjects();
-  }, [quizId]);
+  }, [quizId, mapJsonToQuestions, form]);
 
-  const handleQuestionTitleChange = (key: string, newTitle: string) => {
+  const handleQuestionTitleChange = useCallback((key: string, newTitle: string) => {
     setQuestions((prev) =>
       prev.map((q) =>
         q.key === key ? { ...q, label: newTitle || 'Novo vprašanje' } : q,
       ),
     );
-  };
+  }, []);
 
 
-  const handleQuestionAnswerTypeChange = (key: string, newType: number) => {
+  const handleQuestionAnswerTypeChange = useCallback((key: string, newType: number) => {
     setQuestions((prev) =>
       prev.map((q) =>
         q.key === key ? { ...q, answerType: newType } : q,
       ),
     );
-  };
+  }, []);
 
 
-  const handleDeleteQuestion = (key: string) => {
+  const handleDeleteQuestion = useCallback((key: string) => {
     setQuestions((prev) => prev.filter((q) => q.key !== key));
-  };
+  }, []);
 
 
   const sensors = useSensors(useSensor(PointerSensor));
@@ -286,7 +294,7 @@ export default function AddNewQuiz() {
     }
   };
 
-  const handleAddQuestion = () => {
+  const handleAddQuestion = useCallback(() => {
     const newKey = (questions.length + 1).toString();
     const newItem: QuestionItem = {
       key: newKey,
@@ -301,7 +309,7 @@ export default function AddNewQuiz() {
       ),
     };
     setQuestions((prev) => [...prev, newItem]);
-  };
+  }, [questions.length, handleQuestionTitleChange, handleQuestionAnswerTypeChange]);
 
   const [form] = Form.useForm();
   const [newSubjectName, setNewSubjectName] = useState('');
@@ -416,17 +424,10 @@ export default function AddNewQuiz() {
                 <SortableQuestion
                   key={item.key}
                   id={item.key}
-                  item={{
-                    ...item,
-                    content: (
-                      <NewQuestion
-                        index={item.key}
-                        onTitleChange={(newTitle) => handleQuestionTitleChange(item.key, newTitle)}
-                        onAnswerTypeChange={(newType) => handleQuestionAnswerTypeChange(item.key, newType)}
-                      />
-                    ),
-                  }}
+                  item={item}
                   onDelete={handleDeleteQuestion}
+                  onTitleChange={handleQuestionTitleChange}
+                  onAnswerTypeChange={handleQuestionAnswerTypeChange}
                 />
               ))}
             </SortableContext>

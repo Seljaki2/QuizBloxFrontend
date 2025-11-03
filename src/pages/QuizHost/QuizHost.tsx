@@ -2,8 +2,7 @@ import { Button, Flex, Image, List } from "antd";
 import styles from "./QuizHost.module.css";
 import { socket } from "../../fetch/socketio";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import Timer from "../../components/Timer/Timer";
 import Crown from "../../../src/assets/crown.svg";
 import { closeSession, questionIndex, session, users } from '../../fetch/GAMINGSESSION';
@@ -17,36 +16,10 @@ export default function QuizHost() {
   const [questionIndexState, setQuestionIndexState] = useState(questionIndex);
   const [resetKey, setResetKey] = useState(0);
   const [showLead, setShowLead] = useState(false);
-  const navigate = useNavigate();
   const [isQuizOver, setIsQuizOver] = useState(false);
   const [usersState, setUsersState] = useState(users);
 
-  useEffect(() => {
-    const randomRotation = Math.floor(Math.random() * 21) - 10;
-    setRotation(randomRotation);
-
-    if (socket?.connected) {
-      socket.on("next-question", (index: number) => {
-        setQuestionIndexState(index);
-        setResetKey(index);
-        setShowLead(false);
-      });
-
-      socket.on("finish-question", (currentUsers: Array<AppUser|GuestUser>) => {
-        setUsersState(currentUsers);
-        setShowLead(true);
-        if(questionIndexState>=session?.quiz.questions.length-1)
-          setIsQuizOver(true);
-      });
-    }
-
-    return () => {
-      socket?.off("next-question");
-      socket?.off("finish-question")
-    }
-  }, [usersState, showLead, resetKey]);
-
-  const handleTimerFinish = () => {
+  const handleTimerFinish = useCallback(() => {
     if(!showLead) {
       socket?.emit("time-elapsed-question", user?.id, (response: any) => {
         if (response.error) {
@@ -56,15 +29,43 @@ export default function QuizHost() {
         }
       });
     }
-  };
+  }, [showLead, user?.id]);
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = useCallback(() => {
     socket?.emit("next-question", (response: any) => {
       if (response.error) {
         console.error("Error moving to next question:", response.error);
       }
     });
-  };
+  }, []);
+
+  useEffect(() => {
+    const randomRotation = Math.floor(Math.random() * 21) - 10;
+    setRotation(randomRotation);
+
+    const handleNextQuestionEvent = (index: number) => {
+      setQuestionIndexState(index);
+      setResetKey(index);
+      setShowLead(false);
+    };
+
+    const handleFinishQuestionEvent = (currentUsers: Array<AppUser|GuestUser>) => {
+      setUsersState(currentUsers);
+      setShowLead(true);
+      if(questionIndexState >= (session?.quiz.questions.length ?? 0) - 1)
+        setIsQuizOver(true);
+    };
+
+    if (socket?.connected) {
+      socket.on("next-question", handleNextQuestionEvent);
+      socket.on("finish-question", handleFinishQuestionEvent);
+    }
+
+    return () => {
+      socket?.off("next-question", handleNextQuestionEvent);
+      socket?.off("finish-question", handleFinishQuestionEvent);
+    }
+  }, [questionIndexState]);
 
   return (
     <>

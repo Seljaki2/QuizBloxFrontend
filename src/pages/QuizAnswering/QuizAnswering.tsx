@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Card, Flex, Form, Image } from 'antd';
 import styles from './QuizAnswering.module.css';
 import TextArea from 'antd/es/input/TextArea';
@@ -23,18 +23,18 @@ export default function QuizAnswering() {
   const [userState, setUserState] = useState<number>(-1);
   const {user} = useContext(UserContext);
 
-  const getUserIndex = () => {
+  const getUserIndex = useCallback(() => {
     const index = usersState.findIndex(u =>
       guestUsername
         ? ('guestUsername' in u ? u.guestUsername === guestUsername : false)
-        : ('username' in u ? u.username === user.username : false)
+        : ('username' in u ? u.username === user?.username : false)
     );
 
     setUserState(index);
-  };
+  }, [usersState, user]);
 
 
-  const handleAnswer = (answer: Answer, colorClass: string) => {
+  const handleAnswer = useCallback((answer: Answer) => {
     setSelectedAnswer(answer);
     setWaiting(true);
 
@@ -42,7 +42,7 @@ export default function QuizAnswering() {
     setResult(answer.isCorrect ? 'correct' : 'incorrect')
     setWaiting(false);
 
-  };
+  }, [questionIndexState, userInput]);
 
   const sendQuestion = (questionId: string, answerId: string | null, userEntry: string, answerTime: number, isCorrect: string | undefined) => {
     socket?.emit('answer-question', {
@@ -54,7 +54,7 @@ export default function QuizAnswering() {
     });
   };
 
-  const handleCustomQuestion = () => {
+  const handleCustomQuestion = useCallback(() => {
     const questionText = session?.quiz.questions[questionIndexState].answers[0].text || '';
     const input = userInput.trim().toLowerCase();
 
@@ -67,52 +67,58 @@ export default function QuizAnswering() {
     const isMatch = answers.some(answer => input.includes(answer));
 
     return isMatch;
-  };
+  }, [questionIndexState, userInput]);
 
-  const handleTextSubmit = () => {
+  const handleTextSubmit = useCallback(() => {
     setSelectedAnswer('custom');
     setWaiting(true);
     const isCorrect = handleCustomQuestion();
     sendQuestion(session?.quiz.questions[questionIndexState].id, null, userInput, Date.now(), isCorrect.toString());
     setResult(isCorrect ? 'correct' : 'incorrect');
-  };
+  }, [questionIndexState, userInput, handleCustomQuestion]);
 
   useEffect(() => {
-    socket?.on('next-question', (index: number) => {
+    const handleNextQuestion = (index: number) => {
       setQuestionIndexState(index);
       setSelectedAnswer(null);
-      setUserInput('null');
+      setUserInput('');
       setWaiting(false);
       setResult(null);
-      setUserInput('');
       getUserIndex();
-    });
-    socket?.on('finish-question', (currentUsers: Array<AppUser | GuestUser>) => {
+    };
+
+    const handleFinishQuestion = (currentUsers: Array<AppUser | GuestUser>) => {
       setUsersState(currentUsers);
       setAverage(calcAverage(currentUsers));
       setWaiting(false);
-      getUserIndex()
-      if(questionIndexState>=session?.quiz.questions.length-1){
+      getUserIndex();
+      if(questionIndexState >= (session?.quiz.questions.length ?? 0) - 1){
         setIsQuizOver(true);
-        }
-    });
-    socket?.on('disconnect', () =>{
+      }
+    };
+
+    const handleDisconnect = () => {
       clearSession();
       navigate("/");
-    })
+    };
+
+    socket?.on('next-question', handleNextQuestion);
+    socket?.on('finish-question', handleFinishQuestion);
+    socket?.on('disconnect', handleDisconnect);
 
     return () => {
-      socket?.off('next-question');
-      socket?.off('finish-question');
+      socket?.off('next-question', handleNextQuestion);
+      socket?.off('finish-question', handleFinishQuestion);
+      socket?.off('disconnect', handleDisconnect);
     };
-  }, [getUserIndex, navigate, questionIndexState]);
+  }, [getUserIndex, navigate, questionIndexState, calcAverage]);
 
 
-    const calcAverage = (currentUsers: Array<AppUser | GuestUser>) =>{
+    const calcAverage = useCallback((currentUsers: Array<AppUser | GuestUser>) =>{
       if (!currentUsers || currentUsers.length === 0) return 0;
       const total = currentUsers.reduce((sum, user) => sum + user.totalScore, 0);
       return Math.round(total / currentUsers.length);
-    }
+    }, []);
 
     if (isQuizOver) {
         return (
@@ -245,7 +251,7 @@ export default function QuizAnswering() {
                         type="default"
                         htmlType="button"
                         className={`${styles.textButton} ${color}`}
-                        onClick={() => handleAnswer(answer, color)}
+                        onClick={() => handleAnswer(answer)}
                       >
                         <div className={styles.textButtonContent}>
                           {answer.text}
@@ -277,7 +283,7 @@ export default function QuizAnswering() {
                         type="default"
                         htmlType="button"
                         className={`${styles.imageButton} ${color}`}
-                        onClick={() => handleAnswer(answer, color)}
+                        onClick={() => handleAnswer(answer)}
                       >
                         <div className={styles.imageWrapper}>
                           <Image

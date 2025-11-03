@@ -52,7 +52,7 @@ export default function QuizLobby() {
             closeSession().catch((err) => console.error("Failed to close session:", err));
         };
 
-        const handlePlayerConnection = (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => {
+        const handlePlayerConnection = (users: Array<AppUser | GuestUser>) => {
             setUsersState(users);
         };
 
@@ -64,22 +64,16 @@ export default function QuizLobby() {
             setSessionState(sessionData);
             sessionStorage.removeItem('quizId');
             if (socket) {
-                socket.on("player-joined", ({ user, users }) => {
-                    handlePlayerConnection(user, users);
-                    if(user.guestUsername) {
-                      message.info("Uporabnik pridružil igri: " + user.guestUsername)
-                    }else{
-                      message.info("Uporabnik pridružil igri: " + user.username)
-                    }
+                socket.on("player-joined", ({ user, users }: { user: AppUser | GuestUser; users: Array<AppUser | GuestUser> }) => {
+                    handlePlayerConnection(users);
+                    const username = 'guestUsername' in user ? user.guestUsername : user.username;
+                    message.info("Uporabnik pridružil igri: " + username);
                 });
 
-                socket.on("player-disconnected", ({ user, users }) => {
-                    handlePlayerConnection(user, users);
-                  if(user.guestUsername) {
-                    message.info("Uporabnik zapustil igro: " + user.guestUsername)
-                  }else{
-                    message.info("Uporabnik zapustil igro: " + user.username)
-                  }
+                socket.on("player-disconnected", ({ user, users }: { user: AppUser | GuestUser; users: Array<AppUser | GuestUser> }) => {
+                    handlePlayerConnection(users);
+                    const username = 'guestUsername' in user ? user.guestUsername : user.username;
+                    message.info("Uporabnik zapustil igro: " + username);
                 });
 
                 socket.on("next-question", () => {
@@ -105,12 +99,12 @@ export default function QuizLobby() {
                     navigate('/');
                 });
 
-                socket.on("player-joined", ({ user, users }) => {
-                    handlePlayerConnection(user, users);
+                socket.on("player-joined", ({ users }: { users: Array<AppUser | GuestUser> }) => {
+                    handlePlayerConnection(users);
                 });
 
-                socket.on("player-disconnected", ({ user, users }) => {
-                    handlePlayerConnection(user, users);
+                socket.on("player-disconnected", ({ users }: { users: Array<AppUser | GuestUser> }) => {
+                    handlePlayerConnection(users);
                 });
 
                 socket.on("next-question", () => {
@@ -122,14 +116,13 @@ export default function QuizLobby() {
                 });
 
             }
-            loadMoreData();
         }
 
         return () => {
             window.removeEventListener("beforeunload", handleUnload);
             socket?.off("player-joined");
         };
-    }, []);
+    }, [navigate, quizId]);
 
     return (
         <Flex className={styles.container} vertical gap="middle">
@@ -138,17 +131,28 @@ export default function QuizLobby() {
                 <InfiniteScroll
                     dataLength={usersState?.length}
                     next={loadMoreData}
-                    hasMore={usersState?.length < usersState?.length}
+                    hasMore={false}
                     scrollableTarget="scrollableDiv"
                     loader={<div>Čakanje na igralce...</div>}>
                     <List
                         dataSource={usersState}
-                        renderItem={(item) => (
-                            <List.Item key={item.id} style={{ padding: "5px 0px" }}>
-                                {(item.username) ? <List.Item.Meta title={item.username} style={{ margin: "0px" }} /> : <List.Item.Meta title={item.guestUsername} style={{ margin: "0px" }} />}
-                                {!(session?.session == "User Session") ? <Button className={styles.removeButton} onClick={(item.guestId) ? () => kickPlayer(item.guestId) : () => kickPlayer(item.id)}>Odstrani</Button> : null}
-                            </List.Item>
-                        )}
+                        renderItem={(item) => {
+                            const username = 'username' in item ? item.username : item.guestUsername;
+                            const userId = 'id' in item ? item.id : item.guestId;
+                            return (
+                                <List.Item key={userId} style={{ padding: "5px 0px" }}>
+                                    <List.Item.Meta title={username} style={{ margin: "0px" }} />
+                                    {!(session?.session == "User Session") ? (
+                                        <Button 
+                                            className={styles.removeButton} 
+                                            onClick={() => kickPlayer(userId)}
+                                        >
+                                            Odstrani
+                                        </Button>
+                                    ) : null}
+                                </List.Item>
+                            );
+                        }}
                     />
                 </InfiniteScroll>
             </div>

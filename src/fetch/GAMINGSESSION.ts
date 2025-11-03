@@ -17,15 +17,16 @@ export type sessionType = {
 
 export async function connectToSession(joinCode: string, username?: string): Promise<sessionType> {
     if (username) guestUsername = username;
-    return new Promise(async (resolve, reject) => {
-        await initSocket(() => {
+    
+    return new Promise((resolve, reject) => {
+        initSocket(() => {
             if (!socket) {
-                return reject("Socket not initialized");
+                return reject(new Error("Socket not initialized"));
             }
-            socket.on("player-joined", ({ user, currentUsers }) => {
+            socket.on("player-joined", ({ currentUsers }) => {
                 users = currentUsers;
             });
-            socket.on("player-disconnected", ({ user, currentUsers }) => {
+            socket.on("player-disconnected", ({ currentUsers }) => {
                 users = currentUsers;
             });
             socket.on("disconnect", (reason) => {
@@ -44,7 +45,7 @@ export async function connectToSession(joinCode: string, username?: string): Pro
 
             socket.emit("join-session", { joinCode, clientType: "PLAYER" }, (response: any) => {
                 if (response.joined == false) {
-                    return reject(new Error("Failed to join session: "));
+                    return reject(new Error("Failed to join session"));
                 }
 
                 const sessionData: sessionType = {
@@ -63,21 +64,19 @@ export async function connectToSession(joinCode: string, username?: string): Pro
 
 export async function createSession(quizId: quizblox): Promise<sessionType> {
     if (session) {
-        return new Promise(async (resolve, reject) => {
-            resolve(session!);
-        });
+        return Promise.resolve(session);
     }
 
-    return new Promise(async (resolve, reject) => {
-        await initSocket(() => {
+    return new Promise((resolve, reject) => {
+        initSocket(() => {
             if (!socket) {
-                return reject("Socket not initialized");
+                return reject(new Error("Socket not initialized"));
             }
 
-            socket.on("player-joined", (user, currentUsers) => {
+            socket.on("player-joined", (currentUsers) => {
                 users = currentUsers;
             });
-            socket.on("player-disconnected", (user, currentUsers) => {
+            socket.on("player-disconnected", (currentUsers) => {
                 users = currentUsers;
             });
             socket.on("next-question", (index: number) => {
@@ -86,7 +85,7 @@ export async function createSession(quizId: quizblox): Promise<sessionType> {
 
             socket.emit("create-session", quizId, (response: any) => {
                 if (response.error) {
-                    return reject(response.error);
+                    return reject(new Error(response.error));
                 }
 
                 const sessionData: sessionType = {

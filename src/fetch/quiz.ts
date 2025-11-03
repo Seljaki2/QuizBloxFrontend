@@ -22,12 +22,16 @@ export async function createQuiz(quizData: any) {
 
     if (!res.ok) throw new Error("Failed to create quiz");
     const data = await res.json();
-    let type = -1;
+    
     const questionsArray = Object.values(quizData.questions);
-    for (let question of questionsArray) {
+    
+    // Process all questions in parallel
+    await Promise.all(questionsArray.map(async (question: any) => {
+        let type = -1;
         const questionFormData = new FormData();
         questionFormData.append("text", question.question);
         questionFormData.append("quizId", data.id);
+        
         if (question.keywords) {
             type = 0;
         } else if (question.ans1) {
@@ -39,6 +43,7 @@ export async function createQuiz(quizData: any) {
         if (question.questionImage) {
             questionFormData.append("file", question.questionImage[0].originFileObj);
         }
+        
         const questionRes = await fetch(`${API_URL}/questions`, {
             method: "POST",
             headers: {
@@ -49,6 +54,8 @@ export async function createQuiz(quizData: any) {
 
         if (!questionRes.ok) throw new Error("Failed to create question");
         const questionData = await questionRes.json();
+        
+        // Create answers based on type
         if (type === 0) {
             const answerFormData = new FormData();
             answerFormData.append("questionId", questionData.id);
@@ -64,7 +71,6 @@ export async function createQuiz(quizData: any) {
             });
 
             if (!ansRes.ok) throw new Error("Failed to create answer");
-            const answerData = await ansRes.json();
         } else if (type === 1) {
             const answerTexts: string[] = [];
             const correctFlags: boolean[] = [false, false, false, false];
@@ -82,10 +88,11 @@ export async function createQuiz(quizData: any) {
                 throw new Error("Each question must have at least 2 answers");
             }
 
-            for (let i = 0; i < answerTexts.length; i++) {
+            // Create all answers for this question in parallel
+            await Promise.all(answerTexts.map(async (ansText, i) => {
                 const answerFormData = new FormData();
                 answerFormData.append("questionId", String(questionData.id));
-                answerFormData.append("text", answerTexts[i]);
+                answerFormData.append("text", ansText);
                 answerFormData.append("isCorrect", correctFlags[i] ? "1" : "0");
 
                 const ansRes = await fetch(`${API_URL}/answers`, {
@@ -97,10 +104,9 @@ export async function createQuiz(quizData: any) {
                 });
 
                 if (!ansRes.ok) throw new Error("Failed to create answer");
-                const answerData = await ansRes.json();
-            }
+            }));
         } else if (type === 2) {
-            const answerImages: string[] = [];
+            const answerImages: any[] = [];
             const correctFlags: boolean[] = [false, false, false, false];
 
             for (let i = 1; i <= 4; i++) {
@@ -116,11 +122,12 @@ export async function createQuiz(quizData: any) {
                 throw new Error("Each question must have at least 2 answers");
             }
 
-            for (let i = 0; i < answerImages.length; i++) {
+            // Create all answers for this question in parallel
+            await Promise.all(answerImages.map(async (image, i) => {
                 const answerFormData = new FormData();
                 answerFormData.append("questionId", String(questionData.id));
                 answerFormData.append("text", "image answer");
-                answerFormData.append("file", answerImages[i]);
+                answerFormData.append("file", image);
                 answerFormData.append("isCorrect", correctFlags[i] ? "1" : "0");
 
                 const ansRes = await fetch(`${API_URL}/answers`, {
@@ -132,10 +139,10 @@ export async function createQuiz(quizData: any) {
                 });
 
                 if (!ansRes.ok) throw new Error("Failed to create answer");
-                const answerData = await ansRes.json();
-            }
+            }));
         }
-    }
+    }));
+    
     return data;
 }
 

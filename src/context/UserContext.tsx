@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState, type ReactNode } from "react";
+import React, { createContext, useCallback, useEffect, useState, type ReactNode } from "react";
 import { getAuth, onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "../fetch/firebase";
 import { API_URL } from "../api";
@@ -26,7 +26,14 @@ export const UserContext = createContext<UserContextType>(defaultContext);
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<AppUser | null>(null);
 
-    async function getUserProfile() {
+    const getToken = useCallback(async () => {
+        const user = auth.currentUser
+        if (user)
+            return user.getIdToken()
+        throw new Error('No bearer token')
+    }, []);
+
+    const getUserProfile = useCallback(async () => {
         const token = await getToken();
 
         const res = await fetch(`${API_URL}/users/me`, {
@@ -50,7 +57,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
 
         return appUser;
-    }
+    }, [getToken]);
 
 
     useEffect(() => {
@@ -65,25 +72,18 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return () => {
             unsubscribe()
         };
-    }, []);
+    }, [getUserProfile]);
 
-    const signOut = async () => {
+    const signOut = useCallback(async () => {
         const auth = getAuth();
         await firebaseSignOut(auth);
         setUser(null);
-    };
+    }, []);
 
-    async function getToken() {
-        const user = auth.currentUser
-        if (user)
-            return user.getIdToken()
-        throw new Error('No bearer token')
-    }
-
-    const refreshUser = async () => {
+    const refreshUser = useCallback(async () => {
         const appUser = await getUserProfile();
         setUser(appUser);
-    };
+    }, [getUserProfile]);
 
     return <UserContext.Provider value={{ user, signOut, getToken, refreshUser }}>{children}</UserContext.Provider>;
 };
