@@ -68,20 +68,20 @@ export default function QuizLobby() {
             if (socket) {
                 socket.on("player-joined", ({ user, users }) => {
                     handlePlayerConnection(user, users);
-                    if(user.guestUsername) {
-                      message.info("Uporabnik pridružil igri: " + user.guestUsername)
-                    }else{
-                      message.info("Uporabnik pridružil igri: " + user.username)
+                    if (user.guestUsername) {
+                        message.info("Uporabnik pridružil igri: " + user.guestUsername)
+                    } else {
+                        message.info("Uporabnik pridružil igri: " + user.username)
                     }
                 });
 
                 socket.on("player-disconnected", ({ user, users }) => {
                     handlePlayerConnection(user, users);
-                  if(user.guestUsername) {
-                    message.info("Uporabnik zapustil igro: " + user.guestUsername)
-                  }else{
-                    message.info("Uporabnik zapustil igro: " + user.username)
-                  }
+                    if (user.guestUsername) {
+                        message.info("Uporabnik zapustil igro: " + user.guestUsername)
+                    } else {
+                        message.info("Uporabnik zapustil igro: " + user.username)
+                    }
                 });
 
                 socket.on("next-question", () => {
@@ -145,6 +145,13 @@ export default function QuizLobby() {
                     loader={<div>Čakanje na igralce...</div>}>
                     <List
                         dataSource={usersState}
+                        locale={{
+                            emptyText: (
+                                <div className={styles.noDataContainer}>
+                                    <p>Nišče se še ni pridružil.</p>
+                                </div>
+                            ),
+                        }}
                         renderItem={(item) => (
                             <List.Item key={item.id} style={{ padding: "5px 0px" }}>
                                 {(item.username) ? <List.Item.Meta title={item.username} style={{ margin: "0px" }} /> : <List.Item.Meta title={item.guestUsername} style={{ margin: "0px" }} />}

@@ -1,5 +1,5 @@
 import { Header } from "antd/es/layout/layout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./NavBar.module.css";
 import { Menu, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
@@ -8,6 +8,7 @@ import { UserContext } from "../../context/UserContext";
 
 export default function NavBar() {
   const { user, signOut } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const centerItems = [
     { key: "home", label: <Link to="/">Domov</Link> },
@@ -16,6 +17,14 @@ export default function NavBar() {
   ];
 
   const dropdownItems = [
+    {
+      key: "0",
+      label: (
+        <Button type="text" onClick={() => navigate("/profile")} style={{ padding: 0, color: "#ffffff" }}>
+          Račun
+        </Button>
+      ),
+    },
     {
       key: "1",
       danger: true,

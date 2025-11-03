@@ -10,6 +10,7 @@ import QuizLayoutWrapper from './components/QuizLayoutWrapper/QuizLayoutWrapper'
 import QuizLobby from './pages/QuizLobby/QuizLobby';
 import QuizAnswering from './pages/QuizAnswering/QuizAnswering';
 import Reports from './pages/Reports/Reports';
+import Profile from './pages/Profile/Profile';
 
 export default function Routing() {
     return (
@@ -20,7 +21,8 @@ export default function Routing() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/quizzes" element={<QuizList />} />
                 <Route path="/newQuiz" element={<AddNewQuiz />} />
-                                <Route path="/reports" element={<Reports />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/profile" element={<Profile />} />
             </Route>
 
             <Route element={<QuizLayoutWrapper />}>
