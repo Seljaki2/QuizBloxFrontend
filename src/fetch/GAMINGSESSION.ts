@@ -16,7 +16,7 @@ export type sessionType = {
 }
 
 export async function connectToSession(joinCode: string, username?: string): Promise<sessionType> {
-  if(username) guestUsername=username;
+    if (username) guestUsername = username;
     return new Promise(async (resolve, reject) => {
         await initSocket(() => {
             if (!socket) {
@@ -30,7 +30,7 @@ export async function connectToSession(joinCode: string, username?: string): Pro
             });
             socket.on("disconnect", (reason) => {
                 console.warn("⚠️ Disconnected from server:", reason);
-                guestUsername=null;
+                guestUsername = null;
                 status = "closed";
                 session = null;
                 users = [];
@@ -38,9 +38,9 @@ export async function connectToSession(joinCode: string, username?: string): Pro
             socket.on("next-question", (index: number) => {
                 questionIndex = index;
             });
-          socket.on("finish-question", (currentUsers: Array<AppUser|GuestUser>) => {
-                users=currentUsers;
-          });
+            socket.on("finish-question", (currentUsers: Array<AppUser | GuestUser>) => {
+                users = currentUsers;
+            });
 
             socket.emit("join-session", { joinCode, clientType: "PLAYER" }, (response: any) => {
                 if (response.joined == false) {
@@ -104,16 +104,21 @@ export async function createSession(quizId: quizblox): Promise<sessionType> {
 
 export async function closeSession() {
     if (!session) return;
-    clearSession();
-    closeSocket();
+    socket?.emit("close-session", ((response: any) => {
+        if (response.error) {
+            console.error("Error closing session:", response.error);
+        }
+        clearSession();
+        closeSocket();
+    }));
 }
 
-export async function clearSession(){
-  session = null;
-  users = [];
-  status = "closed";
-  questionIndex=-1;
-  guestUsername = null;
+export async function clearSession() {
+    session = null;
+    users = [];
+    status = "closed";
+    questionIndex = -1;
+    guestUsername = null;
 }
 
 export async function cancelSession() {
@@ -145,15 +150,15 @@ export async function startQuiz() {
         if (response.error) {
             console.error("Error starting quiz:", response.error);
         }
-        status="in-progress"
+        status = "in-progress"
     });
 }
 
-export async function finishQuiz(){
-  if(!session) return;
+export async function finishQuiz() {
+    if (!session) return;
     closeSocket();
-    session=null;
-    users=[];
-    questionIndex=-1;
-    status="finished";
+    session = null;
+    users = [];
+    questionIndex = -1;
+    status = "finished";
 }
