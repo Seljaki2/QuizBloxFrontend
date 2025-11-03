@@ -64,16 +64,22 @@ export default function QuizLobby() {
             setSessionState(sessionData);
             sessionStorage.removeItem('quizId');
             if (socket) {
-                socket.on("player-joined", ({ user, users }: { user: AppUser | GuestUser; users: Array<AppUser | GuestUser> }) => {
-                    handlePlayerConnection(users);
-                    const username = 'guestUsername' in user ? user.guestUsername : user.username;
-                    message.info("Uporabnik pridružil igri: " + username);
+                socket.on("player-joined", (data: any) => {
+                    const { user, users } = data || {};
+                    if (users) handlePlayerConnection(users);
+                    if (user) {
+                        const username = 'guestUsername' in user ? user.guestUsername : user.username;
+                        message.info("Uporabnik pridružil igri: " + username);
+                    }
                 });
 
-                socket.on("player-disconnected", ({ user, users }: { user: AppUser | GuestUser; users: Array<AppUser | GuestUser> }) => {
-                    handlePlayerConnection(users);
-                    const username = 'guestUsername' in user ? user.guestUsername : user.username;
-                    message.info("Uporabnik zapustil igro: " + username);
+                socket.on("player-disconnected", (data: any) => {
+                    const { user, users } = data || {};
+                    if (users) handlePlayerConnection(users);
+                    if (user) {
+                        const username = 'guestUsername' in user ? user.guestUsername : user.username;
+                        message.info("Uporabnik zapustil igro: " + username);
+                    }
                 });
 
                 socket.on("next-question", () => {
@@ -99,12 +105,14 @@ export default function QuizLobby() {
                     navigate('/');
                 });
 
-                socket.on("player-joined", ({ users }: { users: Array<AppUser | GuestUser> }) => {
-                    handlePlayerConnection(users);
+                socket.on("player-joined", (data: any) => {
+                    const { users } = data || {};
+                    if (users) handlePlayerConnection(users);
                 });
 
-                socket.on("player-disconnected", ({ users }: { users: Array<AppUser | GuestUser> }) => {
-                    handlePlayerConnection(users);
+                socket.on("player-disconnected", (data: any) => {
+                    const { users } = data || {};
+                    if (users) handlePlayerConnection(users);
                 });
 
                 socket.on("next-question", () => {

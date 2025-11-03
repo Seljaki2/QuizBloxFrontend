@@ -23,11 +23,13 @@ export async function connectToSession(joinCode: string, username?: string): Pro
             if (!socket) {
                 return reject(new Error("Socket not initialized"));
             }
-            socket.on("player-joined", ({ currentUsers }) => {
-                users = currentUsers;
+            socket.on("player-joined", (data: any) => {
+                const { currentUsers } = data || {};
+                if (currentUsers) users = currentUsers;
             });
-            socket.on("player-disconnected", ({ currentUsers }) => {
-                users = currentUsers;
+            socket.on("player-disconnected", (data: any) => {
+                const { currentUsers } = data || {};
+                if (currentUsers) users = currentUsers;
             });
             socket.on("disconnect", (reason) => {
                 console.warn("⚠️ Disconnected from server:", reason);
@@ -73,11 +75,19 @@ export async function createSession(quizId: quizblox): Promise<sessionType> {
                 return reject(new Error("Socket not initialized"));
             }
 
-            socket.on("player-joined", (currentUsers) => {
-                users = currentUsers;
+            socket.on("player-joined", (data: any) => {
+                if (data && Array.isArray(data)) {
+                    users = data;
+                } else if (data?.currentUsers) {
+                    users = data.currentUsers;
+                }
             });
-            socket.on("player-disconnected", (currentUsers) => {
-                users = currentUsers;
+            socket.on("player-disconnected", (data: any) => {
+                if (data && Array.isArray(data)) {
+                    users = data;
+                } else if (data?.currentUsers) {
+                    users = data.currentUsers;
+                }
             });
             socket.on("next-question", (index: number) => {
                 questionIndex = index;

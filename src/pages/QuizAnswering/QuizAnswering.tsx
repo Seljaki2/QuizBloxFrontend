@@ -38,7 +38,7 @@ export default function QuizAnswering() {
     setSelectedAnswer(answer);
     setWaiting(true);
 
-    sendQuestion(session?.quiz.questions[questionIndexState].id, answer.id, userInput, Date.now(), undefined);
+    sendQuestion(session?.quiz.questions[questionIndexState].id ?? '', answer.id, userInput, Date.now(), undefined);
     setResult(answer.isCorrect ? 'correct' : 'incorrect')
     setWaiting(false);
 
@@ -55,7 +55,7 @@ export default function QuizAnswering() {
   };
 
   const handleCustomQuestion = useCallback(() => {
-    const questionText = session?.quiz.questions[questionIndexState].answers[0].text || '';
+    const questionText = session?.quiz.questions[questionIndexState]?.answers[0]?.text || '';
     const input = userInput.trim().toLowerCase();
 
     if (!questionText || !input) return false;
@@ -73,9 +73,15 @@ export default function QuizAnswering() {
     setSelectedAnswer('custom');
     setWaiting(true);
     const isCorrect = handleCustomQuestion();
-    sendQuestion(session?.quiz.questions[questionIndexState].id, null, userInput, Date.now(), isCorrect.toString());
+    sendQuestion(session?.quiz.questions[questionIndexState].id ?? '', null, userInput, Date.now(), isCorrect.toString());
     setResult(isCorrect ? 'correct' : 'incorrect');
   }, [questionIndexState, userInput, handleCustomQuestion]);
+
+  const calcAverage = useCallback((currentUsers: Array<AppUser | GuestUser>) =>{
+    if (!currentUsers || currentUsers.length === 0) return 0;
+    const total = currentUsers.reduce((sum, user) => sum + (user.totalScore ?? 0), 0);
+    return Math.round(total / currentUsers.length);
+  }, []);
 
   useEffect(() => {
     const handleNextQuestion = (index: number) => {
@@ -114,19 +120,15 @@ export default function QuizAnswering() {
   }, [getUserIndex, navigate, questionIndexState, calcAverage]);
 
 
-    const calcAverage = useCallback((currentUsers: Array<AppUser | GuestUser>) =>{
-      if (!currentUsers || currentUsers.length === 0) return 0;
-      const total = currentUsers.reduce((sum, user) => sum + user.totalScore, 0);
-      return Math.round(total / currentUsers.length);
-    }, []);
-
     if (isQuizOver) {
         return (
             <Card className={styles.card}>
                 <>
-                    {average <= usersState[userState]?.totalScore ? (
+                    {average <= (usersState[userState]?.totalScore ?? 0) && usersState[userState] ? (
                         <>
-                            <h1 className={styles.header2}>Odlično, {(usersState[userState]?.guestUsername) ? usersState[userState]?.guestUsername : usersState[userState]?.username}!</h1>
+                            <h1 className={styles.header2}>
+                              Odlično, {'guestUsername' in usersState[userState] ? usersState[userState].guestUsername : usersState[userState].username}!
+                            </h1>
                             <Flex className={styles.flexContainer} gap="medium">
                                 <div className={styles.scoreGood}>
                                     <span className={styles.boxTitle}>Tvoj rezultat</span>
@@ -139,9 +141,11 @@ export default function QuizAnswering() {
                             </Flex>
                             <p className={styles.sentence}>Dosegli ste nadpovprečno število točk, čestitke! Le tako naprej!</p>
                         </>
-                    ) : (
+                    ) : usersState[userState] ? (
                         <>
-                            <h1 className={styles.header2}>Skoraj, {(usersState[userState]?.guestUsername) ? usersState[userState]?.guestUsername : usersState[userState]?.username}!</h1>
+                            <h1 className={styles.header2}>
+                              Skoraj, {'guestUsername' in usersState[userState] ? usersState[userState].guestUsername : usersState[userState].username}!
+                            </h1>
                             <Flex className={styles.flexContainer} gap="small">
                                 <div className={styles.scoreBad}>
                                     <span className={styles.boxTitle}>Tvoj rezultat</span>
@@ -154,7 +158,7 @@ export default function QuizAnswering() {
                             </Flex>
                             <p className={styles.sentence}>Dosegli ste podpovprečno število točk, saj bo! Malo truda pa bo bolje!</p>
                         </>
-                    )}
+                    ) : null}
                 </>
                 <Flex className={styles.buttonContainer} gap="small">
                     <Button className={styles.button} onClick={() => {clearSession(); navigate("/");}}>Poglej si poročilo</Button>
@@ -175,15 +179,15 @@ export default function QuizAnswering() {
           justify="center"
           className={styles.container}
         >
-          {(questionIndexState > 0) ? <Card className={styles.infoCard}>
+          {(questionIndexState > 0 && usersState[userState]) ? <Card className={styles.infoCard}>
             <div className={styles.infoTitle}>Tvoja statistika</div>
             <div>Mesto: {userState + 1}</div>
-            <div>Točke: {usersState[userState].totalScore}</div>
-            {(userState == 0 && usersState.length > 1) ?
-              <div>+{usersState[userState + 1].totalScore - usersState[userState].totalScore} točk da prehitiš igralca
+            <div>Točke: {usersState[userState]?.totalScore ?? 0}</div>
+            {(userState == 0 && usersState.length > 1 && usersState[1]) ?
+              <div>+{(usersState[1]?.totalScore ?? 0) - (usersState[userState]?.totalScore ?? 0)} točk da prehitiš igralca
                 #{userState + 2}</div> : null}
-            {(userState >= usersState.length && usersState.length > 1) ?
-              <div>+{usersState[userState].totalScore - usersState[userState - 1].totalScore} točk pred igralcem
+            {(userState >= usersState.length && usersState.length > 1 && usersState[userState - 1]) ?
+              <div>+{(usersState[userState]?.totalScore ?? 0) - (usersState[userState - 1]?.totalScore ?? 0)} točk pred igralcem
                 #{userState}</div> : null}
           </Card> : null}
 
@@ -263,7 +267,7 @@ export default function QuizAnswering() {
               </Form>
             )}
 
-          {session?.quiz.questions[questionIndexState].questionType == 'MEDIA_ANWSER' &&
+          {session?.quiz.questions[questionIndexState]?.questionType == 'MEDIA_ANWSER' &&
             !waiting &&
             !result &&
             !selectedAnswer && (
@@ -317,7 +321,7 @@ export default function QuizAnswering() {
               <span className={styles.spanText}> Tvoj odgovor: <span
                 style={{ color: 'Black' }}>{userInput} </span> </span>
                 </div>
-              ) : session?.quiz.questions[questionIndexState].questionType == 'PRESET_ANWSER' && !waiting ? (
+              ) : session?.quiz.questions[questionIndexState].questionType == 'PRESET_ANWSER' && !waiting && typeof selectedAnswer !== 'string' ? (
                 <Button
                   type="text"
                   className={
@@ -330,10 +334,10 @@ export default function QuizAnswering() {
                   disabled
                 >
                   <div className={styles.textButtonContent} style={{ "color": "white" }}>
-                    {selectedAnswer.text}
+                    {selectedAnswer?.text}
                   </div>
                 </Button>
-              ) : session?.quiz.questions[questionIndexState].questionType == 'MEDIA_ANWSER' && !waiting ? (
+              ) : session?.quiz.questions[questionIndexState].questionType == 'MEDIA_ANWSER' && !waiting && typeof selectedAnswer !== 'string' ? (
                 <Button
                   type="text"
                   className={
@@ -346,7 +350,7 @@ export default function QuizAnswering() {
                 >
                   <div className={styles.imageWrapper}>
                     <Image
-                      src={PICTURE_URL + selectedAnswer?.media.path}
+                      src={PICTURE_URL + selectedAnswer?.media?.path}
                       preview={false}
                       style={{
                         width: '100%',

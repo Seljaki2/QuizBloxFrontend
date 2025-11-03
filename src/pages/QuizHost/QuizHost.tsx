@@ -91,36 +91,52 @@ export default function QuizHost() {
       ) : (
         <Flex vertical align="center" style={{ width: "100vh" }}>
           <img src={Crown} alt="Crown" />
-          {(usersState[0]?.guestUsername) ? <h1 className={styles.score1}>1. {usersState[0]?.guestUsername}</h1> : <h1 className={styles.score1}>1. {usersState[0]?.username}</h1>}
-          <span className={styles.scores}>{usersState[0]?.totalScore} točk</span>
+          {usersState[0] && (
+            <>
+              <h1 className={styles.score1}>
+                1. {'guestUsername' in usersState[0] ? usersState[0].guestUsername : usersState[0].username}
+              </h1>
+              <span className={styles.scores}>{usersState[0].totalScore} točk</span>
+            </>
+          )}
 
           <Flex gap="middle" justify="center" style={{ width: "100vh" }}>
-            {(usersState.length>=2) ? <Flex
-              vertical
-              justify="center"
-              align="center"
-              style={{
-                width: "50vh",
-              }}
-            >
-              {(usersState[1]?.guestUsername) ? <h1 className={styles.score2}>2. {usersState[1]?.guestUsername}</h1> : <h1 className={styles.score2}>2. {usersState[1]?.username}</h1>}
-                <span className={styles.scores}>{usersState[1]?.totalScore} točk</span>
-            </Flex>:null}
-            {(usersState.length>=3)?<Flex
-              vertical
-              justify="center"
-              align="center"
-              style={{
-                width: "50vh",
-              }}
-            >
-              {(usersState[2]?.guestUsername) ? <h1 className={styles.score3}>3. {usersState[2]?.guestUsername}</h1> : <h1 className={styles.score3}>3. {usersState[2]?.username}</h1>}
-              <span className={styles.scores}>{usersState[2]?.totalScore} točk</span>
-            </Flex>:null}
+            {usersState.length >= 2 && usersState[1] && (
+              <Flex
+                vertical
+                justify="center"
+                align="center"
+                style={{
+                  width: "50vh",
+                }}
+              >
+                <h1 className={styles.score2}>
+                  2. {'guestUsername' in usersState[1] ? usersState[1].guestUsername : usersState[1].username}
+                </h1>
+                <span className={styles.scores}>{usersState[1].totalScore} točk</span>
+              </Flex>
+            )}
+            {usersState.length >= 3 && usersState[2] && (
+              <Flex
+                vertical
+                justify="center"
+                align="center"
+                style={{
+                  width: "50vh",
+                }}
+              >
+                <h1 className={styles.score3}>
+                  3. {'guestUsername' in usersState[2] ? usersState[2].guestUsername : usersState[2].username}
+                </h1>
+                <span className={styles.scores}>{usersState[2].totalScore} točk</span>
+              </Flex>
+            )}
           </Flex>
-          {(questionIndexState<session?.quiz.questions.length-1) ? <Button onClick={handleNextQuestion} style={{ marginTop: '100px' }} className={styles.homeButton} type="primary">
-            Naslednje Vprašanje
-          </Button> : null}
+          {questionIndexState < (session?.quiz.questions.length ?? 0) - 1 && (
+            <Button onClick={handleNextQuestion} style={{ marginTop: '100px' }} className={styles.homeButton} type="primary">
+              Naslednje Vprašanje
+            </Button>
+          )}
         </Flex>
       )}
 
@@ -150,7 +166,7 @@ export default function QuizHost() {
                     }}
                   >
                     <span>
-                      {index + 1}. {(item.guestUsername) ? item.guestUsername : item.username}
+                      {index + 1}. {'guestUsername' in item ? item.guestUsername : item.username}
                     </span>
                     <span>{item.totalScore} točk</span>
                   </List.Item>

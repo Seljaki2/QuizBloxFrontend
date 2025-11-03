@@ -1,7 +1,7 @@
 import { Divider, Form, Input, Radio, Button, Checkbox } from "antd";
 import styles from "./NewQuestion.module.css";
 import type { RadioChangeEvent, UploadFile } from 'antd';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import TextArea from "antd/es/input/TextArea";
 import QuizImageUpload from "../QuizImageUpload/QuizImageUpload";
 
@@ -11,7 +11,7 @@ type Props = {
     onAnswerTypeChange: (newType: number) => void;
 };
 
-export default function NewQuestion({ index, onTitleChange, onAnswerTypeChange }: Props) {
+function NewQuestion({ index, onTitleChange, onAnswerTypeChange }: Props) {
     const [value, setValue] = useState(1);
     const [answerCount, setAnswerCount] = useState(2);
 
@@ -148,3 +148,5 @@ export default function NewQuestion({ index, onTitleChange, onAnswerTypeChange }
         </>
     );
 }
+
+export default memo(NewQuestion);

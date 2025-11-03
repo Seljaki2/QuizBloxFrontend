@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useContext, useEffect, useRef, useState, useCallback } from 'react';
+import { useContext, useEffect, useRef, useState, useCallback, memo } from 'react';
 import {
   Button,
   Card,
@@ -49,7 +49,7 @@ const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
   console.log('Failed:', errorInfo);
 };
 
-function SortableQuestion({ id, item, onDelete, onTitleChange, onAnswerTypeChange }: {
+const SortableQuestion = memo(function SortableQuestion({ id, item, onDelete, onTitleChange, onAnswerTypeChange }: {
   id: string;
   item: QuestionItem;
   onDelete: (key: string) => void;
@@ -143,7 +143,7 @@ function SortableQuestion({ id, item, onDelete, onTitleChange, onAnswerTypeChang
       </div>
     </div>
   );
-}
+});
 
 export default function AddNewQuiz() {
   const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
@@ -177,6 +177,30 @@ export default function AddNewQuiz() {
       console.error('Error creating quiz:', error);
     }
   };
+
+  const handleQuestionTitleChange = useCallback((key: string, newTitle: string) => {
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.key === key ? { ...q, label: newTitle || 'Novo vprašanje' } : q,
+      ),
+    );
+  }, []);
+
+
+  const handleQuestionAnswerTypeChange = useCallback((key: string, newType: number) => {
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.key === key ? { ...q, answerType: newType } : q,
+      ),
+    );
+  }, []);
+
+
+  const handleDeleteQuestion = useCallback((key: string) => {
+    setQuestions((prev) => prev.filter((q) => q.key !== key));
+  }, []);
+
+  const [form] = Form.useForm();
 
   const mapJsonToQuestions = useCallback((jsonQuestions: any[]): QuestionItem[] => {
     return jsonQuestions.map((q, index) => {
@@ -212,7 +236,7 @@ export default function AddNewQuiz() {
         title: data.quizName,
         description: data.quizDescription,
         subject: data.subject,
-        questions: data.questions.map((q: any, index: number) => {
+        questions: data.questions.map((q: any) => {
           const ans: any = {};
           if (q.questionType === 'CUSTOM_ANWSER') {
             ans.keywords = q.answers.map((a: any) => a.text).join(', ');
@@ -260,28 +284,6 @@ export default function AddNewQuiz() {
     fetchSubjects();
   }, [quizId, mapJsonToQuestions, form]);
 
-  const handleQuestionTitleChange = useCallback((key: string, newTitle: string) => {
-    setQuestions((prev) =>
-      prev.map((q) =>
-        q.key === key ? { ...q, label: newTitle || 'Novo vprašanje' } : q,
-      ),
-    );
-  }, []);
-
-
-  const handleQuestionAnswerTypeChange = useCallback((key: string, newType: number) => {
-    setQuestions((prev) =>
-      prev.map((q) =>
-        q.key === key ? { ...q, answerType: newType } : q,
-      ),
-    );
-  }, []);
-
-
-  const handleDeleteQuestion = useCallback((key: string) => {
-    setQuestions((prev) => prev.filter((q) => q.key !== key));
-  }, []);
-
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -311,7 +313,6 @@ export default function AddNewQuiz() {
     setQuestions((prev) => [...prev, newItem]);
   }, [questions.length, handleQuestionTitleChange, handleQuestionAnswerTypeChange]);
 
-  const [form] = Form.useForm();
   const [newSubjectName, setNewSubjectName] = useState('');
   const inputRef = useRef<InputRef>(null);
 

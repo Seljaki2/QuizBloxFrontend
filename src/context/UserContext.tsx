@@ -54,6 +54,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             username: data.username,
             isTeacher: data.isTeacher,
             isAdmin: data.isAdmin,
+            totalScore: undefined,
         };
 
         return appUser;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import styles from './Timer.module.css';
@@ -6,10 +6,10 @@ import styles from './Timer.module.css';
 interface TimerProps {
   totalSeconds?: number;
   onFinish?: () => void;
-  reset?: any;
+  reset?: number;
 }
 
-export default function Timer({ totalSeconds = 10, onFinish, reset }: TimerProps) {
+function Timer({ totalSeconds = 10, onFinish, reset }: TimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [flashRed, setFlashRed] = useState(false);
 
@@ -34,14 +34,7 @@ export default function Timer({ totalSeconds = 10, onFinish, reset }: TimerProps
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [totalSeconds]);
-
-  useEffect(() => {
-    if (secondsLeft === 0 && onFinish) {
-      const timeout = setTimeout(() => onFinish(), 0);
-      return () => clearTimeout(timeout);
-    }
-  }, [secondsLeft, onFinish]);
+  }, [totalSeconds, secondsLeft, onFinish]);
 
   useEffect(() => {
     if (secondsLeft > 0 && secondsLeft <= 5) {
@@ -72,3 +65,5 @@ export default function Timer({ totalSeconds = 10, onFinish, reset }: TimerProps
     />
   );
 }
+
+export default memo(Timer);
