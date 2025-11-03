@@ -30,10 +30,13 @@ export async function createQuiz(quizData: any) {
         questionFormData.append("quizId", data.id);
         if (question.keywords) {
             type = 0;
+            questionFormData.append("questionType", "CUSTOM_ANWSER");
         } else if (question.ans1) {
             type = 1;
+            questionFormData.append("questionType", "PRESET_ANWSER");
         } else if (question.questionImage1) {
             type = 2;
+            questionFormData.append("questionType", "MEDIA_ANWSER");
         }
 
         if (question.questionImage) {
