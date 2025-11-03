@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "commit-report": "node scripts/commit-report.js",
+    "commit-report:file": "node scripts/commit-report.js commit-report.md"
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
