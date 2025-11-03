@@ -88,3 +88,32 @@ export type QuestionType =
   | 'CUSTOM_ANWSER'
   | 'MEDIA_ANWSER'
   | 'PRESET_ANWSER';
+
+export interface TeacherReport {
+    id: string,
+    title: string;
+    predmet: string;
+    description: string;
+    avg_score: number;
+    questiong_percentages: number[];
+    quiz_correct_percentage: number;
+    total_students: number;
+};
+
+export interface StudentReport {
+    id: string,
+    title: string;
+    predmet: string;
+    description: string;
+    totalScore: number;
+    avg_score: number;
+    questionsAndAnswers: QuestionsAndAnswers[];
+};
+
+export interface QuestionsAndAnswers {
+    question_img_path: string;
+    question: string;
+    correct_answer: string[];
+    is_user_answer_img: boolean;
+    user_answer: string;
+};

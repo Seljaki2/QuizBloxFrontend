@@ -151,7 +151,17 @@ export default function QuizAnswering() {
                     )}
                 </>
                 <Flex className={styles.buttonContainer} gap="small">
-                    <Button className={styles.button} onClick={() => {clearSession(); navigate("/");}}>Poglej si poročilo</Button>
+                    <Button className={styles.button} onClick={() => {
+                        const sessionId = session?.session.id;
+                        clearSession();
+                        if(sessionId) {
+                        navigate('/reports', {
+                            state: {
+                                sessionId: sessionId
+                            }
+                        });
+                      };
+                    }}>Poglej si poročilo</Button>
                     <Button className={styles.homeButton} onClick={() => {clearSession(); navigate("/");}}>
                         Domov
                     </Button>

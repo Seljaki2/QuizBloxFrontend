@@ -12,7 +12,7 @@ export default function NavBar() {
   const centerItems = [
     { key: "home", label: <Link to="/">Domov</Link> },
     { key: "quizzes", label: <Link to="/quizzes">Kvizi</Link> },
-    { key: "report", label: <Link to="/reports">Poročila</Link> },
+    (user) ? { key: "report", label: <Link to="/reports">Poročila</Link> } : null,
   ];
 
   const dropdownItems = [

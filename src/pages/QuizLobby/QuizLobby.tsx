@@ -30,6 +30,8 @@ export default function QuizLobby() {
             }
         } catch (error) {
             console.error("Error closing session:", error);
+            closeSocket();
+            navigate('/');
         }
     };
 

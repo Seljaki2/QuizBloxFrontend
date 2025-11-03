@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { deleteQuiz } from '../../fetch/quiz';
 
-
+const navigate = useNavigate();
 
 function openSessionWindow(quizId: string) {
     const width = 800;
@@ -37,22 +37,28 @@ function openSessionWindow(quizId: string) {
     if (sessionWindow) {
         sessionWindow.focus();
 
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.sessionIdQuizBlox) {
-        console.log("✅ Received message from session window:", event.data);
-      }
-    };
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data?.sessionIdQuizBlox) {
+                console.log("✅ Received message from session window:", event.data);
+                navigate('/reports', {
+                    state: {
+                        sessionId: event.data.sessionIdQuizBlox
+                    }
+                });
+            };
+        }
 
-    window.addEventListener("message", handleMessage);
+        window.addEventListener("message", handleMessage);
 
-    const checkClosedInterval = setInterval(() => {
-      if (sessionWindow.closed) {
-        clearInterval(checkClosedInterval);
-        window.removeEventListener("message", handleMessage);
-      }
-    }, 1000);
+        const checkClosedInterval = setInterval(() => {
+            if (sessionWindow?.closed) {
+                clearInterval(checkClosedInterval);
+                window.removeEventListener("message", handleMessage);
+            }
+        }, 1000);
     }
-}
+};
+
 
 
 type DataIndex = keyof Quiz;
@@ -63,7 +69,6 @@ export default function QuizList() {
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef<InputRef>(null);
     const [data, setData] = useState<Quiz[]>([]);
-    const navigate = useNavigate();
     const { user } = useContext(UserContext);
 
 
