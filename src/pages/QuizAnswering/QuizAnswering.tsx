@@ -269,7 +269,7 @@ export default function QuizAnswering() {
                   gap="large"
                   style={{ width: '100%' }}
                 >
-                  {session?.quiz.questions[questionIndexState].answers.map((answer: any, index: any) => {
+                  {session?.quiz.questions[questionIndexState].answers.map((answer: Answer, index: any) => {
                     const color = colorClasses[index % colorClasses.length];
                     return (
                       <Button
@@ -281,7 +281,7 @@ export default function QuizAnswering() {
                       >
                         <div className={styles.imageWrapper}>
                           <Image
-                            src={PICTURE_URL + answer.media.path}
+                            src={PICTURE_URL + answer?.media?.path}
                             preview={false}
                             style={{
                               width: '100%',
