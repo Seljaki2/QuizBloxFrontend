@@ -183,11 +183,8 @@ export default function QuizAnswering() {
             <div className={styles.infoTitle}>Tvoja statistika</div>
             <div>Mesto: {userState + 1}</div>
             <div>Točke: {usersState[userState]?.totalScore ?? 0}</div>
-            {(userState == 0 && usersState.length > 1 && usersState[1]) ?
-              <div>+{(usersState[1]?.totalScore ?? 0) - (usersState[userState]?.totalScore ?? 0)} točk da prehitiš igralca
-                #{userState + 2}</div> : null}
-            {(userState >= usersState.length && usersState.length > 1 && usersState[userState - 1]) ?
-              <div>+{(usersState[userState]?.totalScore ?? 0) - (usersState[userState - 1]?.totalScore ?? 0)} točk pred igralcem
+            {(userState > 0 && usersState[userState - 1]) ?
+              <div>+{(usersState[userState - 1]?.totalScore ?? 0) - (usersState[userState]?.totalScore ?? 0)} točk pred igralcem
                 #{userState}</div> : null}
           </Card> : null}
 

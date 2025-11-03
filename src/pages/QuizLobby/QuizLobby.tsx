@@ -129,6 +129,9 @@ export default function QuizLobby() {
         return () => {
             window.removeEventListener("beforeunload", handleUnload);
             socket?.off("player-joined");
+            socket?.off("player-disconnected");
+            socket?.off("next-question");
+            socket?.off("disconnect");
         };
     }, [navigate, quizId]);
 
