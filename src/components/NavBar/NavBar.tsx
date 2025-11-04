@@ -39,10 +39,8 @@ export default function NavBar() {
 
   return (
     <Header className={styles.header}>
-      <div className={styles.sideSpacer}></div>
-      <div style={{ marginRight: '20px' }}>
-        <img src={quizbloxLogo} alt="Logo" style={{ height: 50, width: 50, marginTop: '24px' }} />
-      </div>
+        <img src={quizbloxLogo} alt="Logo" style={{ height: 50, width: 50, }} />
+
       <Menu className={styles.navMenu} mode="horizontal" items={centerItems} />
 
       {user ? (
