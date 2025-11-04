@@ -5,6 +5,7 @@ import { Menu, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { useContext } from "react";
 import { UserContext } from "../../context/UserContext";
+import quizbloxLogo from "../../assets/images/quizblox.png";
 
 export default function NavBar() {
   const { user, signOut } = useContext(UserContext);
@@ -39,7 +40,9 @@ export default function NavBar() {
   return (
     <Header className={styles.header}>
       <div className={styles.sideSpacer}></div>
-
+      <div style={{ marginRight: '20px' }}>
+        <img src={quizbloxLogo} alt="Logo" style={{ height: 50, width: 50, marginTop: '24px' }} />
+      </div>
       <Menu className={styles.navMenu} mode="horizontal" items={centerItems} />
 
       {user ? (

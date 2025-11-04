@@ -3,7 +3,6 @@ import { Table, Input, Button, Space, Flex } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import type { InputRef, TableColumnType } from "antd";
 import Highlighter from "react-highlight-words";
-import jabuka from "./jabuka.png"
 import {
     BarChart,
     Bar,
@@ -17,20 +16,42 @@ import styles from "./Reports.module.css";
 import type { StudentReport, TeacherReport } from "../../fetch/types";
 import { fetchResults } from "../../fetch/results";
 import { UserContext } from "../../context/UserContext";
+import { PICTURE_URL } from "../../api";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Reports() {
+    const navigate = useNavigate();
     const [searchText, setSearchText] = useState("");
     const [searchedColumn, setSearchedColumn] = useState("");
     const searchInput = useRef<InputRef>(null);
     const [stats, setStats] = useState<TeacherReport[] | StudentReport[]>([]);
     const { user } = useContext(UserContext);
+    const [keyState, setKeyState] = useState<string[]>([]);
+    const location = useLocation();
 
     useEffect(() => {
         fetchResults().then((data) => {
-            console.log(data)
             setStats(data);
         });
     }, []);
+
+        useEffect(() => {
+            if (!user) {
+                navigate('/');
+            };
+        }, [user, navigate]);
+
+    useEffect(() => {
+        const sessionId = location.state?.sessionId;
+        if (sessionId) {
+            setKeyState([sessionId]);
+            console.log("Expanded row for session ID:", sessionId);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
+        console.log("keyState updated:", keyState);
+    }, [keyState]);
 
     const handleSearch = (
         selectedKeys: string[],
@@ -151,6 +172,7 @@ export default function Reports() {
             title: "Pravilni odgovori (%)",
             dataIndex: "quizAveragePercentage",
             key: "quiz_correct_percentage",
+            render: (value: number) => value?.toFixed(2) + "%",
         },
     ];
 
@@ -167,7 +189,7 @@ export default function Reports() {
             title: "Skupne točke",
             dataIndex: ["userScore", "totalScore"],
             key: "totalScore",
-            render: (_, record) => record.userScore.totalScore,
+            render: (_, record) => record.userScore[0]?.totalScore,
         },
         {
             title: "Povprečje točk",
@@ -178,28 +200,29 @@ export default function Reports() {
 
     const data = stats;
     const columns = user?.isTeacher ? columnsTeacher : columnsStudent;
-    console.log(data)
-    console.log(columns)
 
     return (
+        (user)?
         <Flex vertical gap="large" align="flex-end">
             <Table
                 columns={columns}
                 dataSource={data}
-                rowKey="id"
+                rowKey={(record) => record.session?.id}
                 rowClassName={styles.tableRow}
                 expandable={{
                     expandedRowRender: (record) => (
                         <div className={styles.expandedRow}>
+                            <p>{record?.session?.quiz.name}</p>
+
                             {user?.isTeacher && "averageStatsByQuestionId" in record && (
                                 <ResponsiveContainer width="100%" height={200}>
                                     <BarChart
-                                        data={Object.entries(record.averageStatsByQuestionId).map(([questionId, percent], i) => {
-                                            const correct = Math.round((percent / 100) * record.session.playerCount);
+                                        data={Object.entries(record.averageStatsByQuestionId).map(([questionId, value], i) => {
+                                            const correct = Math.round((value / 100) * record.session.playerCount);
                                             return {
                                                 question: `VPR ${i + 1}`,
                                                 correct,
-                                                percent,
+                                                percent: value,
                                             };
                                         })}
                                         margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
@@ -213,7 +236,7 @@ export default function Reports() {
                                                 const percent = props.payload.percent;
                                                 const total = record.session.playerCount;
                                                 return [
-                                                    `${value} od ${total} učencev (${percent}%)`,
+                                                    `${value} od ${total} učencev (${Number(percent).toFixed(2)}%)`,
                                                     "Pravilni odgovori",
                                                 ];
                                             }}
@@ -238,26 +261,21 @@ export default function Reports() {
                                 </ResponsiveContainer>
                             )}
 
-                            {!user?.isTeacher && "questionsAndAnswers" in record && (
+                            {!user?.isTeacher && "userQuestionAnswers" in record && (
                                 <div className={styles.questionsContainer}>
-                                    {record.questionsAndAnswers.map((qa, index) => {
-                                        const isCorrect =
-                                            qa.correct_answer.includes(qa.user_answer) ||
-                                            (qa.is_user_answer_img &&
-                                                qa.correct_answer.some((ans) => ans === qa.user_answer));
-
+                                    {record.userQuestionAnswers.map((qa, index) => {
                                         return (
                                             <div
                                                 key={index}
-                                                className={`${styles.questionCard} ${isCorrect ? styles.correct : styles.incorrect
+                                                className={`${styles.questionCard} ${(qa.answer) ? (qa.answer.isCorrect ? styles.correct : styles.incorrect) : (qa.isUserEntryCorrect ? styles.correct : styles.incorrect)
                                                     }`}
                                             >
                                                 <h4>
-                                                    {index + 1}. {qa.question}
+                                                    {index + 1}. {qa.question.text}
                                                 </h4>
-                                                {qa.question_img_path && (
+                                                {qa.question.media && (
                                                     <img
-                                                        src={qa.question_img_path}
+                                                        src={PICTURE_URL + qa.question.media.path}
                                                         alt="question"
                                                         className={styles.questionImage}
                                                     />
@@ -265,39 +283,41 @@ export default function Reports() {
 
                                                 <p>
                                                     <strong>Tvoj odgovor:</strong>{" "}
-                                                    {qa.is_user_answer_img ? (
+                                                    {qa.answer?.media ? (
                                                         <>
                                                             <br />
                                                             <img
-                                                                src={qa.user_answer}
+                                                                src={PICTURE_URL + qa.answer.media.path}
                                                                 alt="user answer"
                                                                 className={styles.answerImage}
                                                             />
                                                         </>
                                                     ) : (
-                                                        qa.user_answer
+                                                        (qa.answer) ? qa.answer.text : qa.userEntry
                                                     )}
                                                 </p>
 
                                                 <p>
                                                     <strong>Pravilni odgovor(i):</strong>
                                                     <br />
-                                                    {qa.correct_answer.map((ans, i) =>
-                                                        ans.includes("/") || ans.includes(".png") ? (
-                                                            <img
-                                                                key={i}
-                                                                src={ans}
-                                                                alt="correct answer"
-                                                                className={styles.answerImage}
-                                                            />
-                                                        ) : (
-                                                            <span key={i}>{ans}{i < qa.correct_answer.length - 1 && ", "}</span>
-                                                        )
-                                                    )}
+                                                    {qa.question?.answers.map((ans, i) => {
+                                                        if (ans.isCorrect) {
+                                                            return ans.media ? (
+                                                                <img
+                                                                    key={i}
+                                                                    src={PICTURE_URL + ans.media.path}
+                                                                    alt="correct answer"
+                                                                    className={styles.answerImage}
+                                                                />
+                                                            ) : (
+                                                                <span key={i}>{ans.text + " "}</span>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })}
                                                 </p>
-                                                <p className={`${styles.resultText} ${isCorrect ? styles.correctText : styles.incorrectText}`}>
-                                                    {isCorrect ? "Pravilno odgovorjeno" : "napačno odgovorjeno"}
-                                                    l
+                                                <p className={`${styles.resultText} ${(qa.answer) ? (qa.answer.isCorrect ? styles.correctText : styles.incorrectText) : (qa.isUserEntryCorrect ? styles.correctText : styles.incorrectText)}`}>
+                                                    {(qa.answer) ? (qa.answer.isCorrect ? "Pravilno Odgovorjeno" : "Nepravilno Odgovorjeno") : (qa.isUserEntryCorrect ? "Pravilno Odgovorjeno" : "Nepravilno Odgovorjeno")}
                                                 </p>
                                             </div>
                                         );
@@ -306,7 +326,8 @@ export default function Reports() {
                             )}
                         </div>
                     ),
-                    defaultExpandedRowKeys: ['2'] /* CHANGE THIS SHIET FOR DEFAULT OPEN, LOOKS BY TABLES rowKey*/
+                    expandedRowKeys: keyState,
+                    onExpandedRowsChange: (expandedKeys) => { setKeyState(expandedKeys as string[]); console.log(expandedKeys); },
                 }}
                 pagination={{ pageSize: 5 }}
                 className={styles.table}
@@ -319,6 +340,6 @@ export default function Reports() {
                     ),
                 }}
             />
-        </Flex>
+        </Flex> : null
     );
 }

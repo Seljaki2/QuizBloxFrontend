@@ -3,7 +3,7 @@ import { Button, Card, Flex, Form, Image } from 'antd';
 import styles from './QuizAnswering.module.css';
 import TextArea from 'antd/es/input/TextArea';
 import { socket } from '../../fetch/socketio';
-import { clearSession, guestUsername, questionIndex, session, users } from '../../fetch/GAMINGSESSION';
+import { clearSession, gamerSessionId, guestUsername, questionIndex, session, users } from '../../fetch/GAMINGSESSION';
 import type { Answer, AppUser, GuestUser } from '../../fetch/types';
 import { PICTURE_URL } from '../../api';
 import { useNavigate } from "react-router-dom";
@@ -23,6 +23,7 @@ export default function QuizAnswering() {
   const [userState, setUserState] = useState<number>(-1);
   const { user } = useContext(UserContext);
 
+
   const getUserIndex = () => {
     const index = usersState.findIndex(u =>
       guestUsername
@@ -37,14 +38,13 @@ export default function QuizAnswering() {
   const handleAnswer = (answer: Answer, colorClass: string) => {
     setSelectedAnswer(answer);
     setWaiting(true);
-
-    sendQuestion(session?.quiz.questions[questionIndexState].id, answer.id, null, Date.now(), undefined);
+    sendQuestion(session?.quiz.questions[questionIndexState].id, answer.id, undefined, Date.now(), undefined);
     setResult(answer.isCorrect ? 'correct' : 'incorrect')
     setWaiting(false);
 
   };
 
-  const sendQuestion = (questionId: string, answerId: string | null, userEntry: string, answerTime: number, isCorrect: string | undefined) => {
+  const sendQuestion = (questionId: string, answerId: string | null, userEntry: string | undefined, answerTime: number, isCorrect: string | undefined) => {
     socket?.emit('answer-question', {
       questionId: questionId,
       answerId: answerId,
@@ -152,7 +152,7 @@ export default function QuizAnswering() {
         </>
         <Flex className={styles.buttonContainer} gap="small">
           <Button className={styles.button} onClick={() => {
-            const sessionId = session?.session.id;
+            const sessionId = gamerSessionId;
             clearSession();
             if (sessionId) {
               navigate('/reports', {

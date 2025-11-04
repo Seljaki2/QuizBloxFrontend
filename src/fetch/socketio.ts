@@ -20,19 +20,19 @@ type ServerToClientEvents = {
     "player-disconnected": (user: AppUser | GuestUser, users: Array<AppUser | GuestUser>) => void;
     "ready": () => void;
     "next-question": (index: number) => void;
-    "finish-question": (users: Array<AppUser|GuestUser>) => void;
+    "finish-question": (users: Array<AppUser | GuestUser>) => void;
 };
 
 type ClientToServerEvents = {
     message: (msg: string) => void;
     "join-session": (joinData: joinPacket, callback: (response: any) => void) => void;
-    "create-session": (quizId:quizblox, callback: (response: any) => void) => void;
+    "create-session": (quizId: quizblox, callback: (response: any) => void) => void;
     "close-session": (callback: (response: any) => void) => void;
     "kick-player": (playerId: string, callback: (response: any) => void) => void;
     "start-quiz": (callback: (response: any) => void) => void;
     "next-question": (callback: (response: any) => void) => void;
-    "answer-question": ({ questionId, answerId, userEntry, answerTime, isCustomCorrect }: { questionId: string , answerId: string | null, userEntry: string, answerTime: number, isCustomCorrect:string | undefined  }, callback?: (response: any) => void) => void;
-    "time-elapsed-question": (hostId: string | undefined, callback?: (response:any) => void) => void;
+    "answer-question": ({ questionId, answerId, userEntry, answerTime, isCustomCorrect }: { questionId: string, answerId: string | null, userEntry: string | undefined, answerTime: number, isCustomCorrect: string | undefined }, callback?: (response: any) => void) => void;
+    "time-elapsed-question": (hostId: string | undefined, callback?: (response: any) => void) => void;
 };
 
 export let guestId: string | null = null;

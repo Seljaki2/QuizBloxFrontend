@@ -13,6 +13,5 @@ export async function fetchResults() {
     });
     if (!res.ok) throw new Error("Failed to fetch results");
     const data = await res.json();
-    console.log("Fetched results:", data);
     return data;
 }

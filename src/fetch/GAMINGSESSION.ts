@@ -5,6 +5,7 @@ export let users: Array<AppUser | GuestUser> = [];
 export let status: sessionStatus = "closed";
 export let questionIndex: number = -1;
 export let guestUsername: string | null = null;
+export let gamerSessionId: string | null = null;
 
 export type sessionStatus = "waiting" | "in-progress" | "finished" | "closed";
 
@@ -51,6 +52,7 @@ export async function connectToSession(joinCode: string, username?: string): Pro
                     joinCode: null,
                     quiz: response.quiz,
                 };
+                gamerSessionId = response.sessionId;
                 session = sessionData;
                 users = response.players;
                 status = "waiting";
@@ -118,6 +120,7 @@ export async function clearSession() {
     status = "closed";
     questionIndex = -1;
     guestUsername = null;
+    gamerSessionId = null;
 }
 
 export async function cancelSession() {
@@ -131,6 +134,7 @@ export async function cancelSession() {
     users = [];
     status = "closed";
     guestUsername = null;
+    gamerSessionId = null;
     closeSocket();
 }
 
@@ -160,4 +164,5 @@ export async function finishQuiz() {
     users = [];
     questionIndex = -1;
     status = "finished";
+    gamerSessionId = null;
 }

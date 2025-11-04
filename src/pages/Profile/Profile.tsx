@@ -1,12 +1,14 @@
-import { Card, Button, Flex, Form, Input } from "antd";
+import { Card, Button, Flex, Form, Input, message } from "antd";
 import styles from "./profile.module.css"
-import React from "react";
+import React, { use, useEffect } from "react";
 import { UserContext } from "../../context/UserContext";
 import { EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
     const { user } = React.useContext(UserContext);
     const [isChangingPassword, setIsChangingPassword] = React.useState(false);
+    const navigate = useNavigate();
 
     const handlePasswordChange = async (values) => {
         const { oldPassword, newPassword } = values;
@@ -16,12 +18,18 @@ export default function Profile() {
             const credential = EmailAuthProvider.credential(currentUser!.email, oldPassword);
             await reauthenticateWithCredential(currentUser!, credential);
             await updatePassword(currentUser!, newPassword);
-            alert('Password updated successfully');
+            message.success('Geslo uspešno spremenjeno!');
             setIsChangingPassword(false);
         } catch (error) {
-            alert('Error updating password: ' + error.message);
+            message.error('Napaka pri posodabljanju gesla: ');
         }
     };
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/');
+        };
+    }, [user, navigate]);
 
     const toggleChangePassword = () => {
         setIsChangingPassword(!isChangingPassword);
