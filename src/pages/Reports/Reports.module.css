@@ -8,7 +8,7 @@
 }
 
 .tableRow {
-  background-color: var(--TABLE_CONTAINER) !important;
+  background-color: var(--TABLE_CONTAINER);
   color: var(--TEXT) !important;
   transition: background-color 0.3s ease;
 }
