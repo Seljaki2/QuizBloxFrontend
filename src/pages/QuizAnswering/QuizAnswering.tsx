@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Button, Card, Flex, Form, Image } from 'antd';
 import styles from './QuizAnswering.module.css';
 import TextArea from 'antd/es/input/TextArea';
-import { socket } from '../../fetch/socketio';
+import { closeSocket, socket } from '../../fetch/socketio';
 import { clearSession, gamerSessionId, guestUsername, questionIndex, session, users } from '../../fetch/GAMINGSESSION';
 import type { Answer, AppUser, GuestUser } from '../../fetch/types';
 import { PICTURE_URL } from '../../api';
@@ -153,6 +153,7 @@ export default function QuizAnswering() {
         <Flex className={styles.buttonContainer} gap="small">
           <Button className={styles.button} onClick={() => {
             const sessionId = gamerSessionId;
+            closeSocket();
             clearSession();
             if (sessionId) {
               navigate('/reports', {
@@ -162,7 +163,7 @@ export default function QuizAnswering() {
               });
             };
           }}>Poglej si poročilo</Button>
-          <Button className={styles.homeButton} onClick={() => { clearSession(); navigate("/"); }}>
+          <Button className={styles.homeButton} onClick={() => { clearSession(); closeSocket(); navigate("/"); }}>
             Domov
           </Button>
         </Flex>
