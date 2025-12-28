@@ -112,7 +112,7 @@ export default function QuizAnswering() {
     setSelectedTile({ r, c });
   };
 
-  const markSelectedBingoCell = () => {
+  const markSelectedBingoCell = (applyBonusNow: boolean = true) => {
     if (!selectedTile) return;
 
     setBingoBoard(prevBoard => {
@@ -143,9 +143,11 @@ export default function QuizAnswering() {
         for (let i = 0; i < newlyCompleted.length; i++) {
           increment += 100 * (existing + i + 1);
         }
-        setFinalBingoBonus(prev => prev + increment);
-        setBingoBonus(increment);
-        setHasBingo(true);
+        if (applyBonusNow) {
+          setFinalBingoBonus(prev => prev + increment);
+          setBingoBonus(increment);
+          setHasBingo(true);
+        }
       }
 
       return newBoard;
@@ -154,6 +156,55 @@ export default function QuizAnswering() {
     setCanSelectTile(false);
     setAssignedAxis(null);
     setSelectedTile(null);
+  };
+
+  const computeIncrement = (willMark: boolean, tile: { r: number; c: number } | null) => {
+    const board = bingoBoard.map(row => [...row]);
+    const completed = new Set(completedLines);
+    let increment = 0;
+
+    if (willMark && tile && !board[tile.r][tile.c]) {
+      board[tile.r][tile.c] = true;
+
+      const newlyCompleted: string[] = [];
+      for (let r = 0; r < 5; r++) {
+        if (board[r].every(cell => cell) && !completed.has(`r${r}`)) newlyCompleted.push(`r${r}`);
+      }
+      for (let c = 0; c < 5; c++) {
+        let all = true;
+        for (let r = 0; r < 5; r++) if (!board[r][c]) { all = false; break; }
+        if (all && !completed.has(`c${c}`)) newlyCompleted.push(`c${c}`);
+      }
+
+      if (newlyCompleted.length > 0) {
+        const existing = completed.size;
+        for (let i = 0; i < newlyCompleted.length; i++) {
+          increment += 100 * (existing + i + 1);
+        }
+      }
+    }
+
+    const totalQuestions = session?.quiz.questions.length ?? 0;
+    if (totalQuestions < 5) {
+      // compute longest contiguous filled tiles in any row after marking (if willMark)
+      let maxConsecutive = 0;
+      for (let r = 0; r < 5; r++) {
+        let current = 0;
+        for (let c = 0; c < 5; c++) {
+          if (board[r][c]) {
+            current += 1;
+            if (current > maxConsecutive) maxConsecutive = current;
+          } else {
+            current = 0;
+          }
+        }
+      }
+      if (maxConsecutive > 0) {
+        increment += maxConsecutive * 25;
+      }
+    }
+    console.log('Computed bingo increment:', increment);
+    return increment;
   };
 
   const isCellSelectable = (r: number, c: number): boolean => {
@@ -182,28 +233,53 @@ export default function QuizAnswering() {
   const handleAnswer = (answer: Answer, colorClass: string) => {
     setSelectedAnswer(answer);
     setWaiting(true);
-    sendQuestion(session?.quiz.questions[questionIndexState].id, answer.id, undefined, Date.now(), undefined);
     const isCorrect = answer.isCorrect;
     setResult(isCorrect ? 'correct' : 'incorrect');
+    const isFinal = questionIndexState >= (session?.quiz.questions.length ?? 0) - 1;
+    console.log('isFinal:', isFinal);
+
+    const tile = selectedTile;
+
+    // always mark first when correct
     if (isCorrect) {
-      markSelectedBingoCell();
+      // when final, delay applying bonus in mark function
+      markSelectedBingoCell(isFinal ? false : true);
     } else {
       setCanSelectTile(false);
       setAssignedAxis(null);
       setSelectedTile(null);
     }
+
+    if (isFinal) {
+      const increment = computeIncrement(isCorrect, tile);
+      console.log('Final question bingo increment:', increment);
+      if (increment > 0) {
+        setFinalBingoBonus(prev => prev + increment);
+        setBingoBonus(increment);
+        setHasBingo(true);
+      }
+      sendQuestion(session?.quiz.questions[questionIndexState].id, answer.id, undefined, Date.now(), undefined, increment);
+    } else {
+      sendQuestion(session?.quiz.questions[questionIndexState].id, answer.id, undefined, Date.now(), undefined, 0);
+    }
     setWaiting(false);
   };
 
-  const sendQuestion = (questionId: string, answerId: string | null, userEntry: string | undefined, answerTime: number, isCorrect: string | undefined) => {
-    socket?.emit('answer-question', {
+  const sendQuestion = (questionId: string, answerId: string | null, userEntry: string | undefined, answerTime: number, isCorrect: string | undefined, bonus?: number) => {
+    const payload: any = {
       questionId: questionId,
       answerId: answerId,
       userEntry: userEntry,
       answerTime: answerTime,
       isCustomCorrect: isCorrect,
-    });
+      bonus: typeof bonus === 'number' ? bonus : 0
+    };
+    if (!socket) console.warn('Socket not initialized — cannot emit answer-question');
+    socket?.emit('answer-question', payload);
   };
+
+  // When there is a pending final answer, emit it once bingo final bonus is settled.
+
 
   const handleCustomQuestion = () => {
     const questionText = session?.quiz.questions[questionIndexState].answers[0].text || '';
@@ -220,18 +296,36 @@ export default function QuizAnswering() {
     return isMatch;
   };
 
+
+
   const handleTextSubmit = () => {
     setSelectedAnswer('custom');
     setWaiting(true);
     const isCorrect = handleCustomQuestion();
-    sendQuestion(session?.quiz.questions[questionIndexState].id, null, userInput, Date.now(), isCorrect.toString());
     setResult(isCorrect ? 'correct' : 'incorrect');
+    const isFinal = questionIndexState >= (session?.quiz.questions.length ?? 0) - 1;
+    console.log('isFinal:', isFinal);
+    const tile = selectedTile;
+
     if (isCorrect) {
-      markSelectedBingoCell();
+      markSelectedBingoCell(isFinal ? false : true);
     } else {
       setCanSelectTile(false);
       setAssignedAxis(null);
       setSelectedTile(null);
+    }
+
+    if (isFinal) {
+      const increment = computeIncrement(isCorrect, tile);
+      console.log('Final question bingo increment:', increment);
+      if (increment > 0) {
+        setFinalBingoBonus(prev => prev + increment);
+        setBingoBonus(increment);
+        setHasBingo(true);
+      }
+      sendQuestion(session?.quiz.questions[questionIndexState].id, null, userInput, Date.now(), isCorrect.toString(), increment);
+    } else {
+      sendQuestion(session?.quiz.questions[questionIndexState].id, null, userInput, Date.now(), isCorrect.toString(), 0);
     }
   };
 
@@ -259,60 +353,25 @@ export default function QuizAnswering() {
         setIsQuizOver(true);
       }
     });
+    socket?.on('quiz-ended', (payload: any) => {
+      console.log('Quiz ended payload:', payload);
+        setUsersState(payload.state.players);
+        setAverage(calcAverage(payload.state.players));
+        getUserIndex();
+      setIsQuizOver(true);
+    });
 
     return () => {
       socket?.off('next-question');
       socket?.off('finish-question');
+      socket?.off('quiz-ended');
     };
   }, [getUserIndex, navigate, questionIndexState]);
 
-  // when quiz ends, if there are fewer questions than a full row/col,
-  // award an additional bonus based on the longest filled contiguous cells in any row
   useEffect(() => {
-    if (!isQuizOver) return;
-    const totalQuestions = session?.quiz.questions.length ?? 0;
-    if (totalQuestions >= 5) return; // full-line bonuses already applied
-
-    // compute longest contiguous filled cells in any row
-    let maxConsecutive = 0;
-    for (let r = 0; r < 5; r++) {
-      let current = 0;
-      for (let c = 0; c < 5; c++) {
-        if (bingoBoard[r][c]) {
-          current += 1;
-          if (current > maxConsecutive) maxConsecutive = current;
-        } else {
-          current = 0;
-        }
-      }
-    }
-
-    if (maxConsecutive > 0) {
-      const extra = maxConsecutive * 25; // 25 points per contiguous tile
-      setFinalBingoBonus(prev => prev + extra);
-      setBingoBonus(extra);
-    }
+    // Removed end-of-quiz bingo calculation. Final bonus is computed
+    // and applied immediately when the last question is answered.
   }, [isQuizOver]);
-
-
-  useEffect(() => {
-    if (!isQuizOver) return;
-    const sessionId = gamerSessionId;
-    const bonus = finalBingoBonus;
-    if (!sessionId) return;
-
-    try {
-      socket?.emit('submit-final-score', { sessionId, bonus }, (response: any) => {
-        if (response && response.error) {
-          console.error('Failed to submit final score:', response.error);
-        } else {
-          console.log('Final score/bonus submitted to server', response);
-        }
-      });
-    } catch (err) {
-      console.error('Error emitting final score:', err);
-    }
-  }, [isQuizOver, finalBingoBonus]);
 
 
   const calcAverage = (currentUsers: Array<AppUser | GuestUser>) => {
@@ -327,7 +386,7 @@ export default function QuizAnswering() {
         <>
           {(() => {
             const baseScore = usersState[userState]?.totalScore ?? 0;
-            const displayedScore = baseScore + finalBingoBonus;
+            const displayedScore = baseScore;
             if (displayedScore >= average) {
               return (
                 <>

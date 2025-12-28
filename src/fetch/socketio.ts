@@ -31,7 +31,7 @@ type ClientToServerEvents = {
     "kick-player": (playerId: string, callback: (response: any) => void) => void;
     "start-quiz": (callback: (response: any) => void) => void;
     "next-question": (callback: (response: any) => void) => void;
-    "answer-question": ({ questionId, answerId, userEntry, answerTime, isCustomCorrect }: { questionId: string, answerId: string | null, userEntry: string | undefined, answerTime: number, isCustomCorrect: string | undefined }, callback?: (response: any) => void) => void;
+    "answer-question": ({ questionId, answerId, userEntry, answerTime, isCustomCorrect, bonus }: { questionId: string, answerId: string | null, userEntry: string | undefined, answerTime: number, isCustomCorrect: string | undefined, bonus?: number }, callback?: (response: any) => void) => void;
     "time-elapsed-question": (hostId: string | undefined, callback?: (response: any) => void) => void;
 };
 
