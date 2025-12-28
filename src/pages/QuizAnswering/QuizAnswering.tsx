@@ -295,6 +295,26 @@ export default function QuizAnswering() {
   }, [isQuizOver]);
 
 
+  useEffect(() => {
+    if (!isQuizOver) return;
+    const sessionId = gamerSessionId;
+    const bonus = finalBingoBonus;
+    if (!sessionId) return;
+
+    try {
+      socket?.emit('submit-final-score', { sessionId, bonus }, (response: any) => {
+        if (response && response.error) {
+          console.error('Failed to submit final score:', response.error);
+        } else {
+          console.log('Final score/bonus submitted to server', response);
+        }
+      });
+    } catch (err) {
+      console.error('Error emitting final score:', err);
+    }
+  }, [isQuizOver, finalBingoBonus]);
+
+
   const calcAverage = (currentUsers: Array<AppUser | GuestUser>) => {
     if (!currentUsers || currentUsers.length === 0) return 0;
     const total = currentUsers.reduce((sum, user) => sum + user.totalScore, 0);
