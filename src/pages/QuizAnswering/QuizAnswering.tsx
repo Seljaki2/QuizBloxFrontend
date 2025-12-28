@@ -29,12 +29,14 @@ export default function QuizAnswering() {
     return board;
   };
   const [bingoBoard, setBingoBoard] = useState<boolean[][]>(createEmptyBoard);
-  
+
   const [assignedAxis, setAssignedAxis] = useState<{ axis: 'row' | 'col'; index: number } | null>(null);
   const [selectedTile, setSelectedTile] = useState<{ r: number; c: number } | null>(null);
   const [canSelectTile, setCanSelectTile] = useState(false);
   const [bingoBonus, setBingoBonus] = useState(0);
   const [hasBingo, setHasBingo] = useState(false);
+  const [completedLines, setCompletedLines] = useState<Set<string>>(new Set());
+  const [finalBingoBonus, setFinalBingoBonus] = useState(0);
 
   const checkBingo = (board: boolean[][]): boolean => {
     for (let r = 0; r < 5; r++) {
@@ -64,14 +66,14 @@ export default function QuizAnswering() {
     const axis = Math.random() < 0.5 ? 'row' : 'col';
     const index = Math.floor(Math.random() * 5);
     setAssignedAxis({ axis, index });
-    
+
     const candidates: { r: number; c: number }[] = [];
     for (let i = 0; i < 5; i++) {
       const r = axis === 'row' ? index : i;
       const c = axis === 'col' ? index : i;
       if (!bingoBoard[r][c]) candidates.push({ r, c });
     }
-    
+
     if (candidates.length === 0) {
       for (let r = 0; r < 5; r++) {
         for (let c = 0; c < 5; c++) {
@@ -79,7 +81,7 @@ export default function QuizAnswering() {
         }
       }
     }
-    
+
     if (candidates.length > 0) {
       const choice = candidates[Math.floor(Math.random() * candidates.length)];
       setSelectedTile(choice);
@@ -89,11 +91,11 @@ export default function QuizAnswering() {
 
   const handleTileClick = (r: number, c: number) => {
     if (!canSelectTile || bingoBoard[r][c]) return;
-    
+
     if (assignedAxis) {
       const { axis, index } = assignedAxis;
       const inAssigned = (axis === 'row' && r === index) || (axis === 'col' && c === index);
-      
+
       let hasFreeCellsInAxis = false;
       for (let i = 0; i < 5; i++) {
         const checkR = axis === 'row' ? index : i;
@@ -103,28 +105,52 @@ export default function QuizAnswering() {
           break;
         }
       }
-      
+
       if (!inAssigned && hasFreeCellsInAxis) return;
     }
-    
+
     setSelectedTile({ r, c });
   };
 
   const markSelectedBingoCell = () => {
     if (!selectedTile) return;
-    
+
     setBingoBoard(prevBoard => {
       const newBoard = prevBoard.map(row => [...row]);
       newBoard[selectedTile.r][selectedTile.c] = true;
-      
-      if (!hasBingo && checkBingo(newBoard)) {
-        setHasBingo(true);
-        setBingoBonus(100);
+
+      // detect newly completed full rows/columns
+      const newlyCompleted: string[] = [];
+      for (let r = 0; r < 5; r++) {
+        if (newBoard[r].every(cell => cell) && !completedLines.has(`r${r}`)) newlyCompleted.push(`r${r}`);
       }
-      
+      for (let c = 0; c < 5; c++) {
+        let all = true;
+        for (let r = 0; r < 5; r++) if (!newBoard[r][c]) { all = false; break; }
+        if (all && !completedLines.has(`c${c}`)) newlyCompleted.push(`c${c}`);
+      }
+
+      if (newlyCompleted.length > 0) {
+        setCompletedLines(prev => {
+          const next = new Set(prev);
+          newlyCompleted.forEach(n => next.add(n));
+          return next;
+        });
+
+        // progressive bonus: first line = 100, second = 200, etc.
+        const existing = completedLines.size;
+        let increment = 0;
+        for (let i = 0; i < newlyCompleted.length; i++) {
+          increment += 100 * (existing + i + 1);
+        }
+        setFinalBingoBonus(prev => prev + increment);
+        setBingoBonus(increment);
+        setHasBingo(true);
+      }
+
       return newBoard;
     });
-    
+
     setCanSelectTile(false);
     setAssignedAxis(null);
     setSelectedTile(null);
@@ -132,11 +158,11 @@ export default function QuizAnswering() {
 
   const isCellSelectable = (r: number, c: number): boolean => {
     if (!canSelectTile || bingoBoard[r][c]) return false;
-    
+
     if (assignedAxis) {
       const { axis, index } = assignedAxis;
       const inAssigned = (axis === 'row' && r === index) || (axis === 'col' && c === index);
-      
+
       let hasFreeCellsInAxis = false;
       for (let i = 0; i < 5; i++) {
         const checkR = axis === 'row' ? index : i;
@@ -146,10 +172,10 @@ export default function QuizAnswering() {
           break;
         }
       }
-      
+
       return inAssigned || !hasFreeCellsInAxis;
     }
-    
+
     return true;
   };
 
@@ -240,6 +266,34 @@ export default function QuizAnswering() {
     };
   }, [getUserIndex, navigate, questionIndexState]);
 
+  // when quiz ends, if there are fewer questions than a full row/col,
+  // award an additional bonus based on the longest filled contiguous cells in any row
+  useEffect(() => {
+    if (!isQuizOver) return;
+    const totalQuestions = session?.quiz.questions.length ?? 0;
+    if (totalQuestions >= 5) return; // full-line bonuses already applied
+
+    // compute longest contiguous filled cells in any row
+    let maxConsecutive = 0;
+    for (let r = 0; r < 5; r++) {
+      let current = 0;
+      for (let c = 0; c < 5; c++) {
+        if (bingoBoard[r][c]) {
+          current += 1;
+          if (current > maxConsecutive) maxConsecutive = current;
+        } else {
+          current = 0;
+        }
+      }
+    }
+
+    if (maxConsecutive > 0) {
+      const extra = maxConsecutive * 25; // 25 points per contiguous tile
+      setFinalBingoBonus(prev => prev + extra);
+      setBingoBonus(extra);
+    }
+  }, [isQuizOver]);
+
 
   const calcAverage = (currentUsers: Array<AppUser | GuestUser>) => {
     if (!currentUsers || currentUsers.length === 0) return 0;
@@ -251,45 +305,49 @@ export default function QuizAnswering() {
     return (
       <Card className={styles.card}>
         <>
-          {average <= usersState[userState]?.totalScore ? (
-            <>
-              <h1 className={styles.header2}>Odlično, {(usersState[userState]?.guestUsername) ? usersState[userState]?.guestUsername : usersState[userState]?.username}!</h1>
-              <Flex className={styles.flexContainer} gap="medium">
-                <div className={styles.scoreGood}>
-                  <span className={styles.boxTitle}>Tvoj rezultat</span>
-                  <span className={styles.boxValue}>{usersState[userState]?.totalScore} točk</span>
-                </div>
-                <div className={styles.avg}>
-                  <span className={styles.boxTitle}>Povprečje</span>
-                  <span className={styles.boxValue}>{average} točk</span>
-                </div>
-              </Flex>
-              <p className={styles.sentence}>Dosegli ste nadpovprečno število točk, čestitke! Le tako naprej!</p>
-              {hasBingo && (
-                <p className={styles.bingoBonus}>🎉 BINGO! +{bingoBonus} bonus točk! 🎉</p>
-              )}
-            </>
-          ) : (
-            <>
-              <h1 className={styles.header2}>Skoraj, {(usersState[userState]?.guestUsername) ? usersState[userState]?.guestUsername : usersState[userState]?.username}!</h1>
-              <Flex className={styles.flexContainer} gap="small">
-                <div className={styles.scoreBad}>
-                  <span className={styles.boxTitle}>Tvoj rezultat</span>
-                  <span className={styles.boxValue}>{usersState[userState]?.totalScore} točk</span>
-                </div>
-                <div className={styles.avg}>
-                  <span className={styles.boxTitle}>Povprečje</span>
-                  <span className={styles.boxValue}>{average} točk</span>
-                </div>
-              </Flex>
-              <p className={styles.sentence}>Dosegli ste podpovprečno število točk, saj bo! Malo truda pa bo bolje!</p>
-              {hasBingo && (
-                <p className={styles.bingoBonus}>🎉 BINGO! +{bingoBonus} bonus točk! 🎉</p>
-              )}
-            </>
-          )}
+          {(() => {
+            const baseScore = usersState[userState]?.totalScore ?? 0;
+            const displayedScore = baseScore + finalBingoBonus;
+            if (displayedScore >= average) {
+              return (
+                <>
+                  <h1 className={styles.header2}>Odlično, {(usersState[userState]?.guestUsername) ? usersState[userState]?.guestUsername : usersState[userState]?.username}!</h1>
+                  <Flex className={styles.flexContainer} gap="medium">
+                    <div className={styles.scoreGood}>
+                      <span className={styles.boxTitle}>Tvoj rezultat</span>
+                      <span className={styles.boxValue}>{displayedScore} točk</span>
+                    </div>
+                    <div className={styles.avg}>
+                      <span className={styles.boxTitle}>Povprečje</span>
+                      <span className={styles.boxValue}>{average} točk</span>
+                    </div>
+                  </Flex>
+                  <p className={styles.sentence}>Dosegli ste nadpovprečno število točk, čestitke! Le tako naprej!</p>
+                  {finalBingoBonus > 0 && <p className={styles.bingoBonus}>🎉 BINGO! +{finalBingoBonus} bonus točk! 🎉</p>}
+                </>
+              );
+            }
+
+            return (
+              <>
+                <h1 className={styles.header2}>Skoraj, {(usersState[userState]?.guestUsername) ? usersState[userState]?.guestUsername : usersState[userState]?.username}!</h1>
+                <Flex className={styles.flexContainer} gap="small">
+                  <div className={styles.scoreBad}>
+                    <span className={styles.boxTitle}>Tvoj rezultat</span>
+                    <span className={styles.boxValue}>{displayedScore} točk</span>
+                  </div>
+                  <div className={styles.avg}>
+                    <span className={styles.boxTitle}>Povprečje</span>
+                    <span className={styles.boxValue}>{average} točk</span>
+                  </div>
+                </Flex>
+                <p className={styles.sentence}>Dosegli ste podpovprečno število točk, saj bo! Malo truda pa bo bolje!</p>
+                {finalBingoBonus > 0 && <p className={styles.bingoBonus}>🎉 BINGO! +{finalBingoBonus} bonus točk! 🎉</p>}
+              </>
+            );
+          })()}
         </>
-        
+
         <div className={styles.bingoContainerEnd}>
           <h3 className={styles.bingoTitle}>{hasBingo ? '🎉 BINGO! 🎉' : 'Tvoj Bingo 🎯'}</h3>
           <div className={styles.bingoBoard}>
@@ -300,13 +358,12 @@ export default function QuizAnswering() {
                 return (
                   <div
                     key={`${rowIndex}-${colIndex}`}
-                    className={`${styles.bingoCell} ${
-                      cell
-                        ? isCenter
-                          ? styles.bingoCellCenter
-                          : styles.bingoCellMarked
-                        : styles.bingoCellEmpty
-                    }`}
+                    className={`${styles.bingoCell} ${cell
+                      ? isCenter
+                        ? styles.bingoCellCenter
+                        : styles.bingoCellMarked
+                      : styles.bingoCellEmpty
+                      }`}
                   >
                     {isCenter ? '★' : cellNumber}
                   </div>
@@ -315,7 +372,7 @@ export default function QuizAnswering() {
             )}
           </div>
         </div>
-        
+
         <Flex className={styles.buttonContainer} gap="small">
           <Button className={styles.button} onClick={() => {
             const sessionId = gamerSessionId;
@@ -324,7 +381,8 @@ export default function QuizAnswering() {
             if (sessionId) {
               navigate('/reports', {
                 state: {
-                  sessionId: sessionId
+                  sessionId: sessionId,
+                  bingoBonus: finalBingoBonus,
                 }
               });
             };
@@ -544,22 +602,21 @@ export default function QuizAnswering() {
                 const cellNumber = rowIndex * 5 + colIndex + 1;
                 const isSelectable = isCellSelectable(rowIndex, colIndex) && !selectedAnswer;
                 const isSelected = selectedTile?.r === rowIndex && selectedTile?.c === colIndex;
-                
+
                 return (
                   <div
                     key={`${rowIndex}-${colIndex}`}
                     onClick={() => !selectedAnswer && handleTileClick(rowIndex, colIndex)}
-                    className={`${styles.bingoCell} ${
-                      cell
-                        ? isCenter
-                          ? styles.bingoCellCenter
-                          : styles.bingoCellMarked
-                        : isSelected
-                          ? styles.bingoCellSelected
-                          : isSelectable
-                            ? styles.bingoCellSelectable
-                            : styles.bingoCellEmpty
-                    } ${isSelectable && !cell ? styles.bingoCellClickable : ''}`}
+                    className={`${styles.bingoCell} ${cell
+                      ? isCenter
+                        ? styles.bingoCellCenter
+                        : styles.bingoCellMarked
+                      : isSelected
+                        ? styles.bingoCellSelected
+                        : isSelectable
+                          ? styles.bingoCellSelectable
+                          : styles.bingoCellEmpty
+                      } ${isSelectable && !cell ? styles.bingoCellClickable : ''}`}
                   >
                     {isCenter ? '★' : cellNumber}
                   </div>

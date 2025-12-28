@@ -104,7 +104,6 @@ export default function QuizLobby() {
 
                 socket.on("disconnect", () => {
                     closeSocket();
-                    navigate('/');
                 });
 
                 socket.on("player-joined", ({ user, users }) => {
