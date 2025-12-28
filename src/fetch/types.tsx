@@ -103,6 +103,7 @@ export interface UserSessionScore {
 }
 
 export interface TeacherReport {
+  isHost: boolean;
   id: string,
   resultStatsByQuestionId: any,
   averageStatsByQuestionId: any,

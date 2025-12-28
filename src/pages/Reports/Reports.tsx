@@ -35,11 +35,11 @@ export default function Reports() {
         });
     }, []);
 
-        useEffect(() => {
-            if (!user) {
-                navigate('/');
-            };
-        }, [user, navigate]);
+    useEffect(() => {
+        if (!user) {
+            navigate('/');
+        };
+    }, [user, navigate]);
 
     useEffect(() => {
         const sessionId = location.state?.sessionId;
@@ -199,148 +199,177 @@ export default function Reports() {
     ];
 
     const data = stats;
-    console.log("User context:", data);
-    const columns = user?.isTeacher ? columnsTeacher : columnsStudent;
+    console.log("Rendering Reports with data:", data);
+
+    const combinedColumns: TableColumnType<any>[] = [
+        {
+            title: "Naziv",
+            dataIndex: ["session", "quiz", "name"],
+            key: "quizName",
+            ...getColumnSearchProps("session"),
+            render: (_: any, record: any) => record.session.quiz.name,
+        },
+        {
+            title: "Skupne točke",
+            dataIndex: ["userScore", "totalScore"],
+            key: "totalScore",
+            render: (_: any, record: any) => (!record?.isHost ? record.userScore?.[0]?.totalScore : null),
+        },
+        {
+            title: "Povprečje točk",
+            dataIndex: "quizAverageScore",
+            key: "avg_score",
+            render: (_: any, record: any) => record.quizAverageScore,
+        },
+        {
+            title: "Pravilni odgovori (%)",
+            dataIndex: "quizAveragePercentage",
+            key: "quiz_correct_percentage",
+            render: (value: number, record: any) => (record?.isHost ? (value?.toFixed ? value.toFixed(2) + "%" : value) : null),
+        },
+    ];
+
+    const columns = combinedColumns;
 
     return (
-        (user)?
-        <Flex vertical gap="large" align="flex-end">
-            <Table
-                columns={columns}
-                dataSource={data}
-                rowKey={(record) => record.session?.id}
-                rowClassName={styles.tableRow}
-                expandable={{
-                    expandedRowRender: (record) => (
-                        <div className={styles.expandedRow}>
-                            <p>{record?.session?.quiz.name}</p>
+        (user) ?
+            <Flex vertical gap="large" align="flex-end">
+                <Table
+                    columns={columns}
+                    dataSource={data}
+                    rowKey={(record) => record.session?.id}
+                    rowClassName={styles.tableRow}
+                    expandable={{
+                        expandedRowRender: (record) => (
+                            <div className={styles.expandedRow}>
+                                <p>{record?.session?.quiz.name}</p>
 
-                            {user?.isTeacher && "averageStatsByQuestionId" in record && (
-                                <ResponsiveContainer width="100%" height={200}>
-                                    <BarChart
-                                        data={Object.entries(record.averageStatsByQuestionId).map(([questionId, value], i) => {
-                                            const correct = Math.round((value / 100) * record.session.playerCount);
-                                            return {
-                                                question: `VPR ${i + 1}`,
-                                                correct,
-                                                percent: value,
-                                            };
-                                        })}
-                                        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-                                        className={styles.chart}
-                                    >
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="question" tick={{ fill: "#9CA3AF" }} />
-                                        <YAxis tick={{ fill: "#9CA3AF" }} />
-                                        <Tooltip
-                                            formatter={(value: number, name: string, props: any) => {
-                                                const percent = props.payload.percent;
-                                                const total = record.session.playerCount;
-                                                return [
-                                                    `${value} od ${total} učencev (${Number(percent).toFixed(2)}%)`,
-                                                    "Pravilni odgovori",
-                                                ];
-                                            }}
-                                            contentStyle={{
-                                                backgroundColor: "#2d3444",
-                                                borderRadius: "12px",
-                                                border: "none",
-                                                color: "#fff",
-                                                boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
-                                            }}
-                                            itemStyle={{
-                                                color: "#93C5FD",
-                                                fontWeight: 500,
-                                            }}
-                                            labelStyle={{
-                                                fontWeight: 600,
-                                            }}
-                                            cursor={{ fill: 'transparent' }}
-                                        />
-                                        <Bar dataKey="correct" fill="#34D399" />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            )}
+                                {record?.isHost && "averageStatsByQuestionId" in record && (
+                                    <ResponsiveContainer width="100%" height={200}>
+                                        <BarChart
+                                            data={Object.entries(record.averageStatsByQuestionId).map(([questionId, value], i) => {
+                                                const correct = Math.round((value / 100) * record.session.playerCount);
+                                                return {
+                                                    question: `VPR ${i + 1}`,
+                                                    correct,
+                                                    percent: value,
+                                                };
+                                            })}
+                                            margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                                            className={styles.chart}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="question" tick={{ fill: "#9CA3AF" }} />
+                                            <YAxis tick={{ fill: "#9CA3AF" }} />
+                                            <Tooltip
+                                                formatter={(value: number, name: string, props: any) => {
+                                                    const percent = props.payload.percent;
+                                                    const total = record.session.playerCount;
+                                                    return [
+                                                        `${value} od ${total} učencev (${Number(percent).toFixed(2)}%)`,
+                                                        "Pravilni odgovori",
+                                                    ];
+                                                }}
+                                                contentStyle={{
+                                                    backgroundColor: "#2d3444",
+                                                    borderRadius: "12px",
+                                                    border: "none",
+                                                    color: "#fff",
+                                                    boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+                                                }}
+                                                itemStyle={{
+                                                    color: "#93C5FD",
+                                                    fontWeight: 500,
+                                                }}
+                                                labelStyle={{
+                                                    fontWeight: 600,
+                                                }}
+                                                cursor={{ fill: 'transparent' }}
+                                            />
+                                            <Bar dataKey="correct" fill="#34D399" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                )}
 
-                            {!user?.isTeacher && "userQuestionAnswers" in record && (
-                                <div className={styles.questionsContainer}>
-                                    {record.userQuestionAnswers.map((qa, index) => {
-                                        return (
-                                            <div
-                                                key={index}
-                                                className={`${styles.questionCard} ${(qa.answer) ? (qa.answer.isCorrect ? styles.correct : styles.incorrect) : (qa.isUserEntryCorrect ? styles.correct : styles.incorrect)
-                                                    }`}
-                                            >
-                                                <h4>
-                                                    {index + 1}. {qa.question.text}
-                                                </h4>
-                                                {qa.question.media && (
-                                                    <img
-                                                        src={PICTURE_URL + qa.question.media.path}
-                                                        alt="question"
-                                                        className={styles.questionImage}
-                                                    />
-                                                )}
-
-                                                <p>
-                                                    <strong>Tvoj odgovor:</strong>{" "}
-                                                    {qa.answer?.media ? (
-                                                        <>
-                                                            <br />
-                                                            <img
-                                                                src={PICTURE_URL + qa.answer.media.path}
-                                                                alt="user answer"
-                                                                className={styles.answerImage}
-                                                            />
-                                                        </>
-                                                    ) : (
-                                                        (qa.answer) ? qa.answer.text : qa.userEntry
+                                {!record?.isHost && "userQuestionAnswers" in record && (
+                                    <div className={styles.questionsContainer}>
+                                        {record.userQuestionAnswers.map((qa, index) => {
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className={`${styles.questionCard} ${(qa.answer) ? (qa.answer.isCorrect ? styles.correct : styles.incorrect) : (qa.isUserEntryCorrect ? styles.correct : styles.incorrect)
+                                                        }`}
+                                                >
+                                                    <h4>
+                                                        {index + 1}. {qa.question.text}
+                                                    </h4>
+                                                    {qa.question.media && (
+                                                        <img
+                                                            src={PICTURE_URL + qa.question.media.path}
+                                                            alt="question"
+                                                            className={styles.questionImage}
+                                                        />
                                                     )}
-                                                </p>
 
-                                                <p>
-                                                    <strong>Pravilni odgovor(i):</strong>
-                                                    <br />
-                                                    {qa.question?.answers.map((ans, i) => {
-                                                        if (ans.isCorrect) {
-                                                            return ans.media ? (
+                                                    <p>
+                                                        <strong>Tvoj odgovor:</strong>{" "}
+                                                        {qa.answer?.media ? (
+                                                            <>
+                                                                <br />
                                                                 <img
-                                                                    key={i}
-                                                                    src={PICTURE_URL + ans.media.path}
-                                                                    alt="correct answer"
+                                                                    src={PICTURE_URL + qa.answer.media.path}
+                                                                    alt="user answer"
                                                                     className={styles.answerImage}
                                                                 />
-                                                            ) : (
-                                                                <span key={i}>{ans.text + " "}</span>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })}
-                                                </p>
-                                                <p className={`${styles.resultText} ${(qa.answer) ? (qa.answer.isCorrect ? styles.correctText : styles.incorrectText) : (qa.isUserEntryCorrect ? styles.correctText : styles.incorrectText)}`}>
-                                                    {(qa.answer) ? (qa.answer.isCorrect ? "Pravilno Odgovorjeno" : "Nepravilno Odgovorjeno") : (qa.isUserEntryCorrect ? "Pravilno Odgovorjeno" : "Nepravilno Odgovorjeno")}
-                                                </p>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    ),
-                    expandedRowKeys: keyState,
-                    onExpandedRowsChange: (expandedKeys) => { setKeyState(expandedKeys as string[]); console.log(expandedKeys); },
-                }}
-                pagination={{ pageSize: 5 }}
-                className={styles.table}
-                locale={{
-                    emptyText: (
-                        <div className={styles.noDataContainer}>
-                            <SearchOutlined style={{ fontSize: 20 }} />
-                            <p>Nič najdenih poročil</p>
-                        </div>
-                    ),
-                }}
-            />
-        </Flex> : null
+                                                            </>
+                                                        ) : (
+                                                            (qa.answer) ? qa.answer.text : qa.userEntry
+                                                        )}
+                                                    </p>
+
+                                                    <p>
+                                                        <strong>Pravilni odgovor(i):</strong>
+                                                        <br />
+                                                        {qa.question?.answers.map((ans, i) => {
+                                                            if (ans.isCorrect) {
+                                                                return ans.media ? (
+                                                                    <img
+                                                                        key={i}
+                                                                        src={PICTURE_URL + ans.media.path}
+                                                                        alt="correct answer"
+                                                                        className={styles.answerImage}
+                                                                    />
+                                                                ) : (
+                                                                    <span key={i}>{ans.text + " "}</span>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })}
+                                                    </p>
+                                                    <p className={`${styles.resultText} ${(qa.answer) ? (qa.answer.isCorrect ? styles.correctText : styles.incorrectText) : (qa.isUserEntryCorrect ? styles.correctText : styles.incorrectText)}`}>
+                                                        {(qa.answer) ? (qa.answer.isCorrect ? "Pravilno Odgovorjeno" : "Nepravilno Odgovorjeno") : (qa.isUserEntryCorrect ? "Pravilno Odgovorjeno" : "Nepravilno Odgovorjeno")}
+                                                    </p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        ),
+                        expandedRowKeys: keyState,
+                        onExpandedRowsChange: (expandedKeys) => { setKeyState(expandedKeys as string[]); console.log(expandedKeys); },
+                    }}
+                    pagination={{ pageSize: 5 }}
+                    className={styles.table}
+                    locale={{
+                        emptyText: (
+                            <div className={styles.noDataContainer}>
+                                <SearchOutlined style={{ fontSize: 20 }} />
+                                <p>Nič najdenih poročil</p>
+                            </div>
+                        ),
+                    }}
+                />
+            </Flex> : null
     );
 }
