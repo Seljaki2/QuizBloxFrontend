@@ -119,7 +119,6 @@ export default function QuizAnswering() {
       const newBoard = prevBoard.map(row => [...row]);
       newBoard[selectedTile.r][selectedTile.c] = true;
 
-      // detect newly completed full rows/columns
       const newlyCompleted: string[] = [];
       for (let r = 0; r < 5; r++) {
         if (newBoard[r].every(cell => cell) && !completedLines.has(`r${r}`)) newlyCompleted.push(`r${r}`);
@@ -137,7 +136,6 @@ export default function QuizAnswering() {
           return next;
         });
 
-        // progressive bonus: first line = 100, second = 200, etc.
         const existing = completedLines.size;
         let increment = 0;
         for (let i = 0; i < newlyCompleted.length; i++) {
@@ -266,14 +264,10 @@ export default function QuizAnswering() {
     };
   }, [getUserIndex, navigate, questionIndexState]);
 
-  // when quiz ends, if there are fewer questions than a full row/col,
-  // award an additional bonus based on the longest filled contiguous cells in any row
   useEffect(() => {
     if (!isQuizOver) return;
     const totalQuestions = session?.quiz.questions.length ?? 0;
-    if (totalQuestions >= 5) return; // full-line bonuses already applied
-
-    // compute longest contiguous filled cells in any row
+    if (totalQuestions >= 5) return;
     let maxConsecutive = 0;
     for (let r = 0; r < 5; r++) {
       let current = 0;
@@ -288,7 +282,7 @@ export default function QuizAnswering() {
     }
 
     if (maxConsecutive > 0) {
-      const extra = maxConsecutive * 25; // 25 points per contiguous tile
+      const extra = maxConsecutive * 25;
       setFinalBingoBonus(prev => prev + extra);
       setBingoBonus(extra);
     }
@@ -343,7 +337,7 @@ export default function QuizAnswering() {
                     </div>
                   </Flex>
                   <p className={styles.sentence}>Dosegli ste nadpovprečno število točk, čestitke! Le tako naprej!</p>
-                  {finalBingoBonus > 0 && <p className={styles.bingoBonus}>🎉 BINGO! +{finalBingoBonus} bonus točk! 🎉</p>}
+                  {finalBingoBonus > 0 && <p className={styles.bingoBonus}>BINGO! +{finalBingoBonus} bonus točk!</p>}
                 </>
               );
             }
@@ -362,14 +356,14 @@ export default function QuizAnswering() {
                   </div>
                 </Flex>
                 <p className={styles.sentence}>Dosegli ste podpovprečno število točk, saj bo! Malo truda pa bo bolje!</p>
-                {finalBingoBonus > 0 && <p className={styles.bingoBonus}>🎉 BINGO! +{finalBingoBonus} bonus točk! 🎉</p>}
+                {finalBingoBonus > 0 && <p className={styles.bingoBonus}>BINGO! +{finalBingoBonus} bonus točk!</p>}
               </>
             );
           })()}
         </>
 
         <div className={styles.bingoContainerEnd}>
-          <h3 className={styles.bingoTitle}>{hasBingo ? '🎉 BINGO! 🎉' : 'Tvoj Bingo 🎯'}</h3>
+          <h3 className={styles.bingoTitle}>{hasBingo ? 'BINGO!' : 'Tvoj Bingo'}</h3>
           <div className={styles.bingoBoard}>
             {bingoBoard.map((row, rowIndex) =>
               row.map((cell, colIndex) => {
@@ -469,7 +463,7 @@ export default function QuizAnswering() {
                   style={{
                     backgroundColor: '#fff',
                     color: '#000',
-                    border: '15px solid #5FAFF5',
+                    border: '2px solid #5FAFF5',
                   }}
                   className={styles.textField}
                   value={userInput}
@@ -578,7 +572,7 @@ export default function QuizAnswering() {
                 }
                 disabled
               >
-                <div className={styles.textButtonContent} style={{ "color": "white" }}>
+                <div className={styles.textButtonContent}>
                   {selectedAnswer.text}
                 </div>
               </Button>
@@ -609,7 +603,7 @@ export default function QuizAnswering() {
           </div>
         )}
         <div className={styles.bingoContainer}>
-          <h3 className={styles.bingoTitle}>{hasBingo ? '🎉 BINGO! 🎉' : 'Tvoj Bingo 🎯'}</h3>
+          <h3 className={styles.bingoTitle}>{hasBingo ? 'BINGO!' : 'Tvoj Bingo'}</h3>
           {canSelectTile && assignedAxis && !selectedAnswer && (
             <p className={styles.bingoHint}>
               Izberi polje v {assignedAxis.axis === 'row' ? `vrstici ${assignedAxis.index + 1}` : `stolpcu ${assignedAxis.index + 1}`}

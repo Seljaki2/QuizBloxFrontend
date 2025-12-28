@@ -61,6 +61,6 @@
 
 .noDataContainer{
 font-family: 'PlusJakartaSans', sans-serif;
-  color: var(--TEXT) !important;
+  color: #000 !important;
   font-size: large;
 }
