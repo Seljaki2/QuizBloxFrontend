@@ -199,6 +199,7 @@ export default function Reports() {
     ];
 
     const data = stats;
+    console.log("User context:", data);
     const columns = user?.isTeacher ? columnsTeacher : columnsStudent;
 
     return (
