@@ -375,3 +375,139 @@
     justify-content: center;
     margin-top: 24px;
 }
+
+/* Bingo Board Styles */
+.bingoContainer {
+    margin-top: 2rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    min-width: 240px;
+}
+
+.bingoTitle {
+    font-family: 'PlusJakartaSans', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    color: var(--BLUE);
+}
+
+.bingoHint {
+    font-family: 'PlusJakartaSans', sans-serif;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 12px;
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.bingoBoard {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+
+.bingoCell {
+    aspect-ratio: 1;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'PlusJakartaSans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.bingoCellEmpty {
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    color: #999;
+}
+
+.bingoCellSelectable {
+    background: #fff;
+    border: 2px solid #22c55e;
+    color: #666;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
+}
+
+.bingoCellSelected {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border: 2px solid #16a34a;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+    transform: scale(1.1);
+}
+
+.bingoCellClickable {
+    cursor: pointer;
+}
+
+.bingoCellClickable:hover {
+    transform: scale(1.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.bingoCellMarked {
+    background: linear-gradient(135deg, #4caafb, #76bfff);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(76, 170, 251, 0.4);
+}
+
+.bingoCellCenter {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    font-size: 1.2rem;
+}
+
+@keyframes bingoCellPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.bingoCellMarked {
+    animation: bingoCellPop 0.3s ease-out;
+}
+
+.bingoContainerEnd {
+    margin-top: 1.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    min-width: 200px;
+}
+
+.bingoBonus {
+    font-family: 'PlusJakartaSans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    color: #22c55e;
+    margin-top: 12px;
+    animation: bingoCelebrate 0.5s ease-out;
+}
+
+.bingoBonusSmall {
+    font-family: 'PlusJakartaSans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    color: #22c55e;
+    margin-top: 8px;
+}
+
+@keyframes bingoCelebrate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}

@@ -23,6 +23,31 @@ export default function QuizAnswering() {
   const [userState, setUserState] = useState<number>(-1);
   const { user } = useContext(UserContext);
 
+  const createEmptyBoard = (): boolean[][] => {
+    const board = Array.from({ length: 5 }, () => Array(5).fill(false));
+    board[2][2] = true;
+    return board;
+  };
+  const [bingoBoard, setBingoBoard] = useState<boolean[][]>(createEmptyBoard);
+  
+  const [assignedAxis, setAssignedAxis] = useState<{ axis: 'row' | 'col'; index: number } | null>(null);
+  const [selectedTile, setSelectedTile] = useState<{ r: number; c: number } | null>(null);
+  const [canSelectTile, setCanSelectTile] = useState(false);
+  const [bingoBonus, setBingoBonus] = useState(0);
+  const [hasBingo, setHasBingo] = useState(false);
+
+  const checkBingo = (board: boolean[][]): boolean => {
+    for (let r = 0; r < 5; r++) {
+      if (board[r].every(cell => cell)) return true;
+    }
+    for (let c = 0; c < 5; c++) {
+      if (board.every(row => row[c])) return true;
+    }
+    const diag1 = [0, 1, 2, 3, 4].every(i => board[i][i]);
+    const diag2 = [0, 1, 2, 3, 4].every(i => board[i][4 - i]);
+    return diag1 || diag2;
+  };
+
 
   const getUserIndex = () => {
     const index = usersState.findIndex(u =>
@@ -35,13 +60,113 @@ export default function QuizAnswering() {
   };
 
 
+  const assignTileForQuestion = () => {
+    const axis = Math.random() < 0.5 ? 'row' : 'col';
+    const index = Math.floor(Math.random() * 5);
+    setAssignedAxis({ axis, index });
+    
+    const candidates: { r: number; c: number }[] = [];
+    for (let i = 0; i < 5; i++) {
+      const r = axis === 'row' ? index : i;
+      const c = axis === 'col' ? index : i;
+      if (!bingoBoard[r][c]) candidates.push({ r, c });
+    }
+    
+    if (candidates.length === 0) {
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 5; c++) {
+          if (!bingoBoard[r][c]) candidates.push({ r, c });
+        }
+      }
+    }
+    
+    if (candidates.length > 0) {
+      const choice = candidates[Math.floor(Math.random() * candidates.length)];
+      setSelectedTile(choice);
+    }
+    setCanSelectTile(true);
+  };
+
+  const handleTileClick = (r: number, c: number) => {
+    if (!canSelectTile || bingoBoard[r][c]) return;
+    
+    if (assignedAxis) {
+      const { axis, index } = assignedAxis;
+      const inAssigned = (axis === 'row' && r === index) || (axis === 'col' && c === index);
+      
+      let hasFreeCellsInAxis = false;
+      for (let i = 0; i < 5; i++) {
+        const checkR = axis === 'row' ? index : i;
+        const checkC = axis === 'col' ? index : i;
+        if (!bingoBoard[checkR][checkC]) {
+          hasFreeCellsInAxis = true;
+          break;
+        }
+      }
+      
+      if (!inAssigned && hasFreeCellsInAxis) return;
+    }
+    
+    setSelectedTile({ r, c });
+  };
+
+  const markSelectedBingoCell = () => {
+    if (!selectedTile) return;
+    
+    setBingoBoard(prevBoard => {
+      const newBoard = prevBoard.map(row => [...row]);
+      newBoard[selectedTile.r][selectedTile.c] = true;
+      
+      if (!hasBingo && checkBingo(newBoard)) {
+        setHasBingo(true);
+        setBingoBonus(100);
+      }
+      
+      return newBoard;
+    });
+    
+    setCanSelectTile(false);
+    setAssignedAxis(null);
+    setSelectedTile(null);
+  };
+
+  const isCellSelectable = (r: number, c: number): boolean => {
+    if (!canSelectTile || bingoBoard[r][c]) return false;
+    
+    if (assignedAxis) {
+      const { axis, index } = assignedAxis;
+      const inAssigned = (axis === 'row' && r === index) || (axis === 'col' && c === index);
+      
+      let hasFreeCellsInAxis = false;
+      for (let i = 0; i < 5; i++) {
+        const checkR = axis === 'row' ? index : i;
+        const checkC = axis === 'col' ? index : i;
+        if (!bingoBoard[checkR][checkC]) {
+          hasFreeCellsInAxis = true;
+          break;
+        }
+      }
+      
+      return inAssigned || !hasFreeCellsInAxis;
+    }
+    
+    return true;
+  };
+
   const handleAnswer = (answer: Answer, colorClass: string) => {
     setSelectedAnswer(answer);
     setWaiting(true);
     sendQuestion(session?.quiz.questions[questionIndexState].id, answer.id, undefined, Date.now(), undefined);
-    setResult(answer.isCorrect ? 'correct' : 'incorrect')
+    const isCorrect = answer.isCorrect;
+    setResult(isCorrect ? 'correct' : 'incorrect');
+    if (isCorrect) {
+      markSelectedBingoCell();
+    } else {
+      setCanSelectTile(false);
+      setAssignedAxis(null);
+      setSelectedTile(null);
+    }
     setWaiting(false);
-
   };
 
   const sendQuestion = (questionId: string, answerId: string | null, userEntry: string | undefined, answerTime: number, isCorrect: string | undefined) => {
@@ -75,7 +200,18 @@ export default function QuizAnswering() {
     const isCorrect = handleCustomQuestion();
     sendQuestion(session?.quiz.questions[questionIndexState].id, null, userInput, Date.now(), isCorrect.toString());
     setResult(isCorrect ? 'correct' : 'incorrect');
+    if (isCorrect) {
+      markSelectedBingoCell();
+    } else {
+      setCanSelectTile(false);
+      setAssignedAxis(null);
+      setSelectedTile(null);
+    }
   };
+
+  useEffect(() => {
+    assignTileForQuestion();
+  }, []);
 
   useEffect(() => {
     socket?.on('next-question', (index: number) => {
@@ -86,6 +222,7 @@ export default function QuizAnswering() {
       setResult(null);
       setUserInput('');
       getUserIndex();
+      assignTileForQuestion();
     });
     socket?.on('finish-question', (currentUsers: Array<AppUser | GuestUser>) => {
       setUsersState(currentUsers);
@@ -96,10 +233,6 @@ export default function QuizAnswering() {
         setIsQuizOver(true);
       }
     });
-    socket?.on('disconnect', () => {
-      clearSession();
-      navigate("/");
-    })
 
     return () => {
       socket?.off('next-question');
@@ -132,6 +265,9 @@ export default function QuizAnswering() {
                 </div>
               </Flex>
               <p className={styles.sentence}>Dosegli ste nadpovprečno število točk, čestitke! Le tako naprej!</p>
+              {hasBingo && (
+                <p className={styles.bingoBonus}>🎉 BINGO! +{bingoBonus} bonus točk! 🎉</p>
+              )}
             </>
           ) : (
             <>
@@ -147,9 +283,39 @@ export default function QuizAnswering() {
                 </div>
               </Flex>
               <p className={styles.sentence}>Dosegli ste podpovprečno število točk, saj bo! Malo truda pa bo bolje!</p>
+              {hasBingo && (
+                <p className={styles.bingoBonus}>🎉 BINGO! +{bingoBonus} bonus točk! 🎉</p>
+              )}
             </>
           )}
         </>
+        
+        <div className={styles.bingoContainerEnd}>
+          <h3 className={styles.bingoTitle}>{hasBingo ? '🎉 BINGO! 🎉' : 'Tvoj Bingo 🎯'}</h3>
+          <div className={styles.bingoBoard}>
+            {bingoBoard.map((row, rowIndex) =>
+              row.map((cell, colIndex) => {
+                const isCenter = rowIndex === 2 && colIndex === 2;
+                const cellNumber = rowIndex * 5 + colIndex + 1;
+                return (
+                  <div
+                    key={`${rowIndex}-${colIndex}`}
+                    className={`${styles.bingoCell} ${
+                      cell
+                        ? isCenter
+                          ? styles.bingoCellCenter
+                          : styles.bingoCellMarked
+                        : styles.bingoCellEmpty
+                    }`}
+                  >
+                    {isCenter ? '★' : cellNumber}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+        
         <Flex className={styles.buttonContainer} gap="small">
           <Button className={styles.button} onClick={() => {
             const sessionId = gamerSessionId;
@@ -364,6 +530,45 @@ export default function QuizAnswering() {
             ) : null}
           </div>
         )}
+        <div className={styles.bingoContainer}>
+          <h3 className={styles.bingoTitle}>{hasBingo ? '🎉 BINGO! 🎉' : 'Tvoj Bingo 🎯'}</h3>
+          {canSelectTile && assignedAxis && !selectedAnswer && (
+            <p className={styles.bingoHint}>
+              Izberi polje v {assignedAxis.axis === 'row' ? `vrstici ${assignedAxis.index + 1}` : `stolpcu ${assignedAxis.index + 1}`}
+            </p>
+          )}
+          <div className={styles.bingoBoard}>
+            {bingoBoard.map((row, rowIndex) =>
+              row.map((cell, colIndex) => {
+                const isCenter = rowIndex === 2 && colIndex === 2;
+                const cellNumber = rowIndex * 5 + colIndex + 1;
+                const isSelectable = isCellSelectable(rowIndex, colIndex) && !selectedAnswer;
+                const isSelected = selectedTile?.r === rowIndex && selectedTile?.c === colIndex;
+                
+                return (
+                  <div
+                    key={`${rowIndex}-${colIndex}`}
+                    onClick={() => !selectedAnswer && handleTileClick(rowIndex, colIndex)}
+                    className={`${styles.bingoCell} ${
+                      cell
+                        ? isCenter
+                          ? styles.bingoCellCenter
+                          : styles.bingoCellMarked
+                        : isSelected
+                          ? styles.bingoCellSelected
+                          : isSelectable
+                            ? styles.bingoCellSelectable
+                            : styles.bingoCellEmpty
+                    } ${isSelectable && !cell ? styles.bingoCellClickable : ''}`}
+                  >
+                    {isCenter ? '★' : cellNumber}
+                  </div>
+                );
+              })
+            )}
+          </div>
+          {hasBingo && <p className={styles.bingoBonusSmall}>+{bingoBonus} bonus točk!</p>}
+        </div>
       </Flex>
     );
   }
