@@ -14,6 +14,7 @@ export default function NavBar() {
   const centerItems = [
     { key: "home", label: <Link to="/">Domov</Link> },
     { key: "quizzes", label: <Link to="/quizzes">Kvizi</Link> },
+    (user && !user.isTeacher) ? { key: "dashboard", label: <Link to="/dashboard">Nadzorna plošča</Link> } : null,
     (user) ? { key: "report", label: <Link to="/reports">Poročila</Link> } : null,
   ];
 

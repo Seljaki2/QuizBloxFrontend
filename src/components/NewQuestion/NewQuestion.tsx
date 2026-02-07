@@ -1,4 +1,4 @@
-import { Divider, Form, Input, Radio, Button, Checkbox } from "antd";
+import { Divider, Form, Input, Radio, Button, Checkbox, Select, Tag } from "antd";
 import styles from "./NewQuestion.module.css";
 import type { RadioChangeEvent, UploadFile } from 'antd';
 import { useState } from 'react';
@@ -53,6 +53,34 @@ export default function NewQuestion({ index, onTitleChange, onAnswerTypeChange }
             >
                 <Input onChange={handleQuestionChange} />
             </Form.Item>
+
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                <Form.Item
+                    label="Zahtevnost:"
+                    name={["questions", index, "difficulty"]}
+                    style={{ flex: 1, marginBottom: 0 }}
+                >
+                    <Select placeholder="Izberite zahtevnost" allowClear>
+                        <Select.Option value="Easy">
+                            <Tag color="green">Lahko</Tag>
+                        </Select.Option>
+                        <Select.Option value="Medium">
+                            <Tag color="orange">Srednje</Tag>
+                        </Select.Option>
+                        <Select.Option value="Hard">
+                            <Tag color="red">Težko</Tag>
+                        </Select.Option>
+                    </Select>
+                </Form.Item>
+
+                <Form.Item
+                    label="Namig (poljubno):"
+                    name={["questions", index, "hint"]}
+                    style={{ flex: 2, marginBottom: 0 }}
+                >
+                    <Input placeholder="Dodaj namig za učence" />
+                </Form.Item>
+            </div>
 
             <Radio.Group
                 onChange={onChange}

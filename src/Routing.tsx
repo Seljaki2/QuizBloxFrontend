@@ -11,6 +11,7 @@ import QuizLobby from './pages/QuizLobby/QuizLobby';
 import QuizAnswering from './pages/QuizAnswering/QuizAnswering';
 import Reports from './pages/Reports/Reports';
 import Profile from './pages/Profile/Profile';
+import Dashboard from './pages/Dashboard/Dashboard';
 
 export default function Routing() {
     return (
@@ -23,6 +24,7 @@ export default function Routing() {
                 <Route path="/newQuiz" element={<AddNewQuiz />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<Dashboard />} />
             </Route>
 
             <Route element={<QuizLayoutWrapper />}>

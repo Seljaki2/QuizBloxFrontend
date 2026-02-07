@@ -13,6 +13,8 @@ export interface Quiz {
   creator: AppUser;
   isPublic: boolean;
   options?: Record<string, any> | null;
+  randomizeQuestions?: boolean;
+  isTemplate?: boolean;
 }
 
 export interface Result {
@@ -64,6 +66,8 @@ export interface Question {
   media?: any | null;
   customTime?: number;
   questionType: QuestionType;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
+  hint?: string;
 }
 
 export interface AppUser {
