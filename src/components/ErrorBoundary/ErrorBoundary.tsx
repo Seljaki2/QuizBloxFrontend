@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Button, Result } from 'antd';
 import styles from './ErrorBoundary.module.css';
 
@@ -53,7 +53,7 @@ export default class ErrorBoundary extends Component<Props, State> {
               </Button>,
             ]}
           />
-          {process.env.NODE_ENV === 'development' && this.state.error && (
+          {import.meta.env.DEV && this.state.error && (
             <div className={styles.errorDetails}>
               <h3>Podrobnosti napake (samo v razvoju):</h3>
               <pre>{this.state.error.toString()}</pre>

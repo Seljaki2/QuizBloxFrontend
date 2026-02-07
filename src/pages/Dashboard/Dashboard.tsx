@@ -1,13 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Card, Table, Select, DatePicker, Spin, Tag, Empty } from 'antd';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useContext, useEffect, useState } from 'react';
+import { Card, Table, Select, Spin, Tag, Empty } from 'antd';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { TrophyOutlined, RiseOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import styles from './Dashboard.module.css';
 import { UserContext } from '../../context/UserContext';
 import { API_URL } from '../../api';
-import type { StudentReport } from '../../fetch/types';
-
-const { RangePicker } = DatePicker;
 
 interface DashboardStats {
   totalQuizzes: number;

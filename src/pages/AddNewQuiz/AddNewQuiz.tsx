@@ -12,7 +12,6 @@ import {
   Popconfirm,
   Select,
   Space,
-  Switch,
   Checkbox,
 } from 'antd';
 import { CaretRightOutlined, DeleteOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons';
@@ -167,7 +166,7 @@ export default function AddNewQuiz() {
         isTemplate: values.isTemplate || false,
       };
 
-      const res = await createQuiz(quizData);
+      await createQuiz(quizData);
 
       navigate('/');
 
@@ -212,7 +211,7 @@ export default function AddNewQuiz() {
         subject: data.subject,
         randomizeQuestions: data.randomizeQuestions || false,
         isTemplate: data.isTemplate || false,
-        questions: data.questions.map((q: any, index: number) => {
+        questions: data.questions.map((q: any) => {
           const ans: any = {};
           if (q.questionType === 'CUSTOM_ANWSER') {
             ans.keywords = q.answers.map((a: any) => a.text).join(', ');
