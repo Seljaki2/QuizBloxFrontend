@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from 'react';
 
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import type { InputRef, TableColumnsType, TableColumnType } from 'antd';
-import { Button, Flex, Input, Space, Table } from 'antd';
+import { Button, Flex, Input, Space, Table, message, Tag } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import Highlighter from 'react-highlight-words';
 import styles from './QuizList.module.css'
@@ -10,7 +10,7 @@ import { API_URL } from '../../api';
 import type { Quiz } from '../../fetch/types';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
-import { deleteQuiz } from '../../fetch/quiz';
+import { deleteQuiz, cloneQuiz } from '../../fetch/quiz';
 
 
 
@@ -72,6 +72,32 @@ export default function QuizList() {
     };
 
 
+    const handleDelete = async (quizId: string) => {
+        try {
+            await deleteQuiz(quizId);
+            setData((prev) => prev.filter((quiz) => quiz.id !== quizId));
+            message.success('Kviz uspešno izbrisan');
+        } catch (error) {
+            console.error('Error deleting quiz:', error);
+            message.error('Napaka pri brisanju kviza');
+        }
+    };
+
+    const handleClone = async (quizId: string) => {
+        try {
+            const clonedQuiz = await cloneQuiz(quizId);
+            setData((prev) => [clonedQuiz, ...prev]);
+            message.success('Kviz uspešno kloniran');
+        } catch (error) {
+            console.error('Error cloning quiz:', error);
+            message.error('Napaka pri kloniranju kviza');
+        }
+    };
+
+    const handleEdit = (quizId: string) => {
+        navigate('/newQuiz', { state: { quizId } });
+    };
+
     useEffect(() => {
         async function fetchQuizzes() {
             try {
@@ -106,23 +132,6 @@ export default function QuizList() {
     const handleReset = (clearFilters: () => void) => {
         clearFilters();
         setSearchText('');
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!window.confirm('Ali ste prepričani, da želite izbrisati ta kviz?')) return;
-
-        try {
-            const res = await deleteQuiz(id);
-
-            if (res && typeof res === 'object' && 'ok' in res && !(res as any).ok) {
-                console.error('Failed to delete quiz', res);
-                return;
-            }
-
-            setData(prev => prev.filter(q => q.id !== id));
-        } catch (error) {
-            console.error('Error deleting quiz:', error);
-        }
     };
 
     const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<Quiz> => ({
@@ -212,18 +221,39 @@ export default function QuizList() {
             title: 'Naslov',
             dataIndex: 'name',
             key: 'id',
-            width: '50%',
+            width: '40%',
             ...getColumnSearchProps('name'),
+        },
+        {
+            title: 'Značke',
+            key: 'tags',
+            width: '20%',
+            render: (_, record) => (
+                <Space>
+                    {record.randomizeQuestions && <Tag color="blue">🔀 Naključno</Tag>}
+                    {record.isTemplate && <Tag color="purple">📋 Predloga</Tag>}
+                </Space>
+            ),
         },
         {
             title: 'Akcija',
             key: 'action',
-            width: '50%',
+            width: '40%',
             render: (_, record) => (
                 <Space size="middle">
                     {user?.isTeacher ? <a onClick={() => openSessionWindow(record.id)} style={{ color: '#34D399' }}>Začni kviz</a> : <></>}
-
-                    {((user?.id == record.creator?.id || user?.isAdmin) && user) ? <a onClick={() => handleDelete(record.id)} style={{ color: 'red' }}>Izbriši</a> : <></>}
+                    
+                    {((user?.id == record.creator?.id || user?.isAdmin) && user) ? (
+                        <>
+                            <a onClick={() => handleEdit(record.id)} style={{ color: '#3B82F6' }}>Uredi</a>
+                            <a onClick={() => handleClone(record.id)} style={{ color: '#F59E0B' }}>Kloniraj</a>
+                            <a onClick={() => {
+                                if (window.confirm('Ali ste prepričani, da želite izbrisati ta kviz?')) {
+                                    handleDelete(record.id);
+                                }
+                            }} style={{ color: 'red' }}>Izbriši</a>
+                        </>
+                    ) : <></>}
                 </Space>
             ),
         },

@@ -12,6 +12,7 @@ import {
   Popconfirm,
   Select,
   Space,
+  Checkbox,
 } from 'antd';
 import { CaretRightOutlined, DeleteOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons';
 import { closestCenter, DndContext, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -35,6 +36,8 @@ type FieldType = {
   title?: string;
   description?: string;
   subject?: string;
+  randomizeQuestions?: boolean;
+  isTemplate?: boolean;
 };
 
 type QuestionItem = {
@@ -159,9 +162,11 @@ export default function AddNewQuiz() {
         user_id: user.id,
         subject: values.subject,
         questions: values.questions,
+        randomizeQuestions: values.randomizeQuestions || false,
+        isTemplate: values.isTemplate || false,
       };
 
-      const res = await createQuiz(quizData);
+      await createQuiz(quizData);
 
       navigate('/');
 
@@ -204,7 +209,9 @@ export default function AddNewQuiz() {
         title: data.quizName,
         description: data.quizDescription,
         subject: data.subject,
-        questions: data.questions.map((q: any, index: number) => {
+        randomizeQuestions: data.randomizeQuestions || false,
+        isTemplate: data.isTemplate || false,
+        questions: data.questions.map((q: any) => {
           const ans: any = {};
           if (q.questionType === 'CUSTOM_ANWSER') {
             ans.keywords = q.answers.map((a: any) => a.text).join(', ');
@@ -398,6 +405,22 @@ export default function AddNewQuiz() {
               className={styles.descriptionItem}
             >
               <TextArea autoSize={{ minRows: 5, maxRows: 5 }} required={true} />
+            </Form.Item>
+          </div>
+
+          <Divider className={styles.divider} />
+
+          <div style={{ marginBottom: '20px' }}>
+            <Form.Item name="randomizeQuestions" valuePropName="checked" style={{ marginBottom: '12px' }}>
+              <Checkbox>
+                🔀 Naključni vrstni red vprašanj (različen za vsakega udeleženca)
+              </Checkbox>
+            </Form.Item>
+            
+            <Form.Item name="isTemplate" valuePropName="checked" style={{ marginBottom: '0' }}>
+              <Checkbox>
+                📋 Shrani kot predlogo (za ponovno uporabo)
+              </Checkbox>
             </Form.Item>
           </div>
 

@@ -17,6 +17,8 @@ export async function createQuiz(quizData: any) {
             description: quizData.quizDescription,
             subjectId: quizData.subject,
             user_id: quizData.creator,
+            randomizeQuestions: quizData.randomizeQuestions,
+            isTemplate: quizData.isTemplate,
         }),
     });
 
@@ -28,6 +30,15 @@ export async function createQuiz(quizData: any) {
         const questionFormData = new FormData();
         questionFormData.append("text", question.question);
         questionFormData.append("quizId", data.id);
+        
+        // Add difficulty and hint if provided
+        if (question.difficulty) {
+            questionFormData.append("difficulty", question.difficulty);
+        }
+        if (question.hint) {
+            questionFormData.append("hint", question.hint);
+        }
+        
         if (question.keywords) {
             type = 0;
             questionFormData.append("questionType", "CUSTOM_ANWSER");
@@ -200,6 +211,22 @@ export async function deleteQuiz(quizId: string) {
     });
 
     if (!res.ok) throw new Error("Failed to delete quiz");
+    const data = await res.json();
+    return data;
+}
+
+export async function cloneQuiz(quizId: string) {
+    const token = await auth.currentUser?.getIdToken();
+
+    const res = await fetch(`${API_URL}/quizzes/${quizId}/clone`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!res.ok) throw new Error("Failed to clone quiz");
     const data = await res.json();
     return data;
 }   

@@ -1,0 +1,31 @@
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: var(--BG_COLOR);
+}
+
+.errorDetails {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--BG_COLOR2);
+  border: 1px solid var(--BORDER_COLOR);
+  border-radius: 8px;
+  max-width: 800px;
+  overflow-x: auto;
+}
+
+.errorDetails h3 {
+  color: var(--TEXT_COLOR);
+  margin-bottom: 12px;
+}
+
+.errorDetails pre {
+  color: #EF4444;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
